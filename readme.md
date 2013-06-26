@@ -8,8 +8,10 @@ This package provides two simple functions (24 lines of code in total):
   non-exported) in the package namespace directly available, so no need to
   use `package:::name` for non-exported objects
 
-Why? The reason is laziness. It is tedious to type these commands repeatedly
-in tests:
+## Why?
+
+The reason is laziness. It is tedious to type these commands repeatedly in
+tests:
 
 ```ruby
 message('checking if these numbers are equal...')
@@ -35,6 +37,8 @@ assert(
 )
 ```
 
+## R CMD check
+
 Put the tests under the directory `pkg_name/tests/testit/` (where `pkg_name`
 is the root directory of your package), and write a `test-all.R` under
 `pkg_name/tests/`:
@@ -48,6 +52,8 @@ That is all for `R CMD check`. For package development, it is recommended to
 use [**devtools**](http://cran.r-project.org/package=devtools). In
 particular, `Ctrl + Shift + L` in RStudio makes all objects in a package
 visible to you, and you can play with the tests freely.
+
+## More
 
 How about [**testthat**](http://cran.r-project.org/package=testthat)? Well,
 this package is far less sophisticated than **testthat**. There is nothing
