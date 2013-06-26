@@ -61,3 +61,24 @@ test_pkg = function(package, dir = 'testit/') {
   env = new.env(parent = getNamespace(package))
   for (r in rs) sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE)
 }
+
+#' Check if an R expression produces warnings or errors
+#'
+#' The two function \code{has_warning()} and \code{has_error()} check if an
+#' expression produces warnings and errors, respectively.
+#' @param expr an R expression
+#' @return A logical value.
+#' @export
+#' @rdname has_message
+#' @examples has_warning(1+1); has_warning(1:2+1:3)
+#' has_error(2-3); has_error(1+'a')
+has_warning = function(expr) {
+  warn = FALSE
+  withCallingHandlers(expr, warning = function(w) warn <<- TRUE)
+  warn
+}
+#' @export
+#' @rdname has_message
+has_error = function(expr) {
+  inherits(try(force(expr)), 'try-error')
+}

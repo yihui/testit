@@ -1,2 +1,4 @@
 export(assert)
+export(has_error)
+export(has_warning)
 export(test_pkg)
