@@ -1,3 +1,5 @@
+library(testit)
+
 assert('assert works', 1==1)
 
 assert(
