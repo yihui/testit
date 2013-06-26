@@ -19,7 +19,9 @@ message('checking if a non-exported function works...')
 stopifnot(is.character(package:::utility_foo(x = 'abcd', y = 1:100)))
 ```
 
-With the two simple functions above, we write
+With the two simple functions above, we type six letters (`assert`) instead
+of sixteen (`message` + `stopifnot`), and `assert` is also a more intuitive
+function name for testing purposes (you _assert_ a fact followed by evidence):
 
 ```ruby
 assert(
