@@ -4,8 +4,8 @@
 #' emitted in case of errors, which can be a helpful hint for diagnosing the
 #' errors (by default, \code{stopifnot()} only prints the possibly truncated
 #' source code of the expressions).
-#' @param msg a message for the assertions when any of them fails; ignored if it
-#'   is not a character string
+#' @param fact a message for the assertions when any of them fails; ignored if
+#'   it is not a character string
 #' @param ... any number of logical R expressions to be passed to
 #'   \code{\link{stopifnot}} to check if their values are all \code{TRUE}
 #' @return Invisible \code{NULL} if all expressions returned \code{TRUE},
@@ -21,13 +21,13 @@
 #'
 #' # a mixture of tests
 #' assert("Let's pray all of them will pass", 1==1, 1!=2, letters[4]=='d', rev(rev(letters))==letters)
-assert = function(msg, ...) {
+assert = function(fact, ...) {
   # pass ... to stopifnot (need to protect them from being evaluated for now)
   mc = match.call(expand.dots = FALSE)
   # print a message before quit
   withCallingHandlers(
     do.call('stopifnot', as.list(mc[['...']]), envir = parent.frame()),
-    error = function(e) if (is.character(msg)) message(msg)
+    error = function(e) if (is.character(fact)) message(fact)
   )
 }
 
