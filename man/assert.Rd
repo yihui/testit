@@ -2,10 +2,10 @@
 \alias{assert}
 \title{Assertions with a message}
 \usage{
-assert(msg, ...)
+assert(fact, ...)
 }
 \arguments{
-  \item{msg}{a message for the assertions when any of them
+  \item{fact}{a message for the assertions when any of them
   fails; ignored if it is not a character string}
 
   \item{...}{any number of logical R expressions to be
