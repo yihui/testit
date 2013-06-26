@@ -60,10 +60,10 @@ this package is far less sophisticated than **testthat**. There is nothing
 fancy in this package. Please do consider **testthat** if your tests require
 more granularity.
 
-<img src="http://i.imgur.com/sDsgmfj.jpg" align="right" width="100" />
-
 There is no plan to add new features or reinvent anything in this package.
 It is an intentionally tiny package.
+
+<img src="http://i.imgur.com/sDsgmfj.jpg" align="right" width="100" />
 
 Although he did not really mean it,
 [Xunzi](http://en.wikipedia.org/wiki/Xunzi) said something that happens to
