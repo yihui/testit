@@ -2,7 +2,7 @@ assert('assert works', 1==1)
 
 assert(
   'Okay, that is kind of cheating; test assert() itself now',
-  inherits(try(assert('this should produce an error', 1==2), silent = !interactive()), 'try-error')
+  has_error(assert('this should produce an error', 1==2))
 )
 
 # a meaningless test in terms of R (failure is irrelevant to Frequentist or Bayesian)
