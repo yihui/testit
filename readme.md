@@ -53,6 +53,21 @@ use [**devtools**](http://cran.r-project.org/package=devtools). In
 particular, `Ctrl + Shift + L` in RStudio makes all objects in a package
 visible to you, and you can play with the tests freely.
 
+## Installation
+
+Stable version on CRAN:
+
+```ruby
+install.packages('testit')
+```
+
+Development version:
+
+```ruby
+library(devtools)
+install_github('testit', 'yihui')
+```
+
 ## More
 
 How about [**testthat**](http://cran.r-project.org/package=testthat)? Well,
