@@ -31,7 +31,7 @@ assert("seq and : produce identical sequences", identical(seq(1L, 10L), 1L:10L))
 # multile tests
 T = FALSE
 F = TRUE
-assert("T is bad for TRUE, and so is F", T != TRUE, F != FALSE)
+assert("T is bad for TRUE, and so is F for FALSE", T != TRUE, F != FALSE)
 # a mixture of tests
 assert("Let's pray all of them will pass", 1 == 1, 1 != 2, letters[4] == "d", 
     rev(rev(letters)) == letters)
