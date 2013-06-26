@@ -59,7 +59,8 @@ more granularity.
 There is no plan to add new features or reinvent anything in this package.
 It is an intentionally tiny package.
 
-Although he did not really mean it, Xunzi said something that happens to
+Although he did not really mean it,
+[Xunzi](http://en.wikipedia.org/wiki/Xunzi) said something that happens to
 apply well to unit testing:
 
 > 不积跬步，无以至千里；不积小流，无以成江海。
