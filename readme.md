@@ -2,7 +2,7 @@
 
 This package provides two simple functions (24 lines of code in total):
 
-- `assert(msg, ...)`: think of it as `message(msg)` + `stopifnot(...)`
+- `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
 
 - `test_pkg(package)`: runs tests with all objects (exported or
   non-exported) in the package namespace directly available, so no need to
