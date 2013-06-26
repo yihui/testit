@@ -64,3 +64,5 @@ Although he did not really mean it,
 apply well to unit testing:
 
 > 不积跬步，无以至千里；不积小流，无以成江海。
+
+This package is free and open source software, licensed under GPL.
