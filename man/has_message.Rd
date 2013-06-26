@@ -21,6 +21,7 @@ has_error(expr)
 \examples{
 has_warning(1 + 1)
 has_warning(1:2 + 1:3)
+
 has_error(2 - 3)
 has_error(1 + "a")
 }
