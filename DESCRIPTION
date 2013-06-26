@@ -1,0 +1,15 @@
+Package: testit
+Type: Package
+Title: A simple package for testing R packages
+Version: 0.0.1
+Date: 2013-06-25
+Author: Yihui Xie
+Maintainer: Yihui Xie <xie@yihui.name>
+Description: This package provides two convenience functions assert() and
+    test_pkg() to facilitate testing R packages.
+License: GPL
+URL: https://github.com/yihui/testit
+BugReports: https://github.com/yihui/testit/issues
+Collate:
+    'testit.R'
+    'utils.R'
