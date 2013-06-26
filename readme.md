@@ -8,8 +8,8 @@ This package provides two simple functions (24 lines of code in total):
   non-exported) in the package namespace directly available, so no need to
   use `package:::name` for non-exported objects
 
-Why? The only reason is laziness. It is tedious to type these commands
-repeatedly in tests:
+Why? The reason is laziness. It is tedious to type these commands repeatedly
+in tests:
 
 ```ruby
 message('checking if these numbers are equal...')
