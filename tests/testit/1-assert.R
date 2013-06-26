@@ -1,0 +1,12 @@
+assert('assert works', 1==1)
+
+assert(
+  'Okay, that is kind of cheating; test assert() itself now',
+  inherits(try(assert('this should produce an error', 1==2), silent = !interactive()), 'try-error')
+)
+
+# a meaningless test in terms of R (failure is irrelevant to Frequentist or Bayesian)
+try(assert(
+  'Are Frequentists correct? (http://xkcd.com/1132/)',
+  'The sun has exploded!', sample(6, 2) == c(6, 6)
+), silent = !interactive())
