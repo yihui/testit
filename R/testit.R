@@ -87,5 +87,5 @@ has_warning = function(expr) {
 #' @export
 #' @rdname has_message
 has_error = function(expr) {
-  inherits(try(force(expr)), 'try-error')
+  inherits(try(force(expr), silent = !interactive()), 'try-error')
 }
