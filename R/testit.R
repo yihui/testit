@@ -77,7 +77,11 @@ test_pkg = function(package, dir = 'testit/') {
 #' has_error(2-3); has_error(1+'a')
 has_warning = function(expr) {
   warn = FALSE
-  withCallingHandlers(expr, warning = function(w) warn <<- TRUE)
+  op = options(warn = -1); on.exit(options(op))
+  withCallingHandlers(expr, warning = function(w) {
+    warn <<- TRUE
+    invokeRestart('muffleWarning')
+  })
   warn
 }
 #' @export
