@@ -55,9 +55,9 @@ assert = function(fact, ...) {
 #' @seealso The \pkg{testthat} package (much more sophisticated).
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
-test_pkg = function(package, dir = 'testit/') {
+test_pkg = function(package, dir = 'testit') {
   library(package, character.only = TRUE)
-  path = available_dir(c(dir, system.file('tests', 'testit/', package = package)))
+  path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
   rs = list.files(path, '[.][rR]$', full.names = TRUE)
   # make all objects in the package visible to tests
   env = new.env(parent = getNamespace(package))
