@@ -2,7 +2,7 @@
 \alias{test_pkg}
 \title{Run the tests of a package in its namespace}
 \usage{
-test_pkg(package, dir = "testit/")
+test_pkg(package, dir = "testit")
 }
 \arguments{
   \item{package}{the package name}
