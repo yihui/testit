@@ -1,5 +1,7 @@
 # testit
 
+[![Build Status](https://travis-ci.org/yihui/testit.png)](https://travis-ci.org/yihui/testit)
+
 This package provides two simple functions (24 lines of code in total):
 
 - `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
