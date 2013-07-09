@@ -13,3 +13,9 @@ try(assert(
   'Frequentists must be correct (http://xkcd.com/1132/)',
   'The sun has exploded!', sample(6, 2) == c(6, 6)
 ), silent = !interactive())
+
+# fail logical(0)
+assert(
+  'assert() should stop on logical(0)',
+  has_error(assert('1 equals integer(0)', 1 == integer(0)))
+)
