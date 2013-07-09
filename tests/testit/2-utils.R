@@ -7,3 +7,14 @@ assert(
     available_dir(c('foobar', 'whatever', '~', system.file('man', package = 'testit')))
   )
 )
+
+exprs = parse(text = 'if (TRUE) {T&F}\n1+1', keep.source = FALSE)
+assert(
+  'deparse_key() fetches the n-1 element if code is in {}',
+  deparse_key(exprs[[1]]) == '.... T & F'
+)
+assert(
+  'deparse_key() returns the parsed code if length == 1',
+  deparse_key(exprs[[2]]) == '1 + 1'
+)
+rm(exprs)
