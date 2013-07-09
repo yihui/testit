@@ -1,15 +1,23 @@
 #' Assertions with a message
 #'
-#' This function is simply a wrapper to \code{\link{stopifnot}}, with a message
-#' emitted in case of errors, which can be a helpful hint for diagnosing the
-#' errors (by default, \code{stopifnot()} only prints the possibly truncated
-#' source code of the expressions).
+#' This function was built from \code{\link{stopifnot}()}. It emits a message in
+#' case of errors, which can be a helpful hint for diagnosing the errors
+#' (\code{stopifnot()} only prints the possibly truncated source code of the
+#' expressions).
 #' @param fact a message for the assertions when any of them fails; ignored if
 #'   it is not a character string
-#' @param ... any number of logical R expressions to be passed to
-#'   \code{\link{stopifnot}} to check if their values are all \code{TRUE}
+#' @param ... any number of R expressions, presumably to return vectors of
+#'   \code{TRUE}'s (if \code{FALSE} is returned anywhere, an error will show up)
 #' @return Invisible \code{NULL} if all expressions returned \code{TRUE},
 #'   otherwise an error is signalled and the user-provided message is emitted.
+#' @note The internal implementation of \code{stopifnot()} is different with the
+#'   function in R \pkg{base}: (1) the custom message \code{fact} is emitted if
+#'   an error occurs (2) \code{assert()} requires the lengths of the logical
+#'   values to be no smaller than one (3) if \code{...} contains a compound
+#'   expression in \code{{}} which returns \code{FALSE} (e.g., \code{if (TRUE)
+#'   {1+1; FALSE}}), the last by one line of the source code from
+#'   \code{\link{deparse}()} is printed in the error message, otherwise the
+#'   first line is printed
 #' @export
 #' @examples assert('one equals one', 1==1)
 #' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
@@ -21,14 +29,19 @@
 #'
 #' # a mixture of tests
 #' assert("Let's pray all of them will pass", 1==1, 1!=2, letters[4]=='d', rev(rev(letters))==letters)
+#'
+#' # logical(0) cannot pass assert(), although stopifnot() does not care
+#' try(assert('logical(0) cannot pass', 1==integer(0)))
+#' stopifnot(1==integer(0)) # it's OK!
 assert = function(fact, ...) {
-  # pass ... to stopifnot (need to protect them from being evaluated for now)
-  mc = match.call(expand.dots = FALSE)
-  # print a message before quit
-  withCallingHandlers(
-    do.call('stopifnot', as.list(mc[['...']]), envir = parent.frame()),
-    error = function(e) if (is.character(fact)) message(fact)
-  )
+  n = length(ll <- list(...))
+  if (n == 0L) return(invisible())
+  mc = match.call(); mc[['fact']] = NULL
+  for (i in 1L:n) if (!(is.logical(r <- ll[[i]]) && length(r) && !any(is.na(r)) && all(r))) {
+    if (is.character(fact)) message('assertion failed: ', fact)
+    stop(sprintf(ngettext(length(r), '%s is not TRUE', '%s are not all TRUE'),
+                 deparse_key(mc[[i + 1]])), call. = FALSE, domain = NA)
+  }
 }
 
 

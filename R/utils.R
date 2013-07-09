@@ -5,3 +5,12 @@ available_dir = function(dirs) {
   }
   stop('none of the directories exists:\n', paste(formatUL(dirs), collapse = '\n'))
 }
+
+# tailored for assert(): extract the expression that is likely to be useful for
+# diagnostics if possible
+deparse_key = function(expr) {
+  x = deparse(expr, width.cutoff = 100L)
+  if ((n <- length(x)) <= 1) return(x)
+  # if expression is in {}, fetch the line n-1, otherwise use the first line
+  if (x[n] == '}') paste('....', sub('^\\s*', '', x[n - 1L])) else paste(x[1L], '....')
+}
