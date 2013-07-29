@@ -6,3 +6,12 @@ MAJOR CHANGES
     stopifnot() is used now; see ?assert for the differences between this
     version and base::stopifnot(); in particular, assert(fact, logical(0))
     will fail but stopifnot(logical(0)) will not
+
+    CHANGES IN testit VERSION 0.1
+
+NEW FEATURES
+
+  o this is the first version of testit; the source code is hosted on
+    Github: https://github.com/yihui/testit
+
+  o added functions assert(), test_pkg(), has_error() and has_warning()
