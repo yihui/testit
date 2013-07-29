@@ -1,8 +1,8 @@
 Package: testit
 Type: Package
 Title: A simple package for testing R packages
-Version: 0.1.1
-Date: 2013-06-27
+Version: 0.2
+Date: 2013-07-29
 Author: Yihui Xie
 Maintainer: Yihui Xie <xie@yihui.name>
 Description: This package provides two convenience functions assert() and
