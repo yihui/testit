@@ -32,8 +32,8 @@ assert(fact, ...)
   values to be no smaller than one (3) if \code{...}
   contains a compound expression in \code{{}} which returns
   \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the
-  last by one line of the source code from
-  \code{\link{deparse}()} is printed in the error message,
+  first and the last but one line of the source code from
+  \code{\link{deparse}()} are printed in the error message,
   otherwise the first line is printed
 }
 \examples{
@@ -53,4 +53,10 @@ assert("Let's pray all of them will pass", 1 == 1, 1 != 2, letters[4] == "d",
 # logical(0) cannot pass assert(), although stopifnot() does not care
 try(assert("logical(0) cannot pass", 1 == integer(0)))
 stopifnot(1 == integer(0))  # it's OK!
+
+# a compound expression
+try(assert("this if statement returns TRUE", if (TRUE) {
+    x = 1
+    x == 2
+}))
 }
