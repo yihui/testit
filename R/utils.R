@@ -12,5 +12,5 @@ deparse_key = function(expr) {
   x = deparse(expr, width.cutoff = 100L)
   if ((n <- length(x)) <= 1) return(x)
   # if expression is in {}, fetch the line n-1, otherwise use the first line
-  if (x[n] == '}') paste('....', sub('^\\s*', '', x[n - 1L])) else paste(x[1L], '....')
+  paste(x[1], '....', if (x[n] == '}') sub('^\\s*', '', x[n - 1L]))
 }

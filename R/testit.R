@@ -15,8 +15,8 @@
 #'   an error occurs (2) \code{assert()} requires the lengths of the logical
 #'   values to be no smaller than one (3) if \code{...} contains a compound
 #'   expression in \code{{}} which returns \code{FALSE} (e.g., \code{if (TRUE)
-#'   {1+1; FALSE}}), the last by one line of the source code from
-#'   \code{\link{deparse}()} is printed in the error message, otherwise the
+#'   {1+1; FALSE}}), the first and the last but one line of the source code from
+#'   \code{\link{deparse}()} are printed in the error message, otherwise the
 #'   first line is printed
 #' @export
 #' @examples assert('one equals one', 1==1)
@@ -33,6 +33,9 @@
 #' # logical(0) cannot pass assert(), although stopifnot() does not care
 #' try(assert('logical(0) cannot pass', 1==integer(0)))
 #' stopifnot(1==integer(0)) # it's OK!
+#'
+#' # a compound expression
+#' try(assert('this if statement returns TRUE', if(TRUE){x=1;x==2}))
 assert = function(fact, ...) {
   n = length(ll <- list(...))
   if (n == 0L) return(invisible())
