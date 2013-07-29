@@ -8,7 +8,7 @@ assert(
   )
 )
 
-exprs = parse(text = 'if (TRUE) {T&F}\n1+1', keep.source = FALSE)
+exprs = parse(text = 'if (TRUE) {T&F}\n1+1')
 assert(
   'deparse_key() fetches the n-1 element if code is in {}',
   deparse_key(exprs[[1]]) == 'if (TRUE) { .... T & F'
