@@ -1,3 +1,10 @@
+    CHANGES IN testit VERSION 0.2.1
+
+MINOR CHANGES
+
+  o fixed a test that failed under R 2.15.x because the argument keep.source
+    did not exist in parse()
+
     CHANGES IN testit VERSION 0.2
 
 MAJOR CHANGES
