@@ -61,11 +61,12 @@ assert = function(fact, ...) {
 #' scripts will not be treated as test files (but may also be useful, e.g. you
 #' can \code{\link{source}()} them in tests).
 #'
-#' For \command{R CMD check}, this means the test R scripts (\file{*.R} or
-#' \file{*.r}) are under \file{pkg_root/tests/testit/}. The R scripts are
+#' For \command{R CMD check}, this means the test R scripts (\file{test-*.R} or
+#' \file{test-*.r}) are under \file{pkg_root/tests/testit/}. The R scripts are
 #' executed with \code{\link{sys.source}} in the namespace of the package to be
 #' tested; when an R script is executed, the working directory is the same as
-#' the directory containing this script.
+#' the directory containing this script, and all existing objects in the test
+#' environment will be removed before the code is executed.
 #' @param package the package name
 #' @param dir the directory of the test files; by default, it is the directory
 #'   \file{testit/} under the current working directory
@@ -79,7 +80,10 @@ test_pkg = function(package, dir = 'testit') {
   rs = list.files(path, '^test-.+[.][rR]$', full.names = TRUE)
   # make all objects in the package visible to tests
   env = new.env(parent = getNamespace(package))
-  for (r in rs) sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE)
+  for (r in rs) {
+    rm(list = ls(env, all.names = TRUE), envir = env)
+    sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE)
+  }
 }
 
 #' Check if an R expression produces warnings or errors

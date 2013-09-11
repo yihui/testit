@@ -5,6 +5,9 @@ MAJOR CHANGES
   o the test files have to be named of the form test-*.R (or test-*.r), i.e.
     they have to use the prefix test-
 
+  o the test environment is always cleaned (all objects removed) before the
+    next test is run
+
     CHANGES IN testit VERSION 0.2.1
 
 MINOR CHANGES
