@@ -57,7 +57,9 @@ assert = function(fact, ...) {
 #' The tests are assumed to be under the \file{testit/} directory by default,
 #' and this function also looks for the \file{tests/testit/} directory under the
 #' package installation directory when the user-provided \code{dir} does not
-#' exist.
+#' exist. The test scripts must be named of the form \samp{test-*.R}; other R
+#' scripts will not be treated as test files (but may also be useful, e.g. you
+#' can \code{\link{source}()} them in tests).
 #'
 #' For \command{R CMD check}, this means the test R scripts (\file{*.R} or
 #' \file{*.r}) are under \file{pkg_root/tests/testit/}. The R scripts are
@@ -74,7 +76,7 @@ assert = function(fact, ...) {
 test_pkg = function(package, dir = 'testit') {
   library(package, character.only = TRUE)
   path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
-  rs = list.files(path, '[.][rR]$', full.names = TRUE)
+  rs = list.files(path, '^test-.+[.][rR]$', full.names = TRUE)
   # make all objects in the package visible to tests
   env = new.env(parent = getNamespace(package))
   for (r in rs) sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE)
