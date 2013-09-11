@@ -27,15 +27,19 @@ test_pkg(package, dir = "testit")
   directory by default, and this function also looks for
   the \file{tests/testit/} directory under the package
   installation directory when the user-provided \code{dir}
-  does not exist.
+  does not exist. The test scripts must be named of the
+  form \samp{test-*.R}; other R scripts will not be treated
+  as test files (but may also be useful, e.g. you can
+  \code{\link{source}()} them in tests).
 
   For \command{R CMD check}, this means the test R scripts
-  (\file{*.R} or \file{*.r}) are under
+  (\file{test-*.R} or \file{test-*.r}) are under
   \file{pkg_root/tests/testit/}. The R scripts are executed
   with \code{\link{sys.source}} in the namespace of the
   package to be tested; when an R script is executed, the
   working directory is the same as the directory containing
-  this script.
+  this script, and all existing objects in the test
+  environment will be removed before the code is executed.
 }
 \examples{
 \dontrun{
