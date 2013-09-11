@@ -17,4 +17,3 @@ assert(
   'deparse_key() returns the parsed code if length == 1',
   deparse_key(exprs[[2]]) == '1 + 1'
 )
-rm(exprs)
