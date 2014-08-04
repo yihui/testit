@@ -1,6 +1,6 @@
 # testit
 
-[![Build Status](https://travis-ci.org/yihui/testit.png)](https://travis-ci.org/yihui/testit)
+[![Build Status](https://travis-ci.org/yihui/testit.svg)](https://travis-ci.org/yihui/testit)
 
 This package provides two simple functions (30 lines of code in total):
 
