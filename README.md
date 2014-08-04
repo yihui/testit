@@ -51,7 +51,7 @@ test_pkg('pkg_name')
 ```
 
 That is all for `R CMD check`. For package development, it is recommended to
-use [**devtools**](http://cran.r-project.org/package=devtools). In
+use [**devtools**](http://cran.rstudio.com/package=devtools). In
 particular, `Ctrl + Shift + L` in RStudio makes all objects in a package
 visible to you, and you can play with the tests freely.
 
@@ -72,7 +72,7 @@ install_github('testit', 'yihui')
 
 ## More
 
-How about [**testthat**](http://cran.r-project.org/package=testthat)? Well,
+How about [**testthat**](http://cran.rstudio.com/package=testthat)? Well,
 this package is far less sophisticated than **testthat**. There is nothing
 fancy in this package. Please do consider **testthat** if your tests require
 more granularity.
