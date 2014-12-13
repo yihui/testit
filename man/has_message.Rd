@@ -1,3 +1,4 @@
+% Please edit documentation in R/testit.R
 \name{has_warning}
 \alias{has_error}
 \alias{has_warning}
@@ -8,15 +9,14 @@ has_warning(expr)
 has_error(expr)
 }
 \arguments{
-  \item{expr}{an R expression}
+\item{expr}{an R expression}
 }
 \value{
-  A logical value.
+A logical value.
 }
 \description{
-  The two function \code{has_warning()} and
-  \code{has_error()} check if an expression produces
-  warnings and errors, respectively.
+The two function \code{has_warning()} and \code{has_error()} check if an
+expression produces warnings and errors, respectively.
 }
 \examples{
 has_warning(1 + 1)
