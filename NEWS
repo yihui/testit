@@ -1,3 +1,10 @@
+    CHANGES IN testit VERSION 0.4
+
+MAJOR CHANGES
+
+  o the `fact` argument of `assert()` is optional now: all arguments of
+  `assert()` can be test conditions
+
     CHANGES IN testit VERSION 0.3
 
 MAJOR CHANGES

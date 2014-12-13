@@ -36,12 +36,16 @@
 #'
 #' # a compound expression
 #' try(assert('this if statement returns TRUE', if(TRUE){x=1;x==2}))
+#'
+#' # no message
+#' assert(!FALSE, TRUE, is.na(NA))
 assert = function(fact, ...) {
-  n = length(ll <- list(...))
+  fact_char = is.character(fact)
+  n = length(ll <- if (fact_char) list(...) else list(fact, ...))
   if (n == 0L) return(invisible())
-  mc = match.call(); mc[['fact']] = NULL
-  for (i in 1L:n) if (!(is.logical(r <- ll[[i]]) && length(r) && !any(is.na(r)) && all(r))) {
-    if (is.character(fact)) message('assertion failed: ', fact)
+  mc = match.call(); if (fact_char) mc[['fact']] = NULL
+  for (i in 1L:n) if (!all_true(r <- ll[[i]])) {
+    if (fact_char) message('assertion failed: ', fact)
     stop(sprintf(ngettext(length(r), '%s is not TRUE', '%s are not all TRUE'),
                  deparse_key(mc[[i + 1]])), call. = FALSE, domain = NA)
   }

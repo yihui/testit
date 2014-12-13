@@ -14,3 +14,8 @@ deparse_key = function(expr) {
   # if expression is in {}, fetch the line n-1, otherwise use the first line
   paste(x[1], '....', if (x[n] == '}') sub('^\\s*', '', x[n - 1L]))
 }
+
+# whether every element of x is strictly TRUE
+all_true = function(x) {
+  is.logical(x) && length(x) && !any(is.na(x)) && all(x)
+}
