@@ -4,20 +4,20 @@
 #' case of errors, which can be a helpful hint for diagnosing the errors
 #' (\code{stopifnot()} only prints the possibly truncated source code of the
 #' expressions).
-#' @param fact a message for the assertions when any of them fails; ignored if
-#'   it is not a character string
+#' @param fact a message for the assertions when any of them fails; treated the
+#'   same way as expressions in \code{...} if it is not a character string,
+#'   which means you do not have to provide a message to this function
 #' @param ... any number of R expressions, presumably to return vectors of
 #'   \code{TRUE}'s (if \code{FALSE} is returned anywhere, an error will show up)
 #' @return Invisible \code{NULL} if all expressions returned \code{TRUE},
 #'   otherwise an error is signalled and the user-provided message is emitted.
 #' @note The internal implementation of \code{stopifnot()} is different with the
 #'   function in R \pkg{base}: (1) the custom message \code{fact} is emitted if
-#'   an error occurs (2) \code{assert()} requires the lengths of the logical
-#'   values to be no smaller than one (3) if \code{...} contains a compound
-#'   expression in \code{{}} which returns \code{FALSE} (e.g., \code{if (TRUE)
-#'   {1+1; FALSE}}), the first and the last but one line of the source code from
-#'   \code{\link{deparse}()} are printed in the error message, otherwise the
-#'   first line is printed
+#'   an error occurs (2) \code{assert()} requires the logical values to be
+#'   non-empty (3) if \code{...} contains a compound expression in \code{{}}
+#'   which returns \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first
+#'   and the last but one line of the source code from \code{\link{deparse}()}
+#'   are printed in the error message, otherwise the first line is printed
 #' @export
 #' @examples assert('one equals one', 1==1)
 #' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
