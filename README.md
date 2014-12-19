@@ -15,7 +15,7 @@ This package provides two simple functions (30 lines of code in total):
 The reason is laziness. It is tedious to type these commands repeatedly in
 tests:
 
-```ruby
+```r
 message('checking if these numbers are equal...')
 stopifnot(all.equal(1, 1+1e-10), 10*.1 == 1)
 
@@ -27,7 +27,7 @@ With the two simple functions above, we type six letters (`assert`) instead
 of sixteen (`message` + `stopifnot`), and `assert` is also a more intuitive
 function name for testing purposes (you _assert_ a fact followed by evidence):
 
-```ruby
+```r
 assert(
   'these numbers are equal',
   all.equal(1, 1+1e-10), 10*.1 == 1
@@ -45,7 +45,7 @@ Put the tests under the directory `pkg_name/tests/testit/` (where `pkg_name`
 is the root directory of your package), and write a `test-all.R` under
 `pkg_name/tests/`:
 
-```ruby
+```r
 library(testit)
 test_pkg('pkg_name')
 ```
@@ -59,13 +59,13 @@ visible to you, and you can play with the tests freely.
 
 Stable version on CRAN:
 
-```ruby
+```r
 install.packages('testit')
 ```
 
 Development version:
 
-```ruby
+```r
 devtools::install_github('yihui/testit')
 ```
 
