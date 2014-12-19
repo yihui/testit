@@ -74,7 +74,12 @@ devtools::install_github('yihui/testit')
 How about [**testthat**](http://cran.rstudio.com/package=testthat)? Well,
 this package is far less sophisticated than **testthat**. There is nothing
 fancy in this package. Please do consider **testthat** if your tests require
-more granularity.
+more granularity. I myself do not use **testthat** because I find it unnecessary
+to invent a new vocabulary (`testthat::expect_xxx`), and the error message of
+**testthat** is somehow obscure in my eyes. For **testit**, I do not need to
+think if I should use `expect_equal`, `expect_equivalent`, or
+`expect_identical`; I just write test conditions that return TRUE or FALSE. That
+is the only single rule to remember.
 
 There is no plan to add new features or reinvent anything in this package.
 It is an intentionally tiny package.
