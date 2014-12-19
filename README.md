@@ -66,8 +66,7 @@ install.packages('testit')
 Development version:
 
 ```ruby
-library(devtools)
-install_github('testit', 'yihui')
+devtools::install_github('yihui/testit')
 ```
 
 ## More
