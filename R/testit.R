@@ -92,7 +92,7 @@ test_pkg = function(package, dir = 'testit') {
 
 #' Check if an R expression produces warnings or errors
 #'
-#' The two function \code{has_warning()} and \code{has_error()} check if an
+#' The two functions \code{has_warning()} and \code{has_error()} check if an
 #' expression produces warnings and errors, respectively.
 #' @param expr an R expression
 #' @return A logical value.
