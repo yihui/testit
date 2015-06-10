@@ -15,7 +15,7 @@ has_error(expr)
 A logical value.
 }
 \description{
-The two function \code{has_warning()} and \code{has_error()} check if an
+The two functions \code{has_warning()} and \code{has_error()} check if an
 expression produces warnings and errors, respectively.
 }
 \examples{
