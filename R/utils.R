@@ -19,3 +19,7 @@ deparse_key = function(expr) {
 all_true = function(x) {
   is.logical(x) && length(x) && !any(is.na(x)) && all(x)
 }
+
+insert_identical = function() {
+  rstudioapi::insertText(text = ' %==% ')
+}

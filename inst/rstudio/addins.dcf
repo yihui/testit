@@ -1,0 +1,4 @@
+Name: Insert %==%
+Description: Insert the infix operator %==% from testit.
+Binding: insert_identical
+Interactive: false

@@ -10,6 +10,7 @@ Description: Provides two convenience functions assert() and test_pkg() to
 License: GPL
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
+Suggests: rstudioapi
 Collate:
     'testit.R'
     'utils.R'

@@ -2,7 +2,8 @@
 
 NEW FEATURES
 
-  o added an infix operator `%==%` as an alias of identical()
+  o added an infix operator `%==%` as an alias of identical() (in RStudio, you
+  can use an add-in to insert the text `%==%`)
 
 MINOR CHANGES
 
