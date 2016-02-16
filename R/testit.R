@@ -86,7 +86,12 @@ test_pkg = function(package, dir = 'testit') {
   env = new.env(parent = getNamespace(package))
   for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
-    sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE)
+    withCallingHandlers(
+      sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE),
+      error = function(e) {
+        message(r, ':')
+      }
+    )
   }
 }
 
