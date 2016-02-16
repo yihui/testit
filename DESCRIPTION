@@ -13,3 +13,4 @@ BugReports: https://github.com/yihui/testit/issues
 Collate:
     'testit.R'
     'utils.R'
+RoxygenNote: 5.0.1

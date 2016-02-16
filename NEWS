@@ -1,3 +1,13 @@
+    CHANGES IN testit VERSION 0.5
+
+NEW FEATURES
+
+  o added an infix operator `%==%` as an alias of identical()
+
+MINOR CHANGES
+
+  o test_pkg() will print out the filename of the R script that errored
+
     CHANGES IN testit VERSION 0.4
 
 MAJOR CHANGES

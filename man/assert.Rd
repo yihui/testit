@@ -1,9 +1,12 @@
 % Please edit documentation in R/testit.R
 \name{assert}
+\alias{\%==\%}
 \alias{assert}
 \title{Assertions with a message}
 \usage{
 assert(fact, ...)
+
+x \%==\% y
 }
 \arguments{
 \item{fact}{a message for the assertions when any of them fails; treated the
@@ -12,16 +15,23 @@ which means you do not have to provide a message to this function}
 
 \item{...}{any number of R expressions, presumably to return vectors of
 \code{TRUE}'s (if \code{FALSE} is returned anywhere, an error will show up)}
+
+\item{x, y}{two R objects to be compared}
 }
 \value{
 Invisible \code{NULL} if all expressions returned \code{TRUE},
   otherwise an error is signalled and the user-provided message is emitted.
 }
 \description{
-This function was built from \code{\link{stopifnot}()}. It emits a message in
-case of errors, which can be a helpful hint for diagnosing the errors
-(\code{stopifnot()} only prints the possibly truncated source code of the
-expressions).
+The function \code{assert()} was built from \code{\link{stopifnot}()}. It
+emits a message in case of errors, which can be a helpful hint for diagnosing
+the errors (\code{stopifnot()} only prints the possibly truncated source code
+of the expressions).
+
+The infix operator \code{\%==\%} is simply an alias of the
+  \code{\link{identical}()} function to make it slightly easier and intuitive
+  to write test conditions. \code{x \%==\% y} is the same as
+  \code{identical(x, y)}.
 }
 \note{
 The internal implementation of \code{stopifnot()} is different with the
