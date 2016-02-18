@@ -16,4 +16,4 @@ before_install:
 
 after_success:
   - "(wget -q -O - http://yihui.name/xran/r-xran | bash)"
-  - Rscript -e 'covr::coveralls()'"
+  - Rscript -e 'covr::coveralls()'
