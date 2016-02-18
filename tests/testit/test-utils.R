@@ -5,7 +5,8 @@ assert(
   'available_dir() should find an existing directory',
   file.exists(
     available_dir(c('foobar', 'whatever', '~', system.file('man', package = 'testit')))
-  )
+  ),
+  has_error(available_dir('asdfasdf'))
 )
 
 exprs = parse(text = 'if (TRUE) {T&F}\n1+1')
@@ -17,3 +18,5 @@ assert(
   'deparse_key() returns the parsed code if length == 1',
   deparse_key(exprs[[2]]) == '1 + 1'
 )
+
+insert_identical()

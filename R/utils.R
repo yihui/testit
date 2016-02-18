@@ -21,5 +21,6 @@ all_true = function(x) {
 }
 
 insert_identical = function() {
-  rstudioapi::insertText(text = ' %==% ')
+  if (!has_error(rstudioapi::verifyAvailable()))
+    rstudioapi::insertText(text = ' %==% ')
 }
