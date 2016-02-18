@@ -1,3 +1,3 @@
 library(testit)
 test_pkg('testit')
-test_pkg('testit', 'test-error')
+try(test_pkg('testit', 'test-error'))
