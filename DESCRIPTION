@@ -1,7 +1,7 @@
 Package: testit
 Type: Package
 Title: A Simple Package for Testing R Packages
-Version: 0.5
+Version: 0.5.1
 Date: 2016-02-16
 Author: Yihui Xie
 Maintainer: Yihui Xie <xie@yihui.name>
