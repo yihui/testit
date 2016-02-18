@@ -12,6 +12,8 @@ repos:
 
 before_install:
   - "wget -q http://yihui.name/xran/.gitconfig -O ~/.gitconfig"
+  - Rscript -e "if (!require('covr')) install.packages('covr')"
 
 after_success:
   - "(wget -q -O - http://yihui.name/xran/r-xran | bash)"
+  - Rscript -e 'covr::coveralls()'"

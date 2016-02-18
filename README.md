@@ -1,6 +1,7 @@
 # testit
 
 [![Build Status](https://travis-ci.org/yihui/testit.svg)](https://travis-ci.org/yihui/testit)
+[![Coverage Status](https://coveralls.io/repos/yihui/testit/badge.svg?branch=master&service=github)](https://coveralls.io/github/yihui/testit?branch=master)
 
 This package provides two simple functions (30 lines of code in total):
 
