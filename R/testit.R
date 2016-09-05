@@ -95,7 +95,7 @@ test_pkg = function(package, dir = 'testit') {
   for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
     withCallingHandlers(
-      sys.source(r, envir = env, chdir = TRUE, keep.source = TRUE),
+      sys.source.topenv(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
         message(r, ':')
       }

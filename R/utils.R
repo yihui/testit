@@ -24,3 +24,31 @@ insert_identical = function() {
   if (!has_error(rstudioapi::verifyAvailable()))
     rstudioapi::insertText(text = ' %==% ')
 }
+
+# This function is a modification of base::sys.source.  It allows to specify
+# the top-level environment, which is by default "envir" (the same as in
+# base::sys.source), but for package testing it is desirable to use the
+# package namespace to mimick the environment structure used when packages
+# are running.  This function assumes that "chdir" is FALSE and
+# "keep.source" is TRUE.
+#
+sys.source.topenv <- function (file, envir, top.env = as.environment(envir)) {
+  oop <- options(keep.source = TRUE, topLevelEnvironment = top.env)
+  on.exit(options(oop))
+
+  lines <- readLines(file, warn = FALSE)
+  srcfile <- srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
+  exprs <- parse(text = lines, srcfile = srcfile, keep.source = TRUE)
+
+  if (length(exprs) == 0L)
+    return(invisible())
+  if ((path <- dirname(file)) != ".") {
+    owd <- getwd()
+    if (is.null(owd))
+        stop("cannot 'chdir' as current directory is unknown")
+    on.exit(setwd(owd), add = TRUE)
+    setwd(path)
+  }
+  for (i in seq_along(exprs)) eval(exprs[i], envir)
+  invisible()
+}
