@@ -29,26 +29,17 @@ insert_identical = function() {
 # the top-level environment, which is by default "envir" (the same as in
 # base::sys.source), but for package testing it is desirable to use the
 # package namespace to mimick the environment structure used when packages
-# are running.  This function assumes that "chdir" is FALSE and
-# "keep.source" is TRUE.
-#
-sys.source.topenv <- function (file, envir, top.env = as.environment(envir)) {
-  oop <- options(keep.source = TRUE, topLevelEnvironment = top.env)
+# are running. This function assumes that chdir = FALSE and keep.source = TRUE.
+sys.source.topenv = function(file, envir, top.env = as.environment(envir)) {
+  oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
   on.exit(options(oop))
 
-  lines <- readLines(file, warn = FALSE)
-  srcfile <- srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
-  exprs <- parse(text = lines, srcfile = srcfile, keep.source = TRUE)
+  lines = readLines(file, warn = FALSE)
+  srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
+  exprs = parse(text = lines, srcfile = srcfile, keep.source = TRUE)
 
-  if (length(exprs) == 0L)
-    return(invisible())
-  if ((path <- dirname(file)) != ".") {
-    owd <- getwd()
-    if (is.null(owd))
-        stop("cannot 'chdir' as current directory is unknown")
-    on.exit(setwd(owd), add = TRUE)
-    setwd(path)
-  }
+  if (length(exprs) == 0L) return(invisible())
+  owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
   for (i in seq_along(exprs)) eval(exprs[i], envir)
   invisible()
 }
