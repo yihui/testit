@@ -30,7 +30,7 @@ insert_identical = function() {
 # base::sys.source), but for package testing it is desirable to use the
 # package namespace to mimick the environment structure used when packages
 # are running. This function assumes that chdir = FALSE and keep.source = TRUE.
-sys.source.topenv = function(file, envir, top.env = as.environment(envir)) {
+sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
   on.exit(options(oop))
 
