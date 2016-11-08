@@ -36,7 +36,7 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
 
   lines = readLines(file, warn = FALSE, encoding = 'UTF-8')
   srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
-  exprs = parse(text = lines, srcfile = srcfile, keep.source = TRUE, encoding = 'UTF-8')
+  exprs = parse(text = lines, srcfile = srcfile, encoding = 'UTF-8')
 
   if (length(exprs) == 0L) return()
   owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
