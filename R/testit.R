@@ -99,7 +99,15 @@ test_pkg = function(package, dir = 'testit') {
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
-        message(r, ':')
+        z = .traceback(4)
+        if (length(z) == 0) return()
+        z = z[[1]]
+        n = length(z)
+        s = if (!is.null(srcref <- attr(z, 'srcref'))) {
+          paste0(' at ', basename(attr(srcref, 'srcfile')$filename), '#', srcref[1])
+        }
+        z[n] = paste0(z[n], s)
+        cat(z, sep = '\n')
       }
     )
   }
