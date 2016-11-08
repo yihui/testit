@@ -1,3 +1,15 @@
+    CHANGES IN testit VERSION 0.6
+
+NEW FEATURES
+
+  o  test_pkg() runs package tests with top-level environment being set to the
+  namespace of the tested package (thanks, @kalibera, #3)
+
+MAJOR CHANGES
+
+  o all test scripts (test-*.R) are assumed to be encoded in UTF-8 if they
+  contain multibyte characters
+
     CHANGES IN testit VERSION 0.5
 
 NEW FEATURES

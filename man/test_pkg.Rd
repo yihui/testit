@@ -27,12 +27,16 @@ exist. The test scripts must be named of the form \samp{test-*.R}; other R
 scripts will not be treated as test files (but may also be useful, e.g. you
 can \code{\link{source}()} them in tests).
 
-For \command{R CMD check}, this means the test R scripts (\file{test-*.R} or
-\file{test-*.r}) are under \file{pkg_root/tests/testit/}. The R scripts are
-executed with \code{\link{sys.source}} in the namespace of the package to be
-tested; when an R script is executed, the working directory is the same as
-the directory containing this script, and all existing objects in the test
-environment will be removed before the code is executed.
+For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
+under \file{pkg_root/tests/testit/}. The R scripts are executed with
+\code{\link{sys.source}} in the namespace of the package to be tested; when
+an R script is executed, the working directory is the same as the directory
+containing this script, and all existing objects in the test environment will
+be removed before the code is executed.
+}
+\note{
+All test scripts (\samp{test-*.R}) must be encoded in UTF-8 if they
+  contain any multibyte characters.
 }
 \examples{
 \dontrun{
