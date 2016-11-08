@@ -73,16 +73,18 @@ assert = function(fact, ...) {
 #' scripts will not be treated as test files (but may also be useful, e.g. you
 #' can \code{\link{source}()} them in tests).
 #'
-#' For \command{R CMD check}, this means the test R scripts (\file{test-*.R} or
-#' \file{test-*.r}) are under \file{pkg_root/tests/testit/}. The R scripts are
-#' executed with \code{\link{sys.source}} in the namespace of the package to be
-#' tested; when an R script is executed, the working directory is the same as
-#' the directory containing this script, and all existing objects in the test
-#' environment will be removed before the code is executed.
+#' For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
+#' under \file{pkg_root/tests/testit/}. The R scripts are executed with
+#' \code{\link{sys.source}} in the namespace of the package to be tested; when
+#' an R script is executed, the working directory is the same as the directory
+#' containing this script, and all existing objects in the test environment will
+#' be removed before the code is executed.
 #' @param package the package name
 #' @param dir the directory of the test files; by default, it is the directory
 #'   \file{testit/} under the current working directory
 #' @return \code{NULL}. All test files are executed, unless an error occurs.
+#' @note All test scripts (\samp{test-*.R}) must be encoded in UTF-8 if they
+#'   contain any multibyte characters.
 #' @seealso The \pkg{testthat} package (much more sophisticated).
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
