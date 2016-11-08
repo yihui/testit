@@ -38,8 +38,7 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
   exprs = parse(text = lines, srcfile = srcfile, keep.source = TRUE)
 
-  if (length(exprs) == 0L) return(invisible())
+  if (length(exprs) == 0L) return()
   owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
   for (i in seq_along(exprs)) eval(exprs[i], envir)
-  invisible()
 }
