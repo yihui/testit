@@ -23,7 +23,7 @@
 #' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
 #' assert('seq and : produce identical sequences', identical(seq(1L, 10L), 1L:10L))
 #'
-#' # multile tests
+#' # multiple tests
 #' T=FALSE; F=TRUE
 #' assert('T is bad for TRUE, and so is F for FALSE', T!=TRUE, F!=FALSE)
 #'
