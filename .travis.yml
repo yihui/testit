@@ -8,12 +8,12 @@ env:
     - secure: dUbVKWLRZvu+3G17pY5C6OgH3HGxb896KZP3Q35XJkxoClp1H+EOe6K1+JuUEQGy1JoObtgxtcRNFhp26fNGcAZ2BDT1Or9KOagTBXflkTiSs8usT1ANwOH9AOvygCrp/us1AwpKTJOXCibn8ieBQ0Ri2KFvGo4sFulyZkL5lBQ=
 
 repos:
-  XRAN: http://yihui.name/xran
+  XRAN: https://yihui.name/xran
 
 before_install:
-  - "wget -q http://yihui.name/xran/.gitconfig -O ~/.gitconfig"
+  - "curl -L https://yihui.name/xran/.gitconfig -o ~/.gitconfig"
   - Rscript -e "if (!require('covr')) install.packages('covr')"
 
 after_success:
-  - "(wget -q -O - http://yihui.name/xran/r-xran | bash)"
+  - "(curl -L https://yihui.name/xran/r-xran | bash)"
   - Rscript -e 'covr::coveralls()'
