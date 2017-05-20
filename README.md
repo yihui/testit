@@ -38,6 +38,11 @@ assert(
   'a non-exported function works',
   is.character(utility_foo(x = 'abcd', y = 1:100))
 )
+
+assert('T is TRUE and F is FALSE by default', {
+  (T == TRUE)
+  (F == FALSE)
+})
 ```
 
 ## R CMD check
@@ -85,7 +90,7 @@ is the only single rule to remember.
 There is no plan to add new features or reinvent anything in this package.
 It is an intentionally tiny package.
 
-<img src="http://i.imgur.com/sDsgmfj.jpg" align="right" width="100" alt="Xunzi" />
+<img src="https://i.imgur.com/sDsgmfj.jpg" align="right" width="100" alt="Xunzi" />
 
 Although he did not really mean it,
 [Xunzi](http://en.wikipedia.org/wiki/Xunzi) said something that happens to
