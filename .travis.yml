@@ -5,15 +5,14 @@ cache: packages
 env:
   global:
     - R_PKG="$(basename $TRAVIS_REPO_SLUG)"
-    - secure: dUbVKWLRZvu+3G17pY5C6OgH3HGxb896KZP3Q35XJkxoClp1H+EOe6K1+JuUEQGy1JoObtgxtcRNFhp26fNGcAZ2BDT1Or9KOagTBXflkTiSs8usT1ANwOH9AOvygCrp/us1AwpKTJOXCibn8ieBQ0Ri2KFvGo4sFulyZkL5lBQ=
 
 repos:
-  XRAN: https://yihui.name/xran
+  XRAN: https://xran.yihui.name
 
 before_install:
-  - "curl -L https://yihui.name/xran/.gitconfig -o ~/.gitconfig"
+  - "curl https://xran.yihui.name/.gitconfig -o ~/.gitconfig"
   - Rscript -e "if (!require('covr')) install.packages('covr')"
 
 after_success:
-  - "(curl -L https://yihui.name/xran/r-xran | bash)"
+  - "(curl https://xran.yihui.name/r-xran | bash)"
   - Rscript -e 'covr::coveralls()'
