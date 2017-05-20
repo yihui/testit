@@ -3,7 +3,7 @@
 \name{assert}
 \alias{assert}
 \alias{\%==\%}
-\title{Assertions with a message}
+\title{Assertions with an optional message}
 \usage{
 assert(fact, ...)
 
@@ -14,8 +14,7 @@ x \%==\% y
 same way as expressions in \code{...} if it is not a character string,
 which means you do not have to provide a message to this function}
 
-\item{...}{any number of R expressions, presumably to return vectors of
-\code{TRUE}'s (if \code{FALSE} is returned anywhere, an error will show up)}
+\item{...}{any number of R expressions; see Details}
 
 \item{x, y}{two R objects to be compared}
 }
@@ -24,7 +23,7 @@ Invisible \code{NULL} if all expressions returned \code{TRUE},
   otherwise an error is signalled and the user-provided message is emitted.
 }
 \description{
-The function \code{assert()} was built from \code{\link{stopifnot}()}. It
+The function \code{assert()} was inspired by \code{\link{stopifnot}()}. It
 emits a message in case of errors, which can be a helpful hint for diagnosing
 the errors (\code{stopifnot()} only prints the possibly truncated source code
 of the expressions).
@@ -34,16 +33,37 @@ The infix operator \code{\%==\%} is simply an alias of the
   to write test conditions. \code{x \%==\% y} is the same as
   \code{identical(x, y)}.
 }
+\details{
+There are two ways to write R expressions in the \code{...} argument.
+
+The first way is a series of R expressions (each expression is passed as an
+individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
+returned anywhere, an error will show up).
+
+The second way is a single R expression wrapped in \code{{}} and passed as a
+single argument. This expression may contain multiple sub-expressions. A
+sub-expression is treated as a test condition if it is wrapped in \code{()}
+(meaning its value will be checked to see if it is a logical vector
+containing any \code{FALSE} values) , otherwise it is evaluated in the normal
+way and its value will not be checked. If the value of the last
+sub-expression is logical, it will also be treated as a test condition.
+}
 \note{
-The internal implementation of \code{stopifnot()} is different with the
-  function in R \pkg{base}: (1) the custom message \code{fact} is emitted if
-  an error occurs (2) \code{assert()} requires the logical values to be
-  non-empty (3) if \code{...} contains a compound expression in \code{{}}
-  which returns \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first
-  and the last but one line of the source code from \code{\link{deparse}()}
-  are printed in the error message, otherwise the first line is printed
+The internal implementation of \code{assert()} is different with the
+  \code{stopifnot()} function in R \pkg{base}: (1) the custom message
+  \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
+  logical values to be non-empty (\code{logical(0)} will trigger an error);
+  (3) if \code{...} contains a compound expression in \code{{}} that returns
+  \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
+  but one line of the source code from \code{\link{deparse}()} are printed in
+  the error message, otherwise the first line is printed; (4) the arguments
+  in \code{...} are evaluated sequentially, and \code{assert()} will signal
+  an error upon the first failed assertion, and will not ignore the rest of
+  assertions.
 }
 \examples{
+## The first way to write assertions --------------------
+
 assert("one equals one", 1 == 1)
 assert("seq and : produce equal sequences", seq(1L, 10L) == 1L:10L)
 assert("seq and : produce identical sequences", identical(seq(1L, 10L), 1L:10L))
@@ -69,4 +89,20 @@ try(assert("this if statement returns TRUE", if (TRUE) {
 
 # no message
 assert(!FALSE, TRUE, is.na(NA))
+
+
+## The second way to write assertions -------------------
+
+assert("T is bad for TRUE, and so is F for FALSE", {
+    T = FALSE
+    F = TRUE
+    (T != TRUE)  # note the parentheses
+    (F != FALSE)
+})
+
+assert("A Poisson random number is non-negative", {
+    x = rpois(1, 10)
+    (x >= 0)
+    x > -1  # do not need () here because it's the last expression
+})
 }
