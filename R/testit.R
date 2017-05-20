@@ -91,6 +91,11 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
   for (i in seq_len(n)) {
     expr = exprs[[i]]
     val = eval(expr, envir = envir, enclos = NULL)
+    # special case: fact is an expression instead of a string constant in assert()
+    if (is.null(fact) && all && i == 1 && is.character(val)) {
+      fact = val; next
+    }
+    # check all values in case of multiple arguments, o/w only check values in ()
     if (all || (i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('('))))
       check_true(val, expr, fact)
