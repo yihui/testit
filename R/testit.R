@@ -97,18 +97,15 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
     }
     # check all values in case of multiple arguments, o/w only check values in ()
     if (all || (i == n && is.logical(val)) ||
-        (length(expr) >= 1 && identical(expr[[1]], as.symbol('('))))
-      check_true(val, expr, fact)
+        (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
+      if (all_true(val)) next
+      if (!is.null(fact)) message('assertion failed: ', fact)
+      stop(sprintf(
+        ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
+        deparse_key(expr)
+      ), call. = FALSE, domain = NA)
+    }
   }
-}
-
-check_true = function(value, expr, fact) {
-  if (all_true(value)) return()
-  if (!is.null(fact)) message('assertion failed: ', fact)
-  stop(sprintf(
-    ngettext(length(value), '%s is not TRUE', '%s are not all TRUE'),
-    deparse_key(expr)
-  ), call. = FALSE, domain = NA)
 }
 
 #' @description The infix operator \code{\%==\%} is simply an alias of the
@@ -159,7 +156,7 @@ test_pkg = function(package, dir = 'testit') {
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
-        z = .traceback(6)
+        z = .traceback(5)
         if (length(z) == 0) return()
         z = z[[1]]
         n = length(z)
