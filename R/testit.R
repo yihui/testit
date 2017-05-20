@@ -1,25 +1,44 @@
-#' Assertions with a message
+#' Assertions with an optional message
 #'
-#' The function \code{assert()} was built from \code{\link{stopifnot}()}. It
+#' The function \code{assert()} was inspired by \code{\link{stopifnot}()}. It
 #' emits a message in case of errors, which can be a helpful hint for diagnosing
 #' the errors (\code{stopifnot()} only prints the possibly truncated source code
 #' of the expressions).
+#'
+#' There are two ways to write R expressions in the \code{...} argument.
+#'
+#' The first way is a series of R expressions (each expression is passed as an
+#' individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
+#' returned anywhere, an error will show up).
+#'
+#' The second way is a single R expression wrapped in \code{{}} and passed as a
+#' single argument. This expression may contain multiple sub-expressions. A
+#' sub-expression is treated as a test condition if it is wrapped in \code{()}
+#' (meaning its value will be checked to see if it is a logical vector
+#' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
+#' way and its value will not be checked. If the value of the last
+#' sub-expression is logical, it will also be treated as a test condition.
 #' @param fact a message for the assertions when any of them fails; treated the
 #'   same way as expressions in \code{...} if it is not a character string,
 #'   which means you do not have to provide a message to this function
-#' @param ... any number of R expressions, presumably to return vectors of
-#'   \code{TRUE}'s (if \code{FALSE} is returned anywhere, an error will show up)
+#' @param ... any number of R expressions; see Details
 #' @return Invisible \code{NULL} if all expressions returned \code{TRUE},
 #'   otherwise an error is signalled and the user-provided message is emitted.
-#' @note The internal implementation of \code{stopifnot()} is different with the
-#'   function in R \pkg{base}: (1) the custom message \code{fact} is emitted if
-#'   an error occurs (2) \code{assert()} requires the logical values to be
-#'   non-empty (3) if \code{...} contains a compound expression in \code{{}}
-#'   which returns \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first
-#'   and the last but one line of the source code from \code{\link{deparse}()}
-#'   are printed in the error message, otherwise the first line is printed
+#' @note The internal implementation of \code{assert()} is different with the
+#'   \code{stopifnot()} function in R \pkg{base}: (1) the custom message
+#'   \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
+#'   logical values to be non-empty (\code{logical(0)} will trigger an error);
+#'   (3) if \code{...} contains a compound expression in \code{{}} that returns
+#'   \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
+#'   but one line of the source code from \code{\link{deparse}()} are printed in
+#'   the error message, otherwise the first line is printed; (4) the arguments
+#'   in \code{...} are evaluated sequentially, and \code{assert()} will signal
+#'   an error upon the first failed assertion, and will ignore the rest of
+#'   assertions.
 #' @export
-#' @examples assert('one equals one', 1==1)
+#' @examples ## The first way to write assertions --------------------
+#'
+#' assert('one equals one', 1==1)
 #' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
 #' assert('seq and : produce identical sequences', identical(seq(1L, 10L), 1L:10L))
 #'
@@ -39,16 +58,52 @@
 #'
 #' # no message
 #' assert(!FALSE, TRUE, is.na(NA))
+#'
+#'
+#' ## The second way to write assertions -------------------
+#'
+#' assert('T is bad for TRUE, and so is F for FALSE', {T=FALSE;F=TRUE
+#' (T!=TRUE)  # note the parentheses
+#' (F!=FALSE)})
+#'
+#' assert('A Poisson random number is non-negative', {
+#' x = rpois(1, 10)
+#' (x >= 0)
+#' x > -1  # do not need () here because it's the last expression
+#' })
 assert = function(fact, ...) {
-  fact_char = is.character(fact)
-  n = length(ll <- if (fact_char) list(...) else list(fact, ...))
-  if (n == 0L) return(invisible())
-  mc = match.call(); if (fact_char) mc[['fact']] = NULL
-  for (i in 1L:n) if (!all_true(r <- ll[[i]])) {
-    if (fact_char) message('assertion failed: ', fact)
-    stop(sprintf(ngettext(length(r), '%s is not TRUE', '%s are not all TRUE'),
-                 deparse_key(mc[[i + 1]])), call. = FALSE, domain = NA)
+  mc = match.call()
+  fact = NULL
+  if (is.character(mc[[2]])) {
+    fact = mc[[2]]; mc = mc[-2]
   }
+  one = one_expression(mc)
+  assert2(fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one)
+}
+
+# whether the argument of a function call is a single expression in {}
+one_expression = function(call) {
+  length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
+}
+
+assert2 = function(fact, exprs, envir, all = TRUE) {
+  n = length(exprs)
+  for (i in seq_len(n)) {
+    expr = exprs[[i]]
+    val = eval(expr, envir = envir, enclos = NULL)
+    if (all || (i == n && is.logical(val)) ||
+        (length(expr) >= 1 && identical(expr[[1]], as.symbol('('))))
+      check_true(val, expr, fact)
+  }
+}
+
+check_true = function(value, expr, fact) {
+  if (all_true(value)) return()
+  if (!is.null(fact)) message('assertion failed: ', fact)
+  stop(sprintf(
+    ngettext(length(value), '%s is not TRUE', '%s are not all TRUE'),
+    deparse_key(expr)
+  ), call. = FALSE, domain = NA)
 }
 
 #' @description The infix operator \code{\%==\%} is simply an alias of the
@@ -99,7 +154,7 @@ test_pkg = function(package, dir = 'testit') {
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
-        z = .traceback(4)
+        z = .traceback(6)
         if (length(z) == 0) return()
         z = z[[1]]
         n = length(z)

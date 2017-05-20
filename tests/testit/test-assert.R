@@ -36,3 +36,14 @@ assert(
   has_error(stop('An intentional error')),
   has_error(1 + 'a')
 )
+
+assert('tests can be written in () in a single {}', {
+
+  (1 == 1L)
+
+  z = 1:10
+  (rev(z) %==% 10:1)
+
+  !!TRUE
+
+})
