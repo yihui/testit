@@ -58,7 +58,7 @@ The internal implementation of \code{assert()} is different with the
   but one line of the source code from \code{\link{deparse}()} are printed in
   the error message, otherwise the first line is printed; (4) the arguments
   in \code{...} are evaluated sequentially, and \code{assert()} will signal
-  an error upon the first failed assertion, and will not ignore the rest of
+  an error upon the first failed assertion, and will ignore the rest of
   assertions.
 }
 \examples{

@@ -1,3 +1,11 @@
+    CHANGES IN testit VERSION 0.7 (unreleased)
+
+NEW FEATURES
+
+  o provided an alternative way to write assertions of the form
+  assert('fact', {(condition_2); (condition_2)}); see ?testit::assert for more
+  information
+
     CHANGES IN testit VERSION 0.6
 
 NEW FEATURES
