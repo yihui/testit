@@ -73,6 +73,7 @@
 #' })
 assert = function(fact, ...) {
   mc = match.call()
+  # match.call() uses the arg order in the func def, so fact is always 1st arg
   fact = NULL
   if (is.character(mc[[2]])) {
     fact = mc[[2]]; mc = mc[-2]
