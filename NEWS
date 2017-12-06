@@ -1,3 +1,10 @@
+    CHANGES IN testit VERSION 0.8 (unreleased)
+
+NEW FEATURES
+
+  o When `%==%` is used inside assert(), a message will be printed if the value
+  is not TRUE, to show the values of the LHS and RHS, respectively.
+
     CHANGES IN testit VERSION 0.7
 
 NEW FEATURES
