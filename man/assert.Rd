@@ -40,17 +40,17 @@ The infix operator \code{\%==\%} is simply an alias of the
 \details{
 There are two ways to write R expressions in the \code{...} argument.
 
-The first way is a series of R expressions (each expression is passed as an
-individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
-returned anywhere, an error will show up).
-
-The second way is a single R expression wrapped in \code{{}} and passed as a
+The first way is a single R expression wrapped in \code{{}} and passed as a
 single argument. This expression may contain multiple sub-expressions. A
 sub-expression is treated as a test condition if it is wrapped in \code{()}
 (meaning its value will be checked to see if it is a logical vector
 containing any \code{FALSE} values) , otherwise it is evaluated in the normal
 way and its value will not be checked. If the value of the last
 sub-expression is logical, it will also be treated as a test condition.
+
+The second way is a series of R expressions (each expression is passed as an
+individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
+returned anywhere, an error will show up).
 }
 \note{
 The internal implementation of \code{assert()} is different with the
@@ -66,7 +66,23 @@ The internal implementation of \code{assert()} is different with the
   assertions.
 }
 \examples{
-## The first way to write assertions --------------------
+## The first way to write assertions -------------------
+
+assert("T is bad for TRUE, and so is F for FALSE", {
+    T = FALSE
+    F = TRUE
+    (T != TRUE)  # note the parentheses
+    (F != FALSE)
+})
+
+assert("A Poisson random number is non-negative", {
+    x = rpois(1, 10)
+    (x >= 0)
+    (x > -1)  # () is optional because it's the last expression
+})
+
+
+## The second way to write assertions --------------------
 
 assert("one equals one", 1 == 1)
 assert("seq and : produce equal sequences", seq(1L, 10L) == 1L:10L)
@@ -93,20 +109,4 @@ try(assert("this if statement returns TRUE", if (TRUE) {
 
 # no message
 assert(!FALSE, TRUE, is.na(NA))
-
-
-## The second way to write assertions -------------------
-
-assert("T is bad for TRUE, and so is F for FALSE", {
-    T = FALSE
-    F = TRUE
-    (T != TRUE)  # note the parentheses
-    (F != FALSE)
-})
-
-assert("A Poisson random number is non-negative", {
-    x = rpois(1, 10)
-    (x >= 0)
-    x > -1  # do not need () here because it's the last expression
-})
 }

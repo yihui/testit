@@ -7,17 +7,17 @@
 #'
 #' There are two ways to write R expressions in the \code{...} argument.
 #'
-#' The first way is a series of R expressions (each expression is passed as an
-#' individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
-#' returned anywhere, an error will show up).
-#'
-#' The second way is a single R expression wrapped in \code{{}} and passed as a
+#' The first way is a single R expression wrapped in \code{{}} and passed as a
 #' single argument. This expression may contain multiple sub-expressions. A
 #' sub-expression is treated as a test condition if it is wrapped in \code{()}
 #' (meaning its value will be checked to see if it is a logical vector
 #' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
 #' way and its value will not be checked. If the value of the last
 #' sub-expression is logical, it will also be treated as a test condition.
+#'
+#' The second way is a series of R expressions (each expression is passed as an
+#' individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
+#' returned anywhere, an error will show up).
 #' @param fact a message for the assertions when any of them fails; treated the
 #'   same way as expressions in \code{...} if it is not a character string,
 #'   which means you do not have to provide a message to this function
@@ -37,7 +37,21 @@
 #'   an error upon the first failed assertion, and will ignore the rest of
 #'   assertions.
 #' @export
-#' @examples ## The first way to write assertions --------------------
+#' @examples
+#' ## The first way to write assertions -------------------
+#'
+#' assert('T is bad for TRUE, and so is F for FALSE', {T=FALSE;F=TRUE
+#' (T!=TRUE)  # note the parentheses
+#' (F!=FALSE)})
+#'
+#' assert('A Poisson random number is non-negative', {
+#' x = rpois(1, 10)
+#' (x >= 0)
+#' (x > -1)  # () is optional because it's the last expression
+#' })
+#'
+#'
+#' ## The second way to write assertions --------------------
 #'
 #' assert('one equals one', 1==1)
 #' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
@@ -59,19 +73,6 @@
 #'
 #' # no message
 #' assert(!FALSE, TRUE, is.na(NA))
-#'
-#'
-#' ## The second way to write assertions -------------------
-#'
-#' assert('T is bad for TRUE, and so is F for FALSE', {T=FALSE;F=TRUE
-#' (T!=TRUE)  # note the parentheses
-#' (F!=FALSE)})
-#'
-#' assert('A Poisson random number is non-negative', {
-#' x = rpois(1, 10)
-#' (x >= 0)
-#' x > -1  # do not need () here because it's the last expression
-#' })
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   mc = match.call()
