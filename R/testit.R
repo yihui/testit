@@ -164,8 +164,7 @@ test_pkg = function(package, dir = 'testit') {
         s = if (!is.null(srcref <- attr(z, 'srcref'))) {
           paste0(' at ', basename(attr(srcref, 'srcfile')$filename), '#', srcref[1])
         }
-        z[n] = paste0(z[n], s)
-        cat(z, sep = '\n')
+        cat('Error from', z[1], if (n > 1) '...', s, '\n')
       }
     )
   }
