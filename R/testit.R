@@ -121,6 +121,7 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #'   which can be helpful for you to check why the assertion failed.
 #' @param x,y two R objects to be compared
 #' @rdname assert
+#' @import utils
 #' @export
 `%==%` = function(x, y) {
   res = identical(x, y)
