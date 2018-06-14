@@ -1,7 +1,7 @@
 Package: testit
 Type: Package
 Title: A Simple Package for Testing R Packages
-Version: 0.7.1
+Version: 0.8
 Authors@R:
   person("Yihui", "Xie", role = c("aut", "cre"), email = "xie@yihui.name", comment = c(ORCID = "0000-0003-0645-5666"))
 Description: Provides two convenience functions assert() and test_pkg() to
@@ -10,7 +10,4 @@ License: GPL
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
 Suggests: rstudioapi
-Collate:
-    'testit.R'
-    'utils.R'
 RoxygenNote: 6.0.1
