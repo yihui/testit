@@ -57,7 +57,7 @@ test_pkg('pkg_name')
 ```
 
 That is all for `R CMD check`. For package development, it is recommended to
-use [**devtools**](https://cran.rstudio.org/package=devtools). In
+use [**devtools**](https://cran.r-project.org/package=devtools). In
 particular, `Ctrl + Shift + L` in RStudio makes all objects in a package
 visible to you, and you can play with the tests freely.
 
