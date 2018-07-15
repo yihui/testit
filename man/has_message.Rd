@@ -7,10 +7,12 @@
 \usage{
 has_warning(expr)
 
-has_error(expr)
+has_error(expr, silent = !interactive())
 }
 \arguments{
 \item{expr}{an R expression}
+
+\item{silent}{logical: should the report of error messages be suppressed?}
 }
 \value{
 A logical value.
@@ -25,4 +27,5 @@ has_warning(1:2 + 1:3)
 
 has_error(2 - 3)
 has_error(1 + "a")
+has_error(stop("err"), silent = TRUE)
 }
