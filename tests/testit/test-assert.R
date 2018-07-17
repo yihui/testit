@@ -37,6 +37,12 @@ assert(
   has_error(1 + 'a')
 )
 
+assert(
+  'has_error() can suppress error message',
+  has_error(stop('An intentional error'), silent = TRUE),
+  has_error(1 + 'a', silent = FALSE)
+)
+
 assert('tests can be written in () in a single {}', {
 
   (1 == 1L)

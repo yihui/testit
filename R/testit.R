@@ -196,12 +196,13 @@ test_pkg = function(package, dir = 'testit') {
 #' The two functions \code{has_warning()} and \code{has_error()} check if an
 #' expression produces warnings and errors, respectively.
 #' @param expr an R expression
+#' @param silent logical: should the report of error messages be suppressed?
 #' @return A logical value.
 #' @export
 #' @rdname has_message
 #' @examples has_warning(1+1); has_warning(1:2+1:3)
 #'
-#' has_error(2-3); has_error(1+'a')
+#' has_error(2-3); has_error(1+'a'); has_error(stop("err"), silent = TRUE)
 has_warning = function(expr) {
   warn = FALSE
   op = options(warn = -1); on.exit(options(op))
@@ -213,6 +214,6 @@ has_warning = function(expr) {
 }
 #' @export
 #' @rdname has_message
-has_error = function(expr) {
-  inherits(try(force(expr), silent = !interactive()), 'try-error')
+has_error = function(expr, silent = !interactive()) {
+  inherits(try(force(expr), silent = silent), 'try-error')
 }
