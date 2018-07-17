@@ -1,3 +1,9 @@
+    CHANGES IN testit VERSION 0.9
+
+NEW FEATURES
+
+  o Added a new argument `silent` to has_error() (thanks, @StevenMMortimer, #6).
+
     CHANGES IN testit VERSION 0.8
 
 NEW FEATURES
