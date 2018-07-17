@@ -2,8 +2,10 @@ Package: testit
 Type: Package
 Title: A Simple Package for Testing R Packages
 Version: 0.8
-Authors@R:
-  person("Yihui", "Xie", role = c("aut", "cre"), email = "xie@yihui.name", comment = c(ORCID = "0000-0003-0645-5666"))
+Authors@R: c(
+  person("Yihui", "Xie", role = c("aut", "cre"), email = "xie@yihui.name", comment = c(ORCID = "0000-0003-0645-5666")), 
+  person("Steven", "Mortimer", , email="reportmort@gmail.com", role="ctb")
+  )
 Description: Provides two convenience functions assert() and test_pkg() to
     facilitate testing R packages.
 License: GPL
