@@ -9,11 +9,11 @@ This package provides two simple functions (30 lines of code in total):
 
 - `test_pkg(package)`: runs tests with all objects (exported or
   non-exported) in the package namespace directly available, so no need to
-  use `package:::name` for non-exported objects
+  use the triple-colon `package:::name` for non-exported objects
 
 ## Why?
 
-The reason is laziness. It is tedious to type these commands repeatedly in
+Because it is tedious to type these commands repeatedly in
 tests:
 
 ```r
@@ -29,19 +29,25 @@ of sixteen (`message` + `stopifnot`), and `assert` is also a more intuitive
 function name for testing purposes (you _assert_ a fact followed by evidence):
 
 ```r
-assert(
-  'these numbers are equal',
-  all.equal(1, 1+1e-10), 10*.1 == 1
-)
+assert('These numbers are equal', {
 
-assert(
-  'a non-exported function works',
-  is.character(utility_foo(x = 'abcd', y = 1:100))
-)
+  (all.equal(1, 1 + 1e-10))
 
-assert('T is TRUE and F is FALSE by default', {
-  (T == TRUE)
+  (10 * .1 == 1)
+
+})
+
+assert('A non-exported function works', {
+  res = utility_foo(x = 'abcd', y = 1:100)
+  (is.character(res))
+})
+
+assert('T is TRUE and F is FALSE by default, but can be changed', {
+  (T == TRUE )
   (F == FALSE)
+
+  T = FALSE
+  (T == FALSE)
 })
 ```
 
@@ -58,8 +64,8 @@ test_pkg('pkg_name')
 
 That is all for `R CMD check`. For package development, it is recommended to
 use [**devtools**](https://cran.r-project.org/package=devtools). In
-particular, `Ctrl + Shift + L` in RStudio makes all objects in a package
-visible to you, and you can play with the tests freely.
+particular, `Ctrl/Cmd + Shift + L` in RStudio makes all objects in a package
+visible to you, and you can run tests interactively.
 
 ## Installation
 
@@ -80,11 +86,10 @@ devtools::install_github('yihui/testit')
 How about [**testthat**](https://CRAN.R-project.org/package=testthat)? Well,
 this package is far less sophisticated than **testthat**. There is nothing
 fancy in this package. Please do consider **testthat** if your tests require
-more granularity. I myself do not use **testthat** because I find it unnecessary
-to invent a new vocabulary (`testthat::expect_xxx`), and the error message of
-**testthat** is somehow obscure in my eyes. For **testit**, I do not need to
+more granularity. I myself do not use **testthat** because I'm too lazy to learn
+the new vocabulary (`testthat::expect_xxx`). For **testit**, I do not need to
 think if I should use `expect_equal`, `expect_equivalent`, or
-`expect_identical`; I just write test conditions that return TRUE or FALSE. That
+`expect_identical`; I just write test conditions in parentheses that are expected to return `TRUE`. That
 is the only single rule to remember.
 
 There is no plan to add new features or reinvent anything in this package.
