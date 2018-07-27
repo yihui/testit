@@ -21,8 +21,7 @@ all_true = function(x) {
 }
 
 insert_identical = function() {
-  if (!has_error(rstudioapi::verifyAvailable()))
-    rstudioapi::insertText(text = ' %==% ')
+  rstudioapi::insertText(text = ' %==% ')
 }
 
 # This function is a modification of base::sys.source.  It allows to specify
