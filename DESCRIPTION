@@ -12,4 +12,5 @@ License: GPL
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
 Suggests: rstudioapi
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
+Encoding: UTF-8
