@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/yihui/testit.svg)](https://travis-ci.org/yihui/testit)
 [![Coverage Status](https://coveralls.io/repos/github/yihui/testit/badge.svg?branch=master)](https://coveralls.io/github/yihui/testit?branch=master)
-[![Downloads from the RStudio CRAN mirror](https://cranlogs.r-pkg.org/badges/grand-total/testit)](https://cran.r-project.org/package=testit)
+[![Downloads from the RStudio CRAN mirror](https://cranlogs.r-pkg.org/badges/testit)](https://cran.r-project.org/package=testit)
 
 This package provides two simple functions (30 lines of code in total):
 
