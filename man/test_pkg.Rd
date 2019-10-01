@@ -4,13 +4,13 @@
 \alias{test_pkg}
 \title{Run the tests of a package in its namespace}
 \usage{
-test_pkg(package, dir = "testit")
+test_pkg(package, dir = c("testit", "tests/testit"))
 }
 \arguments{
 \item{package}{the package name}
 
 \item{dir}{the directory of the test files; by default, it is the directory
-\file{testit/} under the current working directory}
+\file{testit/} or \file{tests/testit/} under the current working directory}
 }
 \value{
 \code{NULL}. All test files are executed, unless an error occurs.
@@ -21,12 +21,14 @@ when running tests, which allows one to use non-exported objects in the
 package without having to resort to the triple colon \code{\link{:::}} trick.
 }
 \details{
-The tests are assumed to be under the \file{testit/} directory by default,
-and this function also looks for the \file{tests/testit/} directory under the
-package installation directory when the user-provided \code{dir} does not
-exist. The test scripts must be named of the form \samp{test-*.R}; other R
-scripts will not be treated as test files (but may also be useful, e.g. you
-can \code{\link{source}()} them in tests).
+The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
+directory by default (depending on your working directory is the package root
+directory or the \file{tests/} directory). This function also looks for the
+\file{tests/testit/} directory under the package installation directory when
+the user-provided \code{dir} does not exist. The test scripts must be named
+of the form \samp{test-*.R}; other R scripts will not be treated as test
+files (but may also be useful, e.g. you can \code{\link{source}()} them in
+tests).
 
 For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
 under \file{pkg_root/tests/testit/}. The R scripts are executed with

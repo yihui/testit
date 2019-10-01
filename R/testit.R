@@ -145,12 +145,14 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' when running tests, which allows one to use non-exported objects in the
 #' package without having to resort to the triple colon \code{\link{:::}} trick.
 #'
-#' The tests are assumed to be under the \file{testit/} directory by default,
-#' and this function also looks for the \file{tests/testit/} directory under the
-#' package installation directory when the user-provided \code{dir} does not
-#' exist. The test scripts must be named of the form \samp{test-*.R}; other R
-#' scripts will not be treated as test files (but may also be useful, e.g. you
-#' can \code{\link{source}()} them in tests).
+#' The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
+#' directory by default (depending on your working directory is the package root
+#' directory or the \file{tests/} directory). This function also looks for the
+#' \file{tests/testit/} directory under the package installation directory when
+#' the user-provided \code{dir} does not exist. The test scripts must be named
+#' of the form \samp{test-*.R}; other R scripts will not be treated as test
+#' files (but may also be useful, e.g. you can \code{\link{source}()} them in
+#' tests).
 #'
 #' For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
 #' under \file{pkg_root/tests/testit/}. The R scripts are executed with
@@ -160,14 +162,14 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' be removed before the code is executed.
 #' @param package the package name
 #' @param dir the directory of the test files; by default, it is the directory
-#'   \file{testit/} under the current working directory
+#'   \file{testit/} or \file{tests/testit/} under the current working directory
 #' @return \code{NULL}. All test files are executed, unless an error occurs.
 #' @note All test scripts (\samp{test-*.R}) must be encoded in UTF-8 if they
 #'   contain any multibyte characters.
 #' @seealso The \pkg{testthat} package (much more sophisticated).
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
-test_pkg = function(package, dir = 'testit') {
+test_pkg = function(package, dir = c('testit', 'tests/testit')) {
   library(package, character.only = TRUE)
   path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
   rs = list.files(path, '^test-.+[.][rR]$', full.names = TRUE)

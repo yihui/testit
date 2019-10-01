@@ -1,6 +1,10 @@
     CHANGES IN testit VERSION 0.10
 
+NEW FEATURES
 
+  o `test_pkg()` also looks for tests under the `tests/testit/` directory. This
+  makes it easier for you to run `test_pkg()` under the root directory of the
+  package, and you don't need to change the working directory to `tests/`.
 
     CHANGES IN testit VERSION 0.9
 
