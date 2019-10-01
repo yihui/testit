@@ -5,23 +5,17 @@
 #' the errors (\code{stopifnot()} only prints the possibly truncated source code
 #' of the expressions).
 #'
-#' There are two ways to write R expressions in the \code{...} argument.
-#'
-#' The first way is a single R expression wrapped in \code{{}} and passed as a
-#' single argument. This expression may contain multiple sub-expressions. A
+#' For the \code{...} argument, it should be a single R expression wrapped in
+#' \code{{}}. This expression may contain multiple sub-expressions. A
 #' sub-expression is treated as a test condition if it is wrapped in \code{()}
 #' (meaning its value will be checked to see if it is a logical vector
 #' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
 #' way and its value will not be checked. If the value of the last
 #' sub-expression is logical, it will also be treated as a test condition.
-#'
-#' The second way is a series of R expressions (each expression is passed as an
-#' individual argument) that return vectors of \code{TRUE}'s (if \code{FALSE} is
-#' returned anywhere, an error will show up).
 #' @param fact a message for the assertions when any of them fails; treated the
 #'   same way as expressions in \code{...} if it is not a character string,
 #'   which means you do not have to provide a message to this function
-#' @param ... any number of R expressions; see Details
+#' @param ... an R expression; see Details
 #' @return For \code{assert()}, invisible \code{NULL} if all expressions
 #'   returned \code{TRUE}, otherwise an error is signalled and the user-provided
 #'   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
