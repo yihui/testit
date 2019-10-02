@@ -1,5 +1,8 @@
     CHANGES IN testit VERSION 0.11
 
+MAJOR CHANGES
+
+  o The package license was changed from GPL to GPL-3 (@jayvdb #8).
 
     CHANGES IN testit VERSION 0.10
 
