@@ -20,7 +20,7 @@ which means you do not have to provide a message to this function}
 }
 \value{
 For \code{assert()}, invisible \code{NULL} if all expressions
-  returned \code{TRUE}, otherwise an error is signalled and the user-provided
+  returned \code{TRUE}, otherwise an error is signaled and the user-provided
   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
 }
 \description{

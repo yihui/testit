@@ -17,7 +17,7 @@
 #'   which means you do not have to provide a message to this function
 #' @param ... an R expression; see Details
 #' @return For \code{assert()}, invisible \code{NULL} if all expressions
-#'   returned \code{TRUE}, otherwise an error is signalled and the user-provided
+#'   returned \code{TRUE}, otherwise an error is signaled and the user-provided
 #'   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
 #' @note The internal implementation of \code{assert()} is different with the
 #'   \code{stopifnot()} function in R \pkg{base}: (1) the custom message
