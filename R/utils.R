@@ -31,7 +31,7 @@ insert_identical = function() {
 # are running. This function assumes that chdir = FALSE and keep.source = TRUE.
 sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
-  on.exit(options(oop))
+  on.exit(options(oop), add = TRUE)
 
   lines = readLines(file, warn = FALSE, encoding = 'UTF-8')
   srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
