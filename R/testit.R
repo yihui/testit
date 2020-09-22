@@ -164,6 +164,29 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
 test_pkg = function(package, dir = c('testit', 'tests/testit')) {
+  # install the source package before running tests when this function is called
+  # in a non-interactive R session that is not `R CMD check`
+  install = !.env$installed && !interactive() &&
+    file.exists(desc <- file.path('../DESCRIPTION')) &&
+    is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
+    !is.na(p <- read.dcf(desc, fields = 'Package')[1, 1]) && p == package
+  if (install) {
+    .env$lib_old = lib_old = .libPaths()
+    .env$lib_new = lib_new = tempfile('R-lib-', '.'); dir.create(lib_new)
+    res = system2(
+      file.path(R.home('bin'), 'R'), c(
+        'CMD', 'INSTALL', paste0('--library=', lib_new),
+        '--no-help', '--no-staged-install', '--no-test-load', '..'
+      )
+    )
+    if (res == 0) {
+      .libPaths(c(lib_new, lib_old))
+      .env$installed = TRUE
+    }
+  }
+  if (!is.na(i <- match(paste0('package:', package), search())))
+    detach(pos = i, unload = TRUE, force = TRUE)
+
   library(package, character.only = TRUE)
   path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
   rs = list.files(path, '^test-.+[.][rR]$', full.names = TRUE)

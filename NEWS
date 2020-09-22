@@ -1,5 +1,8 @@
     CHANGES IN testit VERSION 0.12
 
+MAJOR CHANGES
+
+  o `test_pkg()` installs the package before running tests when it is called from a non-interactive R session that is not launched by `R CMD check`, e.g., when you run tests in RStudio via `Ctrl/Cmd + Shift + T`, so you will not have to install the package manually (`Ctrl/Cmd + Shift + B`) before running tests.
 
     CHANGES IN testit VERSION 0.11
 

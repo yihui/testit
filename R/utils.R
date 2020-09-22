@@ -1,3 +1,9 @@
+# an internal environment to store objects
+.env = new.env(parent = emptyenv())
+
+# has the package been installed once in test_pkg()?
+.env$installed = FALSE
+
 # find an available dir
 available_dir = function(dirs) {
   for (i in dirs) {
