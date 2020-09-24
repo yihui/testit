@@ -99,7 +99,7 @@ It is an intentionally tiny package.
 <img src="https://i.imgur.com/sDsgmfj.jpg" align="right" width="100" alt="Xunzi" />
 
 Although he did not really mean it,
-[Xunzi](http://en.wikipedia.org/wiki/Xunzi) said something that happens to
+[Xunzi](https://en.wikipedia.org/wiki/Xunzi) said something that happens to
 apply well to unit testing:
 
 > 不积跬步，无以至千里；不积小流，无以成江海。
