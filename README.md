@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/yihui/testit/workflows/R-CMD-check/badge.svg)](https://github.com/yihui/testit/actions)
-[![Coverage Status](https://coveralls.io/repos/github/yihui/testit/badge.svg?branch=master)](https://coveralls.io/github/yihui/testit?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/yihui/testit/branch/master/graph/badge.svg)](https://codecov.io/gh/yihui/testit?branch=master)
 [![Downloads from the RStudio CRAN mirror](https://cranlogs.r-pkg.org/badges/testit)](https://cran.r-project.org/package=testit)
 <!-- badges: end -->
 
