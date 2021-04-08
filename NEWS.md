@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 0.13
 
+- The global option `options(testit.cleanup = TRUE)` (`TRUE` is the default) can be used to clean up additional files or directories generated in the `tests/` directory during the test process.
+
 # CHANGES IN testit VERSION 0.12
 
 - `test_pkg()` installs the package before running tests when it is called from a non-interactive R session that is not launched by `R CMD check`, e.g., when you run tests in RStudio via `Ctrl/Cmd + Shift + T`, so you will not have to install the package manually (`Ctrl/Cmd + Shift + B`) before running tests.

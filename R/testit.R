@@ -188,8 +188,15 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     detach(pos = i, unload = TRUE, force = TRUE)
 
   library(package, character.only = TRUE)
+
   path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
-  rs = list.files(path, '^test-.+[.][rR]$', full.names = TRUE)
+  fs = list.files(path, full.names = TRUE)
+  # clean up new files/dirs generated during testing
+  if (getOption('testit.cleanup', TRUE)) on.exit({
+    unlink(setdiff(list.files(path, full.names = TRUE), fs), recursive = TRUE)
+  }, add = TRUE)
+  rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
+
   # make all objects in the package visible to tests
   env = new.env(parent = getNamespace(package))
   for (r in rs) {
