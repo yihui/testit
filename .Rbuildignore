@@ -4,3 +4,4 @@
 ^revdep$
 ^\.github$
 ^codecov\.yml$
+^NEWS\.md$
