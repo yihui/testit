@@ -1,7 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-.travis.yml
-^revdep$
 ^\.github$
 ^codecov\.yml$
 ^NEWS\.md$
+^README\.md$
