@@ -1,3 +1,6 @@
+# CHANGES IN testit VERSION 0.14
+
+
 # CHANGES IN testit VERSION 0.13
 
 - The global option `options(testit.cleanup = TRUE)` (`TRUE` is the default) can be used to clean up additional files or directories generated in the `tests/` directory during the test process.
