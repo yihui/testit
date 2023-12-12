@@ -12,10 +12,10 @@
 #' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
 #' way and its value will not be checked. If the value of the last
 #' sub-expression is logical, it will also be treated as a test condition.
-#' @param fact a message for the assertions when any of them fails; treated the
+#' @param fact A message for the assertions when any of them fails; treated the
 #'   same way as expressions in \code{...} if it is not a character string,
-#'   which means you do not have to provide a message to this function
-#' @param ... an R expression; see Details
+#'   which means you are not required to provide a message to this function.
+#' @param ... An R expression; see Details.
 #' @return For \code{assert()}, invisible \code{NULL} if all expressions
 #'   returned \code{TRUE}, otherwise an error is signaled and the user-provided
 #'   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
@@ -32,8 +32,7 @@
 #'   assertions.
 #' @export
 #' @examples
-#' ## The first way to write assertions -------------------
-#'
+#' library(testit)
 #' assert('T is bad for TRUE, and so is F for FALSE', {T=FALSE;F=TRUE
 #' (T!=TRUE)  # note the parentheses
 #' (F!=FALSE)})
@@ -43,30 +42,6 @@
 #' (x >= 0)
 #' (x > -1)  # () is optional because it's the last expression
 #' })
-#'
-#'
-#' ## The second way to write assertions --------------------
-#'
-#' assert('one equals one', 1==1)
-#' assert('seq and : produce equal sequences', seq(1L, 10L) == 1L:10L)
-#' assert('seq and : produce identical sequences', identical(seq(1L, 10L), 1L:10L))
-#'
-#' # multiple tests
-#' T=FALSE; F=TRUE
-#' assert('T is bad for TRUE, and so is F for FALSE', T!=TRUE, F!=FALSE)
-#'
-#' # a mixture of tests
-#' assert("Let's pray all of them will pass", 1==1, 1!=2, letters[4]=='d', rev(rev(letters))==letters)
-#'
-#' # logical(0) cannot pass assert(), although stopifnot() does not care
-#' try(assert('logical(0) cannot pass', 1==integer(0)))
-#' stopifnot(1==integer(0)) # it's OK!
-#'
-#' # a compound expression
-#' try(assert('this if statement returns TRUE', if(TRUE){x=1;x==2}))
-#'
-#' # no message
-#' assert(!FALSE, TRUE, is.na(NA))
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   mc = match.call()
