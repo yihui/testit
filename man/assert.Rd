@@ -5,7 +5,7 @@
 \alias{\%==\%}
 \title{Assertions with an optional message}
 \usage{
-assert(fact, ...)
+assert(fact, expr)
 
 x \%==\% y
 }
@@ -14,7 +14,13 @@ x \%==\% y
 same way as expressions in \code{...} if it is not a character string,
 which means you are not required to provide a message to this function.}
 
-\item{...}{An R expression; see Details.}
+\item{expr}{An R expression wrapped in \code{{}}. This expression may contain
+multiple sub-expressions. A sub-expression is treated as a test condition
+if it is wrapped in \code{()} (meaning its value will be checked to see if
+it is a logical vector containing any \code{FALSE} values) , otherwise it
+is evaluated in the normal way and its value will not be checked. If the
+value of the last sub-expression is logical, it will also be treated as a
+test condition.}
 
 \item{x, y}{two R objects to be compared}
 }
@@ -37,27 +43,18 @@ The infix operator \code{\%==\%} is simply an alias of the
   values of the LHS (\code{x}) and RHS (\code{y}) via \code{\link{str}()},
   which can be helpful for you to check why the assertion failed.
 }
-\details{
-For the \code{...} argument, it should be a single R expression wrapped in
-\code{{}}. This expression may contain multiple sub-expressions. A
-sub-expression is treated as a test condition if it is wrapped in \code{()}
-(meaning its value will be checked to see if it is a logical vector
-containing any \code{FALSE} values) , otherwise it is evaluated in the normal
-way and its value will not be checked. If the value of the last
-sub-expression is logical, it will also be treated as a test condition.
-}
 \note{
 The internal implementation of \code{assert()} is different with the
   \code{stopifnot()} function in R \pkg{base}: (1) the custom message
   \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
   logical values to be non-empty (\code{logical(0)} will trigger an error);
-  (3) if \code{...} contains a compound expression in \code{{}} that returns
+  (3) if \code{expr} contains a compound expression in \code{{}} that returns
   \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
   but one line of the source code from \code{\link{deparse}()} are printed in
-  the error message, otherwise the first line is printed; (4) the arguments
-  in \code{...} are evaluated sequentially, and \code{assert()} will signal
-  an error upon the first failed assertion, and will ignore the rest of
-  assertions.
+  the error message, otherwise the first line is printed; (4) the
+  sub-expressions in \code{expr} are evaluated sequentially, and
+  \code{assert()} will signal an error upon the first failed assertion, and
+  will ignore the rest of assertions.
 }
 \examples{
 library(testit)

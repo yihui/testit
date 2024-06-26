@@ -5,17 +5,16 @@
 #' the errors (\code{stopifnot()} only prints the possibly truncated source code
 #' of the expressions).
 #'
-#' For the \code{...} argument, it should be a single R expression wrapped in
-#' \code{{}}. This expression may contain multiple sub-expressions. A
-#' sub-expression is treated as a test condition if it is wrapped in \code{()}
-#' (meaning its value will be checked to see if it is a logical vector
-#' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
-#' way and its value will not be checked. If the value of the last
-#' sub-expression is logical, it will also be treated as a test condition.
 #' @param fact A message for the assertions when any of them fails; treated the
 #'   same way as expressions in \code{...} if it is not a character string,
 #'   which means you are not required to provide a message to this function.
-#' @param ... An R expression; see Details.
+#' @param expr An R expression wrapped in \code{{}}. This expression may contain
+#'   multiple sub-expressions. A sub-expression is treated as a test condition
+#'   if it is wrapped in \code{()} (meaning its value will be checked to see if
+#'   it is a logical vector containing any \code{FALSE} values) , otherwise it
+#'   is evaluated in the normal way and its value will not be checked. If the
+#'   value of the last sub-expression is logical, it will also be treated as a
+#'   test condition.
 #' @return For \code{assert()}, invisible \code{NULL} if all expressions
 #'   returned \code{TRUE}, otherwise an error is signaled and the user-provided
 #'   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
@@ -23,13 +22,13 @@
 #'   \code{stopifnot()} function in R \pkg{base}: (1) the custom message
 #'   \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
 #'   logical values to be non-empty (\code{logical(0)} will trigger an error);
-#'   (3) if \code{...} contains a compound expression in \code{{}} that returns
+#'   (3) if \code{expr} contains a compound expression in \code{{}} that returns
 #'   \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
 #'   but one line of the source code from \code{\link{deparse}()} are printed in
-#'   the error message, otherwise the first line is printed; (4) the arguments
-#'   in \code{...} are evaluated sequentially, and \code{assert()} will signal
-#'   an error upon the first failed assertion, and will ignore the rest of
-#'   assertions.
+#'   the error message, otherwise the first line is printed; (4) the
+#'   sub-expressions in \code{expr} are evaluated sequentially, and
+#'   \code{assert()} will signal an error upon the first failed assertion, and
+#'   will ignore the rest of assertions.
 #' @export
 #' @examples
 #' library(testit)
@@ -42,34 +41,18 @@
 #' (x >= 0)
 #' (x > -1)  # () is optional because it's the last expression
 #' })
-assert = function(fact, ...) {
+assert = function(fact, expr) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
-  mc = match.call()
-  # match.call() uses the arg order in the func def, so fact is always 1st arg
-  fact = NULL
-  if (is.character(mc[[2]])) {
-    fact = mc[[2]]; mc = mc[-2]
-  }
-  one = one_expression(mc)
-  assert2(fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one)
-}
-
-# whether the argument of a function call is a single expression in {}
-one_expression = function(call) {
-  length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
-}
-
-assert2 = function(fact, exprs, envir, all = TRUE) {
+  exprs = substitute(expr)
+  exprs = if (length(exprs) >= 1 && identical(exprs[[1]], as.symbol('{'))) {
+    exprs[-1]
+  } else list(exprs)
   n = length(exprs)
   for (i in seq_len(n)) {
     expr = exprs[[i]]
-    val = eval(expr, envir = envir, enclos = NULL)
-    # special case: fact is an expression instead of a string constant in assert()
-    if (is.null(fact) && all && i == 1 && is.character(val)) {
-      fact = val; next
-    }
+    val = eval(expr, envir = parent.frame(), enclos = NULL)
     # check all values in case of multiple arguments, o/w only check values in ()
-    if (all || (i == n && is.logical(val)) ||
+    if ((i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) next
       if (!is.null(fact)) message('assertion failed: ', fact)
