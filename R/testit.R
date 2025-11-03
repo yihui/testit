@@ -179,7 +179,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
-        z = .traceback(5)
+        z = tryCatch(.traceback(5), error = function(e) NULL)
         if (length(z) == 0) return()
         z = z[[1]]
         n = length(z)

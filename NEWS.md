@@ -1,5 +1,6 @@
 # CHANGES IN testit VERSION 0.14
 
+- `test_pkg()` is compatible with R < 3.3.0 (if the function `.traceback()` is unavailable, the error location will not be printed).
 
 # CHANGES IN testit VERSION 0.13
 
