@@ -43,7 +43,8 @@
 #' })
 assert = function(fact, expr) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
-  exprs = substitute(expr)
+  has_fact = !missing(expr)
+  exprs = if (has_fact) substitute(expr) else substitute(fact)
   exprs = if (length(exprs) >= 1 && identical(exprs[[1]], as.symbol('{'))) {
     exprs[-1]
   } else list(exprs)
@@ -55,7 +56,7 @@ assert = function(fact, expr) {
     if ((i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) next
-      if (!is.null(fact)) message('assertion failed: ', fact)
+      if (has_fact && is.character(fact)) message('assertion failed: ', fact)
       stop(sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
