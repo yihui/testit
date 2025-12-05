@@ -12,7 +12,6 @@ License: GPL-3
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
 Suggests: 
-    rstudioapi,
-    covr
+    rstudioapi
 RoxygenNote: 7.3.3
 Encoding: UTF-8
