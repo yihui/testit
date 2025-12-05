@@ -2,6 +2,8 @@
 
 - `test_pkg()` is compatible with R < 3.3.0 (if the function `.traceback()` is unavailable, the error location will not be printed).
 
+- Re-licensed the package to MIT.
+
 # CHANGES IN testit VERSION 0.13
 
 - The global option `options(testit.cleanup = TRUE)` (`TRUE` is the default) can be used to clean up additional files or directories generated in the `tests/` directory during the test process.
