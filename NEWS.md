@@ -1,5 +1,6 @@
 # CHANGES IN testit VERSION 0.15
 
+- The error location reporting stopped working in the previous version and was fixed in this version.
 
 # CHANGES IN testit VERSION 0.14
 
