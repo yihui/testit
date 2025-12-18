@@ -171,6 +171,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     unlink(setdiff(list.files(path, full.names = TRUE), fs), recursive = TRUE)
   }, add = TRUE)
   rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
+  wd = getwd()
 
   # make all objects in the package visible to tests
   env = new.env(parent = getNamespace(package))
@@ -183,13 +184,21 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
         if (length(z) == 0) return()
         z = z[[1]]
         n = length(z)
-        s = if (!is.null(srcref <- attr(z, 'srcref'))) {
-          paste0(' at ', basename(attr(srcref, 'srcfile')$filename), '#', srcref[1])
-        }
+        s = if (!is.null(srcref <- attr(z, 'srcref')))
+          error_loc(attr(srcref, 'srcfile')$filename, srcref[1], wd)
         cat('Error from', z[1], if (n > 1) '...', s, '\n')
       }
     )
   }
+}
+
+# add ANSI link on file path if supported
+error_loc = function(x, line, wd) {
+  if (!length(x)) return()
+  if (!isTRUE(as.logical(Sys.getenv('RSTUDIO_CLI_HYPERLINKS'))))
+    return(sprintf(' at %s#%d', x, line))
+  full = normalizePath(if (file.exists(x)) x else file.path(wd, x), '/')
+  sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, x, line)
 }
 
 #' Check if an R expression produces warnings or errors

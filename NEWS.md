@@ -2,6 +2,8 @@
 
 - The error location reporting stopped working in the previous version and was fixed in this version.
 
+- The error location will come with a clickable link on it if the environment supports ANSI links.
+
 # CHANGES IN testit VERSION 0.14
 
 - `test_pkg()` is compatible with R < 3.3.0 (if the function `.traceback()` is unavailable, the error location will not be printed).
