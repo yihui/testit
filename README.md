@@ -10,7 +10,7 @@ coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codec
 
 <!-- badges: end -->
 
-This package provides two simple functions (30 lines of code in total):
+This package provides two simple functions:
 
 -   `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
 
@@ -68,10 +68,8 @@ library(testit)
 test_pkg('pkg_name')
 ```
 
-That is all for `R CMD check`. For package development, it is recommended to use
-[**devtools**](https://cran.r-project.org/package=devtools). In particular,
-`Ctrl/Cmd + Shift + L` in RStudio makes all objects in a package visible to you,
-and you can run tests interactively.
+That is all for `R CMD check`. For package development, you can
+`Ctrl/Cmd + Shift + T` to run tests.
 
 ## Installation
 
@@ -91,17 +89,16 @@ remotes::install_github('yihui/testit')
 
 How about [**testthat**](https://CRAN.R-project.org/package=testthat)? Well,
 this package is far less sophisticated than **testthat**. There is nothing fancy
-in this package. Please do consider **testthat** if your tests require more
-granularity. I myself do not use **testthat** because I'm too lazy to learn the
-new vocabulary (`testthat::expect_xxx`). For **testit**, I do not need to think
-if I should use `expect_equal`, `expect_equivalent`, or `expect_identical`; I
-just write test conditions in parentheses that are expected to return `TRUE`.
-That is the only single rule to remember.
+in this package. I do not use **testthat** by myself because I'm too lazy to
+learn the new vocabulary (`testthat::expect_xxx`). For **testit**, I do not need
+to think if I should use `expect_equal`, `expect_equivalent`, or
+`expect_identical`; I just write test conditions in parentheses that are
+expected to return `TRUE`. That is the one and only rule to remember.
 
 There is no plan to add new features or reinvent anything in this package. It is
-an intentionally tiny package.
+an intentionally tiny package with zero dependencies.
 
-<img src="https://i.imgur.com/sDsgmfj.jpg" alt="Xunzi" align="right" width="100"/>
+<img src="https://i.imgur.com/sDsgmfj.jpeg" alt="Xunzi" align="right" width="100"/>
 
 Although he did not really mean it, [Xunzi](https://en.wikipedia.org/wiki/Xunzi)
 said something that happens to apply well to unit testing:
