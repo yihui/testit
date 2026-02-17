@@ -258,7 +258,7 @@ has_error = function(expr, silent = !interactive()) {
 #' }
 snapshot = function(name, expr) {
   # Capture all output from the expression
-  output = paste(capture.output({
+  output_lines = capture.output({
     withCallingHandlers(
       eval(substitute(expr), parent.frame()),
       warning = function(w) {
@@ -266,7 +266,7 @@ snapshot = function(name, expr) {
         invokeRestart('muffleWarning')
       }
     )
-  }), collapse = '\n')
+  })
 
   # Determine snapshot file location
   # Look for _snapshots directory relative to the calling test file
@@ -282,19 +282,20 @@ snapshot = function(name, expr) {
 
   if (update || !file.exists(snapshot_file)) {
     # Write new snapshot
-    writeLines(output, snapshot_file)
+    writeLines(output_lines, snapshot_file)
     if (!update) {
       message('Created new snapshot: ', snapshot_file)
     }
   } else {
     # Compare with existing snapshot
-    expected = paste(readLines(snapshot_file, warn = FALSE), collapse = '\n')
-    if (!identical(output, expected)) {
+    expected_lines = readLines(snapshot_file, warn = FALSE)
+    if (!identical(output_lines, expected_lines)) {
       stop(
         'Snapshot mismatch for "', name, '":\n',
         'Expected snapshot in: ', snapshot_file, '\n',
         'To update snapshots, set TESTIT_UPDATE_SNAPSHOTS=true\n',
-        '\nExpected:\n', expected, '\n\nActual:\n', output,
+        '\nExpected:\n', paste(expected_lines, collapse = '\n'),
+        '\n\nActual:\n', paste(output_lines, collapse = '\n'),
         call. = FALSE
       )
     }
