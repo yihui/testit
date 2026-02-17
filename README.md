@@ -10,13 +10,16 @@ coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codec
 
 <!-- badges: end -->
 
-This package provides two simple functions:
+This package provides three simple functions:
 
 -   `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
 
 -   `test_pkg(package)`: runs tests with all objects (exported or non-exported)
     in the package namespace directly available, so no need to use the
     triple-colon `package:::name` for non-exported objects
+
+-   `snapshot(name, expr)`: capture and compare plain-text output for snapshot
+    testing
 
 ## Why?
 
@@ -55,6 +58,22 @@ assert('T is TRUE and F is FALSE by default, but can be changed', {
   T = FALSE
   (T == FALSE)
 })
+```
+
+## Snapshot testing
+
+The `snapshot()` function provides a simple way to test output that would be
+tedious to check with assertions:
+
+``` r
+# Capture and compare printed output
+snapshot('my_output', {
+  print(data.frame(x = 1:3, y = letters[1:3]))
+})
+
+# Snapshots are stored as plain text files in _snapshots/
+# - To create/update: set TESTIT_UPDATE_SNAPSHOTS=true
+# - Files are human-readable and easy to review in version control
 ```
 
 ## R CMD check
