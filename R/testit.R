@@ -267,19 +267,19 @@ snapshot = function(name, expr) {
       }
     )
   }), collapse = '\n')
-  
+
   # Determine snapshot file location
   # Look for _snapshots directory relative to the calling test file
   snapshot_dir = file.path('_snapshots')
   if (!dir.exists(snapshot_dir)) {
     dir.create(snapshot_dir, showWarnings = FALSE, recursive = TRUE)
   }
-  
+
   snapshot_file = file.path(snapshot_dir, paste0(name, '.txt'))
-  
+
   # Check if we should update snapshots
   update = isTRUE(as.logical(Sys.getenv('TESTIT_UPDATE_SNAPSHOTS', 'false')))
-  
+
   if (update || !file.exists(snapshot_file)) {
     # Write new snapshot
     writeLines(output, snapshot_file)
@@ -299,6 +299,6 @@ snapshot = function(name, expr) {
       )
     }
   }
-  
+
   invisible(NULL)
 }
