@@ -227,3 +227,78 @@ has_warning = function(expr) {
 has_error = function(expr, silent = !interactive()) {
   inherits(try(force(expr), silent = silent), 'try-error')
 }
+
+#' Snapshot testing for plain-text output
+#'
+#' Compare the output of an expression against a saved snapshot. Snapshots are
+#' stored as plain text files in the \file{_snapshots/} directory relative to
+#' the test file.
+#' @param name A unique name for this snapshot (used as the filename)
+#' @param expr An R expression whose output will be captured and compared
+#' @return Invisible \code{NULL} if the snapshot matches, otherwise an error is
+#'   signaled showing the differences.
+#' @details The function captures all output (via \code{\link{capture.output}()})
+#'   from evaluating \code{expr}, including printed values, messages, and
+#'   warnings (but not errors). The output is compared to a saved snapshot file.
+#'
+#'   To create or update snapshots, set the environment variable
+#'   \code{TESTIT_UPDATE_SNAPSHOTS=true} before running tests. This will write
+#'   new snapshot files without comparing to existing ones.
+#'
+#'   Snapshot files are stored in a \file{_snapshots/} subdirectory next to the
+#'   test file, with names like \file{name.txt}.
+#' @export
+#' @examples
+#' \dontrun{
+#' # In a test file:
+#' snapshot('basic_output', {
+#'   cat('Hello, World!\n')
+#'   print(1:5)
+#' })
+#' }
+snapshot = function(name, expr) {
+  # Capture all output from the expression
+  output = paste(capture.output({
+    withCallingHandlers(
+      eval(substitute(expr), parent.frame()),
+      warning = function(w) {
+        message('Warning: ', conditionMessage(w))
+        invokeRestart('muffleWarning')
+      }
+    )
+  }), collapse = '\n')
+  
+  # Determine snapshot file location
+  # Look for _snapshots directory relative to the calling test file
+  snapshot_dir = file.path('_snapshots')
+  if (!dir.exists(snapshot_dir)) {
+    dir.create(snapshot_dir, showWarnings = FALSE, recursive = TRUE)
+  }
+  
+  snapshot_file = file.path(snapshot_dir, paste0(name, '.txt'))
+  
+  # Check if we should update snapshots
+  update = isTRUE(as.logical(Sys.getenv('TESTIT_UPDATE_SNAPSHOTS', 'false')))
+  
+  if (update || !file.exists(snapshot_file)) {
+    # Write new snapshot
+    writeLines(output, snapshot_file)
+    if (!update) {
+      message('Created new snapshot: ', snapshot_file)
+    }
+  } else {
+    # Compare with existing snapshot
+    expected = paste(readLines(snapshot_file, warn = FALSE), collapse = '\n')
+    if (!identical(output, expected)) {
+      stop(
+        'Snapshot mismatch for "', name, '":\n',
+        'Expected snapshot in: ', snapshot_file, '\n',
+        'To update snapshots, set TESTIT_UPDATE_SNAPSHOTS=true\n',
+        '\nExpected:\n', expected, '\n\nActual:\n', output,
+        call. = FALSE
+      )
+    }
+  }
+  
+  invisible(NULL)
+}

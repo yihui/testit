@@ -1,0 +1,3 @@
+Line 1
+[1] "Text output"
+Line 2
