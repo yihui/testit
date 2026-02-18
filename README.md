@@ -65,8 +65,7 @@ Snapshot tests use markdown files that combine R code with expected output. Plac
 `.md` files in the `_snapshots/` directory under `tests/testit/`, and they will
 be automatically run by `test_pkg()`.
 
-Each markdown file contains R code blocks (` ```r `) followed by expected output
-blocks (` ``` `):
+Each markdown file contains R code blocks followed by expected output blocks:
 
 ````markdown
 # Test description
@@ -80,6 +79,7 @@ blocks (` ``` `):
 ```
 ````
 
+The R code blocks are marked with ` ```r ` and output blocks with ` ``` `.
 When tests run, the R code is executed and output is compared to the expected
 output block. To update snapshots when output changes:
 
