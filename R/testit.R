@@ -190,6 +190,19 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
       }
     )
   }
+  
+  # Check for _snapshots directory and run snapshot tests
+  snapshot_dir = file.path(path, '_snapshots')
+  if (dir.exists(snapshot_dir)) {
+    md_files = list.files(snapshot_dir, pattern = '\\.md$', full.names = TRUE)
+    if (length(md_files) > 0) {
+      update = isTRUE(as.logical(Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS', 'false')))
+      # Normalize paths to absolute before changing directory
+      md_files = normalizePath(md_files, winslash = '/')
+      owd = setwd(path); on.exit(setwd(owd), add = TRUE)
+      run_snapshot_tests(md_files, env, update = update)
+    }
+  }
 }
 
 # add ANSI link on file path if supported
@@ -226,80 +239,4 @@ has_warning = function(expr) {
 #' @rdname has_message
 has_error = function(expr, silent = !interactive()) {
   inherits(try(force(expr), silent = silent), 'try-error')
-}
-
-#' Snapshot testing for plain-text output
-#'
-#' Compare the output of an expression against a saved snapshot. Snapshots are
-#' stored as plain text files in the \file{_snapshots/} directory relative to
-#' the test file.
-#' @param name A unique name for this snapshot (used as the filename)
-#' @param expr An R expression whose output will be captured and compared
-#' @return Invisible \code{NULL} if the snapshot matches, otherwise an error is
-#'   signaled showing the differences.
-#' @details The function captures all output (via \code{\link{capture.output}()})
-#'   from evaluating \code{expr}, including printed values, messages, and
-#'   warnings (but not errors). The output is compared to a saved snapshot file.
-#'
-#'   To create or update snapshots, set the environment variable
-#'   \code{TESTIT_UPDATE_SNAPSHOTS=true} before running tests. This will write
-#'   new snapshot files without comparing to existing ones.
-#'
-#'   Snapshot files are stored in a \file{_snapshots/} subdirectory next to the
-#'   test file, with names like \file{name.txt}.
-#' @export
-#' @examples
-#' \dontrun{
-#' # In a test file:
-#' snapshot('basic_output', {
-#'   cat('Hello, World!\n')
-#'   print(1:5)
-#' })
-#' }
-snapshot = function(name, expr) {
-  # Capture all output from the expression
-  output_lines = capture.output({
-    withCallingHandlers(
-      eval(substitute(expr), parent.frame()),
-      warning = function(w) {
-        message('Warning: ', conditionMessage(w))
-        invokeRestart('muffleWarning')
-      }
-    )
-  })
-
-  # Determine snapshot file location
-  # Look for _snapshots directory relative to the calling test file
-  snapshot_dir = file.path('_snapshots')
-  if (!dir.exists(snapshot_dir)) {
-    dir.create(snapshot_dir, showWarnings = FALSE, recursive = TRUE)
-  }
-
-  snapshot_file = file.path(snapshot_dir, paste0(name, '.txt'))
-
-  # Check if we should update snapshots
-  update = isTRUE(as.logical(Sys.getenv('TESTIT_UPDATE_SNAPSHOTS', 'false')))
-
-  if (update || !file.exists(snapshot_file)) {
-    # Write new snapshot
-    writeLines(output_lines, snapshot_file)
-    if (!update) {
-      message('Created new snapshot: ', snapshot_file)
-    }
-  } else {
-    # Compare with existing snapshot
-    expected_lines = readLines(snapshot_file, warn = FALSE)
-    if (!identical(output_lines, expected_lines)) {
-      stop(
-        'Snapshot mismatch for "', name, '":\n',
-        'Expected snapshot in: ', snapshot_file, '\n',
-        'To update snapshots, set TESTIT_UPDATE_SNAPSHOTS=true\n',
-        '\nExpected:\n', paste(expected_lines, collapse = '\n'),
-        '\n\nActual:\n', paste(output_lines, collapse = '\n'),
-        call. = FALSE
-      )
-    }
-  }
-
-  invisible(NULL)
 }
