@@ -180,11 +180,13 @@ run_snapshot_tests = function(md_files, envir, update = FALSE) {
                 # Write to temp files and use diff
                 tmp_expected = tempfile()
                 tmp_actual = tempfile()
-                writeLines(expected_text, tmp_expected)
-                writeLines(output_text, tmp_actual)
+                writeLines(strsplit(expected_text, '\n')[[1]], tmp_expected)
+                writeLines(strsplit(output_text, '\n')[[1]], tmp_actual)
                 
                 cat('Diff:\n')
-                system2('diff', c('-u', tmp_expected, tmp_actual), stdout = TRUE, stderr = TRUE)
+                diff_output = system2('diff', c('-u', tmp_expected, tmp_actual), 
+                                     stdout = TRUE, stderr = TRUE)
+                cat(paste(diff_output, collapse = '\n'), '\n')
                 
                 unlink(c(tmp_expected, tmp_actual))
               } else {

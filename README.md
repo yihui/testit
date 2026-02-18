@@ -10,16 +10,15 @@ coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codec
 
 <!-- badges: end -->
 
-This package provides three simple functions:
+This package provides two simple functions:
 
 -   `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
 
 -   `test_pkg(package)`: runs tests with all objects (exported or non-exported)
     in the package namespace directly available, so no need to use the
     triple-colon `package:::name` for non-exported objects
-
--   `snapshot(name, expr)`: capture and compare plain-text output for snapshot
-    testing
+    
+Snapshot testing is also supported via markdown files in `_snapshots/` directories.
 
 ## Why?
 
@@ -62,19 +61,38 @@ assert('T is TRUE and F is FALSE by default, but can be changed', {
 
 ## Snapshot testing
 
-The `snapshot()` function provides a simple way to test output that would be
-tedious to check with assertions:
+Snapshot tests use markdown files that combine R code with expected output. Place
+`.md` files in the `_snapshots/` directory under `tests/testit/`, and they will
+be automatically run by `test_pkg()`.
 
-``` r
-# Capture and compare printed output
-snapshot('my_output', {
-  print(data.frame(x = 1:3, y = letters[1:3]))
-})
+Each markdown file contains R code blocks (` ```r `) followed by expected output
+blocks (` ``` `):
 
-# Snapshots are stored as plain text files in _snapshots/
-# - To create/update: set TESTIT_UPDATE_SNAPSHOTS=true
-# - Files are human-readable and easy to review in version control
+````markdown
+# Test description
+
+```r
+1:5
 ```
+
+```
+[1] 1 2 3 4 5
+```
+````
+
+When tests run, the R code is executed and output is compared to the expected
+output block. To update snapshots when output changes:
+
+```bash
+R_TESTIT_UPDATE_SNAPSHOTS=true R CMD check
+```
+
+Snapshot files are human-readable markdown, making them easy to review in
+version control. The implementation handles:
+
+- Nested backticks (uses n+3 backticks when n backticks found inside blocks)
+- Unstable output (cleans bytecode addresses, environment pointers)
+- Diff display (uses `diff -u` if available, otherwise shows expected vs actual)
 
 ## R CMD check
 
