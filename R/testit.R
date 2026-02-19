@@ -171,6 +171,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     unlink(setdiff(list.files(path, full.names = TRUE), fs), recursive = TRUE)
   }, add = TRUE)
   rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
+  ms = fs[grep('^test-.+[.]md$', basename(fs))]
   wd = getwd()
 
   # make all objects in the package visible to tests
@@ -191,17 +192,10 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     )
   }
   
-  # Check for _snapshots directory and run snapshot tests
-  snapshot_dir = file.path(path, '_snapshots')
-  if (dir.exists(snapshot_dir)) {
-    md_files = list.files(snapshot_dir, pattern = '\\.md$', full.names = TRUE)
-    if (length(md_files) > 0) {
-      update = isTRUE(as.logical(Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS', 'false')))
-      # Normalize paths to absolute before changing directory
-      md_files = normalizePath(md_files, winslash = '/')
-      owd = setwd(path); on.exit(setwd(owd), add = TRUE)
-      run_snapshot_tests(md_files, env, update = update)
-    }
+  # Run snapshot tests from markdown files
+  if (length(ms) > 0) {
+    update = isTRUE(as.logical(Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS', 'false')))
+    run_snapshot_tests(ms, env, update = update)
   }
 }
 

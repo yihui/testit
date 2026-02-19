@@ -62,7 +62,7 @@ assert('T is TRUE and F is FALSE by default, but can be changed', {
 ## Snapshot testing
 
 Snapshot tests use markdown files that combine R code with expected output. Place
-`.md` files in the `_snapshots/` directory under `tests/testit/`, and they will
+`.md` files named `test-*.md` in the `tests/testit/` directory, and they will
 be automatically run by `test_pkg()`.
 
 Each markdown file contains R code blocks followed by expected output blocks:
@@ -81,18 +81,15 @@ Each markdown file contains R code blocks followed by expected output blocks:
 
 The R code blocks are marked with ` ```r ` and output blocks with ` ``` `.
 When tests run, the R code is executed and output is compared to the expected
-output block. To update snapshots when output changes:
+output block. If a markdown file doesn't have output blocks initially, they
+will be added automatically. To update snapshots when output changes:
 
 ```bash
 R_TESTIT_UPDATE_SNAPSHOTS=true R CMD check
 ```
 
 Snapshot files are human-readable markdown, making them easy to review in
-version control. The implementation handles:
-
-- Nested backticks (uses n+3 backticks when n backticks found inside blocks)
-- Unstable output (cleans bytecode addresses, environment pointers)
-- Diff display (uses `diff -u` if available, otherwise shows expected vs actual)
+version control.
 
 ## R CMD check
 

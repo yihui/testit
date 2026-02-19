@@ -54,72 +54,81 @@ clean_output = function(lines) {
   gsub('<(bytecode|environment|pointer): 0x[0-9a-f]+>', '<\\1: ...>', lines)
 }
 
-# Find the longest backtick sequence in text
-find_longest_backticks = function(text) {
-  matches = gregexpr('`+', text, perl = TRUE)
-  max_len = 0
-  for (m in matches) {
-    if (m[1] != -1) {
-      lens = attr(m, 'match.length')
-      max_len = max(max_len, max(lens))
-    }
-  }
-  max_len
+# Create fence for code blocks based on content
+make_fence = function(text) {
+  ms = gregexpr('`+', text, perl = TRUE)
+  n = max(2, unlist(lapply(ms, attr, 'match.length')))
+  strrep('`', n + 1)
 }
 
 # Parse markdown file to extract code blocks
 parse_snapshot_md = function(file) {
   lines = readLines(file, warn = FALSE, encoding = 'UTF-8')
   
+  # Find all fence lines
+  fence_idx = grep('^```', lines)
+  if (length(fence_idx) == 0) return(list(blocks = list(), lines = lines))
+  
+  # Pair up opening and closing fences
   blocks = list()
   i = 1
-  while (i <= length(lines)) {
-    line = lines[i]
-    # Check if this line starts a code fence
-    if (grepl('^`{3,}', line)) {
-      # Extract fence and language
-      fence_match = regmatches(line, regexpr('^`+', line))
-      fence = fence_match[1]
-      lang = trimws(sub('^`+', '', line))
-      
-      # Collect lines until we find the closing fence
-      code_lines = character()
-      i = i + 1
-      while (i <= length(lines)) {
-        if (lines[i] == fence) {
-          # Found closing fence
-          break
-        }
-        code_lines = c(code_lines, lines[i])
-        i = i + 1
-      }
-      
-      # Determine block type
-      block_type = if (tolower(lang) == 'r') 'r' else 'output'
-      
-      blocks[[length(blocks) + 1]] = list(
-        type = block_type,
-        content = paste(code_lines, collapse = '\n')
-      )
+  while (i < length(fence_idx)) {
+    open_idx = fence_idx[i]
+    close_idx = fence_idx[i + 1]
+    
+    # Extract fence and language
+    open_line = lines[open_idx]
+    lang = trimws(sub('^```+', '', open_line))
+    
+    # Extract content between fences
+    if (close_idx > open_idx + 1) {
+      content_lines = lines[(open_idx + 1):(close_idx - 1)]
+    } else {
+      content_lines = character(0)
     }
-    i = i + 1
+    
+    # Determine block type
+    block_type = if (tolower(lang) == 'r') 'r' else 'output'
+    
+    blocks[[length(blocks) + 1]] = list(
+      type = block_type,
+      content = content_lines
+    )
+    
+    i = i + 2
   }
   
-  # Find longest backtick sequence in all content
-  all_content = paste(sapply(blocks, function(b) b$content), collapse = '\n')
-  max_backticks = find_longest_backticks(all_content)
-  
-  list(blocks = blocks, max_backticks = max_backticks)
+  list(blocks = blocks, lines = lines)
 }
 
-# Run snapshot tests from markdown files
+#' Run snapshot tests from markdown files
+#'
+#' Execute snapshot tests from markdown files containing R code blocks and
+#' expected output blocks. This function is called automatically by
+#' \code{\link{test_pkg}()} for files matching \code{test-*.md}, but can also
+#' be run manually.
+#' @param md_files Character vector of paths to markdown files
+#' @param envir Environment in which to evaluate R code
+#' @param update Logical; if \code{TRUE}, update snapshot files with actual
+#'   output instead of comparing. Can also be set via the environment variable
+#'   \code{R_TESTIT_UPDATE_SNAPSHOTS=true}.
+#' @return Invisible \code{NULL}. Stops with an error if any snapshot test fails.
+#' @export
+#' @examples
+#' \dontrun{
+#' # Manually run snapshot tests
+#' run_snapshot_tests('test-output.md', globalenv(), update = FALSE)
+#' 
+#' # Update snapshots
+#' run_snapshot_tests('test-output.md', globalenv(), update = TRUE)
+#' }
 run_snapshot_tests = function(md_files, envir, update = FALSE) {
   for (md_file in md_files) {
     cat('Running snapshot tests from:', basename(md_file), '\n')
     
     parsed = parse_snapshot_md(md_file)
     blocks = parsed$blocks
-    max_backticks = parsed$max_backticks
+    lines = parsed$lines
     
     if (length(blocks) == 0) next
     
@@ -138,8 +147,8 @@ run_snapshot_tests = function(md_files, envir, update = FALSE) {
             exprs = parse(text = block$content)
             for (expr in exprs) {
               result = withVisible(eval(expr, envir = envir))
-              # Only auto-print if result is visible and non-NULL
-              if (result$visible && !is.null(result$value)) {
+              # Only auto-print if result is visible
+              if (result$visible) {
                 print(result$value)
               }
             }
@@ -150,27 +159,26 @@ run_snapshot_tests = function(md_files, envir, update = FALSE) {
         
         # Clean output
         output_lines = clean_output(output_lines)
-        output_text = paste(output_lines, collapse = '\n')
         
         # Add R block to new blocks
         new_blocks[[length(new_blocks) + 1]] = list(type = 'r', content = block$content)
         
         # Check if next block is output block
         if (i + 1 <= length(blocks) && blocks[[i + 1]]$type == 'output') {
-          expected_text = blocks[[i + 1]]$content
+          expected_lines = blocks[[i + 1]]$content
           
           if (update) {
             # Update mode: replace expected with actual
-            new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = output_text)
+            new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = output_lines)
             updated = TRUE
             i = i + 2
           } else {
             # Compare mode
-            if (!identical(output_text, expected_text)) {
+            if (!identical(output_lines, expected_lines)) {
               cat('\n')
               cat('Snapshot test failed in:', md_file, '\n')
               cat('R code:\n')
-              cat(block$content, '\n')
+              cat(block$content, sep = '\n')
               cat('\n')
               
               # Try to use diff command
@@ -180,33 +188,36 @@ run_snapshot_tests = function(md_files, envir, update = FALSE) {
                 # Write to temp files and use diff
                 tmp_expected = tempfile()
                 tmp_actual = tempfile()
-                writeLines(strsplit(expected_text, '\n')[[1]], tmp_expected)
-                writeLines(strsplit(output_text, '\n')[[1]], tmp_actual)
+                writeLines(expected_lines, tmp_expected)
+                writeLines(output_lines, tmp_actual)
                 
                 cat('Diff:\n')
                 diff_output = system2('diff', c('-u', tmp_expected, tmp_actual), 
                                      stdout = TRUE, stderr = TRUE)
-                cat(paste(diff_output, collapse = '\n'), '\n')
+                cat(diff_output, sep = '\n')
                 
                 unlink(c(tmp_expected, tmp_actual))
               } else {
                 # Fallback: show expected vs actual
                 cat('Expected:\n')
-                cat(expected_text, '\n')
+                cat(expected_lines, sep = '\n')
                 cat('\nActual:\n')
-                cat(output_text, '\n')
+                cat(output_lines, sep = '\n')
               }
               
               stop('Snapshot test failed. Set R_TESTIT_UPDATE_SNAPSHOTS=true to update.', call. = FALSE)
             }
             
-            new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = expected_text)
+            new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = expected_lines)
             i = i + 2
           }
         } else {
-          # No expected output block, add one in update mode
-          if (update) {
-            new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = output_text)
+          # No expected output block, add one
+          new_blocks[[length(new_blocks) + 1]] = list(type = 'output', content = output_lines)
+          if (!update) {
+            # In non-update mode, this is a new snapshot
+            updated = TRUE
+          } else {
             updated = TRUE
           }
           i = i + 1
@@ -218,21 +229,21 @@ run_snapshot_tests = function(md_files, envir, update = FALSE) {
       }
     }
     
-    # Write updated markdown if in update mode
-    if (update && updated) {
-      # Use n+3 backticks for all code blocks if n backticks are found inside any block
-      out_fence_len = max(3, max_backticks + 3)
-      out_fence = paste(rep('`', out_fence_len), collapse = '')
+    # Write updated markdown if needed
+    if (updated) {
+      # Determine fence to use
+      all_content = unlist(lapply(new_blocks, function(b) b$content))
+      fence = make_fence(all_content)
       
       out_lines = character()
       for (block in new_blocks) {
         if (block$type == 'r') {
-          out_lines = c(out_lines, paste0(out_fence, 'r'))
+          out_lines = c(out_lines, paste0(fence, 'r'))
         } else {
-          out_lines = c(out_lines, out_fence)
+          out_lines = c(out_lines, fence)
         }
         out_lines = c(out_lines, block$content)
-        out_lines = c(out_lines, out_fence)
+        out_lines = c(out_lines, fence)
         out_lines = c(out_lines, '')  # Empty line between blocks
       }
       
