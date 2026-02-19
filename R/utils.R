@@ -117,12 +117,12 @@ parse_snapshot_md = function(file) {
 #' @examples
 #' \dontrun{
 #' # Manually run snapshot tests
-#' run_snapshot_tests('test-output.md', globalenv(), update = FALSE)
+#' test_snaps('test-output.md', globalenv(), update = FALSE)
 #' 
 #' # Update snapshots
-#' run_snapshot_tests('test-output.md', globalenv(), update = TRUE)
+#' test_snaps('test-output.md', globalenv(), update = TRUE)
 #' }
-run_snapshot_tests = function(md_files, envir, update = FALSE) {
+test_snaps = function(md_files, envir, update = FALSE) {
   for (md_file in md_files) {
     cat('Running snapshot tests from:', basename(md_file), '\n')
     

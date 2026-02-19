@@ -17,8 +17,9 @@ This package provides two simple functions:
 -   `test_pkg(package)`: runs tests with all objects (exported or non-exported)
     in the package namespace directly available, so no need to use the
     triple-colon `package:::name` for non-exported objects
-    
-Snapshot testing is also supported via markdown files in `_snapshots/` directories.
+
+Snapshot testing is also supported via markdown files in `_snapshots/`
+directories.
 
 ## Why?
 
@@ -61,13 +62,13 @@ assert('T is TRUE and F is FALSE by default, but can be changed', {
 
 ## Snapshot testing
 
-Snapshot tests use markdown files that combine R code with expected output. Place
-`.md` files named `test-*.md` in the `tests/testit/` directory, and they will
-be automatically run by `test_pkg()`.
+Snapshot tests use markdown files that combine R code with expected output.
+Place `.md` files named `test-*.md` in the `tests/testit/` directory, and they
+will be automatically run by `test_pkg()`.
 
 Each markdown file contains R code blocks followed by expected output blocks:
 
-````markdown
+```` markdown
 # Test description
 
 ```r
@@ -79,12 +80,13 @@ Each markdown file contains R code blocks followed by expected output blocks:
 ```
 ````
 
-The R code blocks are marked with ` ```r ` and output blocks with ` ``` `.
-When tests run, the R code is executed and output is compared to the expected
-output block. If a markdown file doesn't have output blocks initially, they
-will be added automatically. To update snapshots when output changes:
+The R code blocks are marked with ```` ```r ```` and output blocks with
+```` ``` ````. When tests run, the R code is executed and output is compared to
+the expected output block. If a markdown file doesn't have output blocks
+initially, they will be added automatically. To update snapshots when output
+changes:
 
-```bash
+``` bash
 R_TESTIT_UPDATE_SNAPSHOTS=true R CMD check
 ```
 

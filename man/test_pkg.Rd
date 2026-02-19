@@ -38,14 +38,11 @@ containing this script, and all existing objects in the test environment will
 be removed before the code is executed.
 }
 \note{
-All test scripts (\samp{test-*.R}) must be encoded in UTF-8 if they
-  contain any multibyte characters.
+All test scripts must be encoded in UTF-8 if they contain any multibyte
+  characters.
 }
 \examples{
 \dontrun{
 test_pkg("testit")
 }
-}
-\seealso{
-The \pkg{testthat} package (much more sophisticated).
 }

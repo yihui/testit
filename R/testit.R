@@ -133,9 +133,8 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' @param dir the directory of the test files; by default, it is the directory
 #'   \file{testit/} or \file{tests/testit/} under the current working directory
 #' @return \code{NULL}. All test files are executed, unless an error occurs.
-#' @note All test scripts (\samp{test-*.R}) must be encoded in UTF-8 if they
-#'   contain any multibyte characters.
-#' @seealso The \pkg{testthat} package (much more sophisticated).
+#' @note All test scripts must be encoded in UTF-8 if they contain any multibyte
+#'   characters.
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
 test_pkg = function(package, dir = c('testit', 'tests/testit')) {
@@ -191,12 +190,9 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
       }
     )
   }
-  
+
   # Run snapshot tests from markdown files
-  if (length(ms) > 0) {
-    update = isTRUE(as.logical(Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS', 'false')))
-    run_snapshot_tests(ms, env, update = update)
-  }
+  test_snaps(ms, env, update = Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS'))
 }
 
 # add ANSI link on file path if supported
