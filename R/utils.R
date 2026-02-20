@@ -78,7 +78,7 @@ get_fence = function(text, extra = FALSE) {
 parse_snapshot = function(lines, file) {
   # Find all fence lines
   idx = grepl(r <- sprintf('^%s\\s*(\\{r\\})?\\s*', get_fence(lines)), lines)
-  if (sum(idx) %% 2 != 0) stop('Unmatched code fences in ', error_loc(file))
+  if (sum(idx) %% 2 != 0) stop('Unbalanced code fences in ', error_loc(file))
   # Change TRUE to FALSE for idx elements at even positions and their next
   # elements to TRUE to mark the start of the next block
   fences = which(idx)
@@ -113,7 +113,7 @@ test_snaps = function(files, env, update = NA) {
       new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
       if (block$type != '{r}') next
 
-      out = capture_output(block$content, env)
+      out = capture_output(block$content, env, dirname(f))
       # look for the next output block k
       k = NULL
       if (i + 1 <= N) for (j in (i + 1):N) {
@@ -168,7 +168,8 @@ test_snaps = function(files, env, update = NA) {
   }
 }
 
-capture_output = function(code, envir) {
+capture_output = function(code, envir, wd) {
+  owd = setwd(wd); on.exit(setwd(owd), add = TRUE)
   # Execute R code and capture output
   out = tryCatch(capture.output({
     exprs = if (length(code)) parse(text = code, keep.source = FALSE)
