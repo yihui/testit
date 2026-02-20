@@ -72,7 +72,7 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
     if (all || (i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) next
-      if (!is.null(fact)) message('assertion failed: ', fact)
+      if (!is.null(fact) && !hide_error()) message('assertion failed: ', fact)
       stop(sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
@@ -94,7 +94,7 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' @export
 `%==%` = function(x, y) {
   res = identical(x, y)
-  if (!res && isTRUE(getOption('testit.asserting', FALSE))) {
+  if (!res && !hide_error() && getOption('testit.asserting', FALSE)) {
     mc = match.call()
     info = paste(capture.output({
       cat(deparse_key(mc[[2]]), '(LHS) ==>\n')
@@ -185,6 +185,7 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = getNamespace(package)),
       error = function(e) {
+        if (hide_error()) return()
         z = if (exists('.traceback', baseenv(), inherits = FALSE)) .traceback(5)
         if (length(z) == 0) return()
         z = z[[1]]
@@ -233,5 +234,17 @@ has_warning = function(expr) {
 #' @export
 #' @rdname has_message
 has_error = function(expr, silent = !interactive()) {
-  inherits(try(force(expr), silent = silent), 'try-error')
+  tryCatch({
+    if (silent) silence(expr) else expr; FALSE
+  }, error = function(e) {
+    if (!silent) cat('Error: ', conditionMessage(e), '\n', sep = '')
+    TRUE
+  })
+}
+
+hide_error = function() getOption('testit.hide.error', FALSE)
+
+silence = function(expr) {
+  op = options(testit.hide.error = TRUE); on.exit(options(op))
+  expr
 }

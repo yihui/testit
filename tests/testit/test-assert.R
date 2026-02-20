@@ -10,9 +10,9 @@ assert('assert() should signal an error if a condition does not hold', {
 })
 
 # a meaningless test in terms of R (failure is irrelevant to Frequentist or Bayesian)
-try(assert('Frequentists must be correct (http://xkcd.com/1132/): the sun has exploded!', {
+has_error(assert('Frequentists must be correct (http://xkcd.com/1132/): the sun has exploded!', {
   (sample(6, 2) == c(6, 6))
-}), silent = !interactive())
+}))
 
 # fail logical(0)
 assert('assert() should stop on logical(0)', {
@@ -21,7 +21,7 @@ assert('assert() should stop on logical(0)', {
 
 assert('the infix operator %==% works', {
   (1 %==% 1)
-  (!(1 %==% 1L))
+  (!silence(1 %==% 1L))
 })
 
 assert('has_warning() works', {
