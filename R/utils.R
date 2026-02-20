@@ -87,8 +87,9 @@ parse_snapshot = function(lines, file) {
 
 # Execute snapshot tests from markdown files containing R code blocks and
 # expected output blocks.
-test_snaps = function(md_files, envir, update = NA) {
-  for (f in md_files) {
+test_snaps = function(files, env, update = NA) {
+  for (f in files) {
+    rm(list = ls(env, all.names = TRUE), envir = env)
     raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
     blocks = parse_snapshot(raw_lines, f)
     new_blocks = list(); changed = TRUE
@@ -101,7 +102,7 @@ test_snaps = function(md_files, envir, update = NA) {
       new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
       if (block$type != '{r}') next
 
-      out = capture_output(block$content, envir)
+      out = capture_output(block$content, env)
       # look for the next output block k
       k = NULL
       if (i + 1 <= N) for (j in (i + 1):N) {

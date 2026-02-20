@@ -200,7 +200,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit'), update = NA) {
   }
 
   # run snapshot tests from markdown files
-  test_snaps(ms, env, update = NA)
+  test_snaps(ms, env, update)
 }
 
 # add ANSI link on file path if supported
