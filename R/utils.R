@@ -103,7 +103,7 @@ test_snaps = function(files, env, update = NA) {
     rm(list = ls(env, all.names = TRUE), envir = env)
     raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
     blocks = parse_snapshot(raw_lines, f)
-    new_blocks = list(); changed = TRUE
+    new_blocks = list(); changed = FALSE
     pos = NULL  # record the first line of the first failed block for error reporting
 
     # Process blocks in pairs: R code block followed by output block
