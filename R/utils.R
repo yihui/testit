@@ -27,7 +27,8 @@ all_true = function(x) {
 }
 
 insert_identical = function() {
-  rstudioapi::insertText(text = ' %==% ')
+  insert = getFromNamespace('insertText', 'rstudioapi')
+  insert(text = ' %==% ')
 }
 
 # This function is a modification of base::sys.source.  It allows to specify
