@@ -196,7 +196,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
 }
 
 # add ANSI link on file path if supported
-error_loc = function(x, line, wd) {
+error_loc = function(x, line = 1, wd = '.') {
   if (!length(x)) return()
   if (!isTRUE(as.logical(Sys.getenv('RSTUDIO_CLI_HYPERLINKS'))))
     return(sprintf(' at %s#%d', x, line))

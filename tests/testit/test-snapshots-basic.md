@@ -1,4 +1,4 @@
-```r
+```{r}
 1:5
 ```
 
@@ -6,7 +6,7 @@
 [1] 1 2 3 4 5
 ```
 
-```r
+```{r}
 data.frame(x = 1:3, y = letters[1:3])
 ```
 
@@ -17,7 +17,7 @@ data.frame(x = 1:3, y = letters[1:3])
 3 3 c
 ```
 
-```r
+```{r}
 cat('Line 1\n')
 print('Text output')
 cat('Line 2\n')

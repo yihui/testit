@@ -71,7 +71,7 @@ Each markdown file contains R code blocks followed by expected output blocks:
 ```` markdown
 # Test description
 
-```r
+```{r}
 1:5
 ```
 
@@ -80,7 +80,7 @@ Each markdown file contains R code blocks followed by expected output blocks:
 ```
 ````
 
-The R code blocks are marked with ```` ```r ```` and output blocks with
+The R code blocks are marked with ```` ```{r} ```` and output blocks with
 ```` ``` ````. When tests run, the R code is executed and output is compared to
 the expected output block. If a markdown file doesn't have output blocks
 initially, they will be added automatically. To update snapshots when output
