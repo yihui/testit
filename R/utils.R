@@ -4,6 +4,17 @@
 # has the package been installed once in test_pkg()?
 .env$installed = FALSE
 
+# get package name from DESCRIPTION file
+pkg_name = function() {
+  for (desc in c('DESCRIPTION', '../DESCRIPTION')) {
+    if (file.exists(desc)) {
+      d = read.dcf(desc, fields = 'Package')
+      if (!is.na(d[1, 1])) return(d[1, 1])
+    }
+  }
+  stop('Package name cannot be detected from DESCRIPTION.')
+}
+
 # find an available dir
 available_dir = function(dirs) {
   for (i in dirs) {

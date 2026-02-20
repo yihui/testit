@@ -4,10 +4,11 @@
 \alias{test_pkg}
 \title{Run the tests of a package in its namespace}
 \usage{
-test_pkg(package, dir = c("testit", "tests/testit"), update = NA)
+test_pkg(package = pkg_name(), dir = c("testit", "tests/testit"), update = NA)
 }
 \arguments{
-\item{package}{The package name.}
+\item{package}{The package name. By default, it is detected from the
+\file{DESCRIPTION} file if exists.}
 
 \item{dir}{The directory of the test files; by default, it is the directory
 \file{testit/} or \file{tests/testit/} under the current working directory,

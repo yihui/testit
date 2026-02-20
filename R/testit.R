@@ -128,7 +128,8 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #'
 #' See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
 #' about snapshot testing.
-#' @param package The package name.
+#' @param package The package name. By default, it is detected from the
+#'   \file{DESCRIPTION} file if exists.
 #' @param dir The directory of the test files; by default, it is the directory
 #'   \file{testit/} or \file{tests/testit/} under the current working directory,
 #'   whichever exists. You can also specify a custom directory.
@@ -145,13 +146,11 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #'   characters.
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
-test_pkg = function(package, dir = c('testit', 'tests/testit'), update = NA) {
+test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), update = NA) {
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   install = !.env$installed && !interactive() &&
-    file.exists(desc <- file.path('../DESCRIPTION')) &&
-    is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
-    !is.na(p <- read.dcf(desc, fields = 'Package')[1, 1]) && p == package
+    is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) && package == pkg_name()
   if (install) {
     .env$lib_old = lib_old = .libPaths()
     .env$lib_new = lib_new = tempfile('R-lib-', '.'); dir.create(lib_new)
@@ -164,12 +163,10 @@ test_pkg = function(package, dir = c('testit', 'tests/testit'), update = NA) {
     if (res == 0) {
       .libPaths(c(lib_new, lib_old))
       .env$installed = TRUE
+      if (!is.na(i <- match(paste0('package:', package), search())))
+        detach(pos = i, unload = TRUE, force = TRUE)
     }
   }
-  if (!is.na(i <- match(paste0('package:', package), search())))
-    detach(pos = i, unload = TRUE, force = TRUE)
-
-  library(package, character.only = TRUE)
 
   path = available_dir(dir)
   fs = list.files(path, full.names = TRUE)
