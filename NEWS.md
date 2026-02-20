@@ -1,5 +1,6 @@
 # CHANGES IN testit VERSION 0.16
 
+- Added support for snapshot testing with Markdown files; see https://pkg.yihui.org/testit/#snapshot-testing for more information.
 
 # CHANGES IN testit VERSION 0.15
 
