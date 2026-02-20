@@ -110,28 +110,28 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 
 #' Run the tests of a package in its namespace
 #'
-#' The main purpose of this function is to expose the namespace of a package
-#' when running tests, which allows one to use non-exported objects in the
-#' package without having to resort to the triple colon \code{\link{:::}} trick.
+#' The tests are executed in a clean environment with the namespace of the
+#' package to be tested as the parent environment, which means you can use
+#' non-exported objects in the package without having to resort to the triple
+#' colon \code{\link{:::}} trick.
 #'
 #' The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
 #' directory by default (depending on your working directory is the package root
-#' directory or the \file{tests/} directory). This function also looks for the
-#' \file{tests/testit/} directory under the package installation directory when
-#' the user-provided \code{dir} does not exist. The test scripts must be named
-#' of the form \samp{test-*.R}; other R scripts will not be treated as test
-#' files (but may also be useful, e.g. you can \code{\link{source}()} them in
-#' tests).
+#' directory or the \file{tests/} directory). The test scripts must be named of
+#' the form \samp{test-*.R} (or \samp{test-*.md} for snapshot tests); other
+#' files will not be treated as test files (but may also be useful, e.g. you can
+#' \code{\link{source}()} other scripts in tests).
 #'
-#' For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
-#' under \file{pkg_root/tests/testit/}. The R scripts are executed with
-#' \code{\link{sys.source}} in the namespace of the package to be tested; when
-#' an R script is executed, the working directory is the same as the directory
-#' containing this script, and all existing objects in the test environment will
+#' When a test is executed, the working directory is the same as the directory
+#' containing this test, and all existing objects in the test environment will
 #' be removed before the code is executed.
-#' @param package the package name
-#' @param dir the directory of the test files; by default, it is the directory
-#'   \file{testit/} or \file{tests/testit/} under the current working directory
+#'
+#' See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
+#' about snapshot testing.
+#' @param package The package name.
+#' @param dir The directory of the test files; by default, it is the directory
+#'   \file{testit/} or \file{tests/testit/} under the current working directory,
+#'   whichever exists. You can also specify a custom directory.
 #' @param update If \code{TRUE}, update snapshot files with actual output
 #'   instead of comparing. If \code{NA} (the default), update snapshot files
 #'   only if they are tracked by GIT (so you can view the diffs in GIT and
@@ -171,7 +171,7 @@ test_pkg = function(package, dir = c('testit', 'tests/testit'), update = NA) {
 
   library(package, character.only = TRUE)
 
-  path = available_dir(c(dir, system.file('tests', 'testit', package = package)))
+  path = available_dir(dir)
   fs = list.files(path, full.names = TRUE)
   # clean up new files/dirs generated during testing
   if (getOption('testit.cleanup', TRUE)) on.exit({

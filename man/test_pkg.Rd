@@ -7,10 +7,11 @@
 test_pkg(package, dir = c("testit", "tests/testit"), update = NA)
 }
 \arguments{
-\item{package}{the package name}
+\item{package}{The package name.}
 
-\item{dir}{the directory of the test files; by default, it is the directory
-\file{testit/} or \file{tests/testit/} under the current working directory}
+\item{dir}{The directory of the test files; by default, it is the directory
+\file{testit/} or \file{tests/testit/} under the current working directory,
+whichever exists. You can also specify a custom directory.}
 
 \item{update}{If \code{TRUE}, update snapshot files with actual output
 instead of comparing. If \code{NA} (the default), update snapshot files
@@ -25,26 +26,25 @@ snapshot file and never throw an error.}
 \code{NULL}. All test files are executed, unless an error occurs.
 }
 \description{
-The main purpose of this function is to expose the namespace of a package
-when running tests, which allows one to use non-exported objects in the
-package without having to resort to the triple colon \code{\link{:::}} trick.
+The tests are executed in a clean environment with the namespace of the
+package to be tested as the parent environment, which means you can use
+non-exported objects in the package without having to resort to the triple
+colon \code{\link{:::}} trick.
 }
 \details{
 The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
 directory by default (depending on your working directory is the package root
-directory or the \file{tests/} directory). This function also looks for the
-\file{tests/testit/} directory under the package installation directory when
-the user-provided \code{dir} does not exist. The test scripts must be named
-of the form \samp{test-*.R}; other R scripts will not be treated as test
-files (but may also be useful, e.g. you can \code{\link{source}()} them in
-tests).
+directory or the \file{tests/} directory). The test scripts must be named of
+the form \samp{test-*.R} (or \samp{test-*.md} for snapshot tests); other
+files will not be treated as test files (but may also be useful, e.g. you can
+\code{\link{source}()} other scripts in tests).
 
-For \command{R CMD check}, this means the test R scripts (\file{test-*.R} are
-under \file{pkg_root/tests/testit/}. The R scripts are executed with
-\code{\link{sys.source}} in the namespace of the package to be tested; when
-an R script is executed, the working directory is the same as the directory
-containing this script, and all existing objects in the test environment will
+When a test is executed, the working directory is the same as the directory
+containing this test, and all existing objects in the test environment will
 be removed before the code is executed.
+
+See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
+about snapshot testing.
 }
 \note{
 All test scripts must be encoded in UTF-8 if they contain any multibyte
