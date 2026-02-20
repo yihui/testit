@@ -132,12 +132,20 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' @param package the package name
 #' @param dir the directory of the test files; by default, it is the directory
 #'   \file{testit/} or \file{tests/testit/} under the current working directory
+#' @param update If \code{TRUE}, update snapshot files with actual output
+#'   instead of comparing. If \code{NA} (the default), update snapshot files
+#'   only if they are tracked by GIT (so you can view the diffs in GIT and
+#'   decide whether to accept or discard the changes). If \code{FALSE}, never
+#'   update snapshot files and always compare. For \code{NA} and \code{FALSE},
+#'   if the snapshot test fails, it will throw an error with a message showing
+#'   the location of the failed test. For \code{TRUE}, it will update the
+#'   snapshot file and never throw an error.
 #' @return \code{NULL}. All test files are executed, unless an error occurs.
 #' @note All test scripts must be encoded in UTF-8 if they contain any multibyte
 #'   characters.
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
-test_pkg = function(package, dir = c('testit', 'tests/testit')) {
+test_pkg = function(package, dir = c('testit', 'tests/testit'), update = NA) {
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   install = !.env$installed && !interactive() &&
@@ -191,8 +199,8 @@ test_pkg = function(package, dir = c('testit', 'tests/testit')) {
     )
   }
 
-  # Run snapshot tests from markdown files
-  test_snaps(ms, env, update = Sys.getenv('R_TESTIT_UPDATE_SNAPSHOTS'))
+  # run snapshot tests from markdown files
+  test_snaps(ms, env, update = NA)
 }
 
 # add ANSI link on file path if supported

@@ -4,13 +4,22 @@
 \alias{test_pkg}
 \title{Run the tests of a package in its namespace}
 \usage{
-test_pkg(package, dir = c("testit", "tests/testit"))
+test_pkg(package, dir = c("testit", "tests/testit"), update = NA)
 }
 \arguments{
 \item{package}{the package name}
 
 \item{dir}{the directory of the test files; by default, it is the directory
 \file{testit/} or \file{tests/testit/} under the current working directory}
+
+\item{update}{If \code{TRUE}, update snapshot files with actual output
+instead of comparing. If \code{NA} (the default), update snapshot files
+only if they are tracked by GIT (so you can view the diffs in GIT and
+decide whether to accept or discard the changes). If \code{FALSE}, never
+update snapshot files and always compare. For \code{NA} and \code{FALSE},
+if the snapshot test fails, it will throw an error with a message showing
+the location of the failed test. For \code{TRUE}, it will update the
+snapshot file and never throw an error.}
 }
 \value{
 \code{NULL}. All test files are executed, unless an error occurs.

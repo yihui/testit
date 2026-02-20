@@ -84,29 +84,9 @@ parse_snapshot = function(lines, file) {
   })
 }
 
-#' Run snapshot tests from markdown files
-#'
-#' Execute snapshot tests from markdown files containing R code blocks and
-#' expected output blocks. This function is called automatically by
-#' \code{\link{test_pkg}()} for files matching \code{test-*.md}, but can also
-#' be run manually.
-#' @param md_files Character vector of paths to markdown files
-#' @param envir Environment in which to evaluate R code
-#' @param update Logical; if \code{TRUE}, update snapshot files with actual
-#'   output instead of comparing. Can also be set via the environment variable
-#'   \code{R_TESTIT_UPDATE_SNAPSHOTS=true}.
-#' @return Invisible \code{NULL}. Stops with an error if any snapshot test fails.
-#' @export
-#' @examples
-#' \dontrun{
-#' # Manually run snapshot tests
-#' test_snaps('test-output.md', globalenv(), update = FALSE)
-#'
-#' # Update snapshots
-#' test_snaps('test-output.md', globalenv(), update = TRUE)
-#' }
-test_snaps = function(md_files, envir, update = FALSE) {
-  update = isTRUE(as.logical(update))
+# Execute snapshot tests from markdown files containing R code blocks and
+# expected output blocks.
+test_snaps = function(md_files, envir, update = NA) {
   for (f in md_files) {
     raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
     blocks = parse_snapshot(raw_lines, f)
@@ -134,7 +114,7 @@ test_snaps = function(md_files, envir, update = FALSE) {
         changed = TRUE
       } else {
         expected_lines = blocks[[k]]$content
-        if (!update) {
+        if (!isTRUE(update)) {
           if (identical(out, expected_lines)) next
           changed = TRUE; if (is.null(pos)) pos = block$line
         }
@@ -152,14 +132,14 @@ test_snaps = function(md_files, envir, update = FALSE) {
           c(paste0(fence, if (b$type != '') '{r}'), b$content, fence)
         }
       }))
-      if (update || is.null(pos)) {
+      if (isTRUE(update) || is.null(pos)) {
         write_utf8(out_lines, f)
         message('Updated snapshot file: ', f)
       } else {
         tracked = system2(
           'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = NULL, stderr = NULL
         ) == 0
-        if (tracked) {
+        if (tracked && is.na(update)) {
           write_utf8(out_lines, f)
           system2('git', c('diff', '--color=auto', shQuote(f)))
         } else {
@@ -168,7 +148,7 @@ test_snaps = function(md_files, envir, update = FALSE) {
         stop(
           'Snapshot test failed', error_loc(f, pos), '\n',
           if (tracked) 'If the changes are not expected, revert them in GIT.' else
-            'Set R_TESTIT_UPDATE_SNAPSHOTS=true to update.', call. = FALSE
+            'Call testit::test_pkg(update = TRUE) to update.', call. = FALSE
         )
       }
     }
