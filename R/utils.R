@@ -4,6 +4,17 @@
 # has the package been installed once in test_pkg()?
 .env$installed = FALSE
 
+# get package name from DESCRIPTION file
+pkg_name = function() {
+  for (desc in c('DESCRIPTION', '../DESCRIPTION')) {
+    if (file.exists(desc)) {
+      d = read.dcf(desc, fields = 'Package')
+      if (!is.na(d[1, 1])) return(d[1, 1])
+    }
+  }
+  stop('Package name cannot be detected from DESCRIPTION.')
+}
+
 # find an available dir
 available_dir = function(dirs) {
   for (i in dirs) {
@@ -27,7 +38,8 @@ all_true = function(x) {
 }
 
 insert_identical = function() {
-  rstudioapi::insertText(text = ' %==% ')
+  insert = getFromNamespace('insertText', 'rstudioapi')
+  insert(text = ' %==% ')
 }
 
 # This function is a modification of base::sys.source.  It allows to specify
@@ -46,4 +58,177 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   if (length(exprs) == 0L) return()
   owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
   for (i in seq_along(exprs)) eval(exprs[i], envir)
+}
+
+# Clean output to remove unstable elements like bytecode addresses
+clean_output = function(lines) {
+  # Remove addresses like <bytecode: 0x...>, <environment: 0x...>, <pointer: 0x...>
+  gsub('<(bytecode|environment|pointer): 0x[0-9a-f]+>', '<\\1: ...>', lines)
+}
+
+# get fence for code blocks based on content
+get_fence = function(text, extra = FALSE) {
+  ms = gregexpr('^`+', text, perl = TRUE)
+  n = max(unlist(lapply(ms, attr, 'match.length')))
+  if (extra && n >= 3) n = n + 1
+  strrep('`', max(n, 3))
+}
+
+# Parse markdown file to extract code blocks
+parse_snapshot = function(lines, file) {
+  # Find all fence lines
+  idx = grepl(r <- sprintf('^%s\\s*(\\{r\\})?\\s*', get_fence(lines)), lines)
+  if (sum(idx) %% 2 != 0) stop('Unbalanced code fences in ', error_loc(file))
+  # Change TRUE to FALSE for idx elements at even positions and their next
+  # elements to TRUE to mark the start of the next block
+  fences = which(idx)
+  i = seq_len(length(fences)/2) * 2
+  idx[fences[i]] = FALSE
+  idx[fences[i] + 1] = TRUE
+  # Split lines into code, output, and text blocks
+  N = seq_along(lines)
+  blocks = split(data.frame(lines, N), cumsum(idx[N]))
+  lapply(blocks, function(b) {
+    n = nrow(b)
+    if (n < 2 || !grepl(r, b[1, 1])) list(type = 'text', content = b[, 1]) else {
+      list(type = gsub('^```+|\\s+', '', b[1, 1]), content = b[-c(1, n), 1], line = b[1, 2])
+    }
+  })
+}
+
+# Execute snapshot tests from markdown files containing R code blocks and
+# expected output blocks.
+test_snaps = function(files, env, update = NA) {
+  for (f in files) {
+    rm(list = ls(env, all.names = TRUE), envir = env)
+    raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
+    blocks = parse_snapshot(raw_lines, f)
+    new_blocks = list(); changed = TRUE
+    pos = NULL  # record the first line of the first failed block for error reporting
+
+    # Process blocks in pairs: R code block followed by output block
+    N = length(blocks)
+    for (i in seq_len(N)) {
+      block = blocks[[i]]
+      new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
+      if (block$type != '{r}') next
+
+      out = capture_output(block$content, env, dirname(f))
+      # look for the next output block k
+      k = NULL
+      if (i + 1 <= N) for (j in (i + 1):N) {
+        if (blocks[[j]]$type == '') {
+          k = j; break
+        }
+      }
+      if (is.null(k)) {
+        # no output block, add one
+        new_blocks[[length(new_blocks) + 1]] = list(type = '', content = out)
+        changed = TRUE
+      } else {
+        expected_lines = blocks[[k]]$content
+        if (!isTRUE(update)) {
+          if (identical(out, expected_lines)) next
+          changed = TRUE; if (is.null(pos)) pos = block$line
+        }
+        blocks[[k]] = list(type = '', content = out)
+      }
+    }
+
+    # Write updated markdown if needed
+    if (changed) {
+      # Determine fence to use
+      all_content = unlist(lapply(new_blocks, function(b) b$content))
+      fence = get_fence(all_content, TRUE)
+      out_lines = unlist(lapply(new_blocks, function(b) {
+        if (b$type == 'text') b$content else {
+          c(paste0(fence, if (b$type != '') '{r}'), b$content, fence)
+        }
+      }))
+      if (isTRUE(update) || is.null(pos)) {
+        write_utf8(out_lines, f)
+        message('Updated snapshot file: ', f)
+      } else {
+        tracked = system2(
+          'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = NULL, stderr = NULL
+        ) == 0
+        if (tracked && is.na(update)) {
+          write_utf8(out_lines, f)
+          system2('git', c('diff', '--color=auto', shQuote(f)))
+        } else {
+          mini_diff(raw_lines, out_lines)
+        }
+        stop(
+          'Snapshot test failed', error_loc(f, pos), '\n',
+          if (tracked) 'If the changes are not expected, revert them in GIT.' else
+            'Call testit::test_pkg(update = TRUE) to update.', call. = FALSE
+        )
+      }
+    }
+  }
+}
+
+capture_output = function(code, envir, wd) {
+  owd = setwd(wd); on.exit(setwd(owd), add = TRUE)
+  # Execute R code and capture output
+  out = tryCatch(capture.output({
+    exprs = if (length(code)) parse(text = code, keep.source = FALSE)
+    for (expr in exprs) {
+      res = withVisible(eval(expr, envir = envir))
+      if (res$visible) print(res$value)
+    }
+  }), error = function(e) paste('Error:', conditionMessage(e)))
+  # Clean output
+  clean_output(out)
+}
+
+write_utf8 = function(text, con) {
+  opts = options(encoding = "native.enc")
+  on.exit(options(opts))
+  writeLines(enc2utf8(text), con, useBytes = TRUE)
+}
+
+# Output a minimal diff between two character vectors, showing only lines that
+# are different and 3 lines of context around them. Lines starting with " " are
+# unchanged, "-" are in x1 but not x2, "+" are in x2 but not x1.
+mini_diff = function(x1, x2) {
+  out = character()
+  i = 1; j = 1
+  n1 = length(x1); n2 = length(x2)
+
+  # 1. Alignment Loop
+  while (i <= n1 || j <= n2) {
+    if (i <= n1 && j <= n2 && x1[i] == x2[j]) {
+      out = c(out, paste(" ", x1[i])); i = i + 1; j = j + 1
+    } else {
+      m_i = if (i <= n1 && j <= n2) match(x2[j], x1[i:n1]) else NA
+      m_j = if (i <= n1 && j <= n2) match(x1[i], x2[j:n2]) else NA
+      if (!is.na(m_i) && (is.na(m_j) || m_i <= m_j)) {
+        out = c(out, paste("-", x1[i])); i = i + 1
+      } else if (!is.na(m_j)) {
+        out = c(out, paste("+", x2[j])); j = j + 1
+      } else {
+        if (i <= n1) { out = c(out, paste("-", x1[i])); i = i + 1 }
+        if (j <= n2) { out = c(out, paste("+", x2[j])); j = j + 1 }
+      }
+    }
+  }
+
+  # 2. Context Filtering (Keep 3 lines around any change)
+  if (length(out) > 0) {
+    is_change = !startsWith(out, " ")
+    change_idx = which(is_change)
+
+    # Identify indices within 3 steps of a change
+    keep_idx = unique(as.integer(outer(change_idx, -3:3, "+")))
+    keep_idx = sort(keep_idx[keep_idx > 0 & keep_idx <= length(out)])
+
+    # Print with "..." where gaps occur
+    last_idx = 0
+    for (idx in keep_idx) {
+      if (idx > last_idx + 1) cat("  ...\n")
+      cat(out[idx], "\n")
+      last_idx = idx
+    }
+  }
 }

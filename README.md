@@ -18,6 +18,9 @@ This package provides two simple functions:
     in the package namespace directly available, so no need to use the
     triple-colon `package:::name` for non-exported objects
 
+Snapshot testing is also supported via markdown files in `_snapshots/`
+directories.
+
 ## Why?
 
 Because it is tedious to type these commands repeatedly in tests:
@@ -57,6 +60,38 @@ assert('T is TRUE and F is FALSE by default, but can be changed', {
 })
 ```
 
+## Snapshot testing
+
+Snapshot tests use Markdown files that combine R code with expected output.
+Place `.md` files named `test-*.md` in the `tests/testit/` directory, and they
+will be automatically run by `test_pkg()`.
+
+Each Markdown file contains R code blocks followed by expected output blocks:
+
+```` markdown
+# Test description
+
+```{r}
+1:5
+```
+
+```
+[1] 1 2 3 4 5
+```
+````
+
+The R code blocks are marked with ```` ```{r} ```` and output blocks with
+```` ``` ````. When tests run, the R code is executed and output is compared to
+the expected output block. If a markdown file doesn't have output blocks
+initially, they will be added automatically. To update snapshots when output
+changes, run `testit::test_pkg(update = TRUE)`.
+
+Snapshot files are human-readable Markdown, making them easy to review in
+version control. Optionally, you can write ordinary text anywhere in the file,
+e.g., to explain the test or provide additional context. Snapshot testing will
+only compare the output of R code blocks to the expected output blocks, ignoring
+any other text.
+
 ## R CMD check
 
 Put the tests under the directory `pkg_name/tests/testit/` (where `pkg_name` is
@@ -82,7 +117,7 @@ install.packages('testit')
 Development version:
 
 ``` r
-remotes::install_github('yihui/testit')
+install.packages('testit', repos = 'https://yihui.r-universe.dev')
 ```
 
 ## More

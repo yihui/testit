@@ -1,7 +1,7 @@
 Package: testit
 Type: Package
 Title: A Simple Package for Testing R Packages
-Version: 0.15.1
+Version: 0.15.2
 Authors@R: c(
   person("Yihui", "Xie", role = c("aut", "cre"), email = "xie@yihui.name", comment = c(ORCID = "0000-0003-0645-5666", URL = "https://yihui.org")),
   person("Tomas", "Kalibera", role = "ctb"),
@@ -12,6 +12,5 @@ Description: Provides two convenience functions assert() and test_pkg() to
 License: MIT + file LICENSE
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
-Suggests: rstudioapi
 RoxygenNote: 7.3.3
 Encoding: UTF-8
