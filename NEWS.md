@@ -1,3 +1,7 @@
+# CHANGES IN testit VERSION 0.17
+
+- Made `test_pkg()` compatible with R < 3.3.0 (again).
+
 # CHANGES IN testit VERSION 0.16
 
 - Added support for snapshot testing with Markdown files; see https://pkg.yihui.org/testit/#snapshot-testing for more information.

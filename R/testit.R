@@ -150,7 +150,8 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   install = !.env$installed && !interactive() &&
-    is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) && package == pkg_name()
+    is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
+    file.exists('../DESCRIPTION') && package == pkg_name()
   if (install) {
     .env$lib_old = lib_old = .libPaths()
     .env$lib_new = lib_new = tempfile('R-lib-', '.'); dir.create(lib_new)
