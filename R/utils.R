@@ -216,8 +216,7 @@ mini_diff = function(x1, x2) {
 
   # 2. Context Filtering (Keep 3 lines around any change)
   if (length(out) > 0) {
-    is_change = !startsWith(out, " ")
-    change_idx = which(is_change)
+    change_idx = grep("^[-+]", out)
 
     # Identify indices within 3 steps of a change
     keep_idx = unique(as.integer(outer(change_idx, -3:3, "+")))
