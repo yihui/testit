@@ -71,7 +71,7 @@ get_fence = function(text, extra = FALSE) {
   ms = gregexpr('^`+', text, perl = TRUE)
   n = max(unlist(lapply(ms, attr, 'match.length')))
   if (extra && n >= 3) n = n + 1
-  strrep('`', max(n, 3))
+  paste(rep('`', max(n, 3)), collapse = '')
 }
 
 # Parse markdown file to extract code blocks
