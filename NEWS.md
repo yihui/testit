@@ -1,3 +1,5 @@
+# CHANGES IN testit VERSION 0.18
+
 # CHANGES IN testit VERSION 0.17
 
 - Made `test_pkg()` compatible with R < 3.3.0 (again).
