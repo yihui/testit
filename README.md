@@ -82,9 +82,9 @@ Each Markdown file contains R code blocks followed by expected output blocks:
 
 The R code blocks are marked with ```` ```r ```` (or ```` ```{r} ````) and
 output blocks with ```` ``` ````. When tests run, the R code is executed and
-output is compared to the expected output block. If a markdown file doesn't
-have output blocks initially, they will be added automatically. To update
-snapshots when output changes, run `testit::test_pkg(update = TRUE)`.
+output is compared to the expected output block. If a markdown file doesn't have
+output blocks initially, they will be added automatically. To update snapshots
+when output changes, run `testit::test_pkg(update = TRUE)`.
 
 Snapshot files are human-readable Markdown, making them easy to review in
 version control. Optionally, you can write ordinary text anywhere in the file,
