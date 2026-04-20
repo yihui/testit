@@ -76,7 +76,7 @@ get_fence = function(text, extra = FALSE) {
 
 # Parse markdown file to extract code blocks
 parse_snapshot = function(lines, file) {
-  # Find all fence lines
+  # Find all fence lines with optional R language labels ({r} or r)
   idx = grepl(r <- sprintf('^%s\\s*(\\{r\\}|r)?\\s*$', get_fence(lines)), lines)
   if (sum(idx) %% 2 != 0) stop('Unbalanced code fences in ', error_loc(file))
   # Change TRUE to FALSE for idx elements at even positions and their next
