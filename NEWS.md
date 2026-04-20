@@ -1,10 +1,8 @@
 # CHANGES IN testit VERSION 0.18
 
-- Snapshot tests now support both ```` ```r ```` and ```` ```{r} ```` R code
-  fences, and snapshot updates preserve the original fence style.
+- Snapshot tests now support both ```` ```r ```` and ```` ```{r} ```` R code fences, and snapshot updates preserve the original fence style.
 
-- Added and updated snapshot tests (including `mini_diff()` output snapshots)
-  and refreshed snapshot testing documentation/examples.
+- Added and updated snapshot tests (including `mini_diff()` output snapshots) and refreshed snapshot testing documentation/examples.
 
 # CHANGES IN testit VERSION 0.17
 
