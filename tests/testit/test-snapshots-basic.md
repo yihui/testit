@@ -1,4 +1,6 @@
-```{r}
+This block checks simple vector printing output.
+
+```r
 1:5
 ```
 
@@ -6,7 +8,9 @@
 [1] 1 2 3 4 5
 ```
 
-```{r}
+This block checks tabular printing from a data frame.
+
+```r
 data.frame(x = 1:3, y = letters[1:3])
 ```
 
@@ -17,7 +21,9 @@ data.frame(x = 1:3, y = letters[1:3])
 3 3 c
 ```
 
-```{r}
+This block checks mixed cat()/print() output ordering.
+
+```r
 cat('Line 1\n')
 print('Text output')
 cat('Line 2\n')
@@ -28,4 +34,3 @@ Line 1
 [1] "Text output"
 Line 2
 ```
-

@@ -25,3 +25,32 @@ assert('sys.source2() works on empty files', {
   writeLines('  ', f)
   (sys.source2(f, environment()) %==% NULL)
 })
+
+assert('parse_snapshot() accepts both ```r and ```{r} blocks', {
+  blocks = parse_snapshot(c(
+    '```r', '1 + 1', '```',
+    '',
+    '```', '[1] 2', '```',
+    '',
+    '```{r}', '2 + 2', '```'
+  ), 'x.md')
+  types = vapply(blocks, `[[`, '', 'type')
+  (all(c('r', '{r}', '') %in% types))
+})
+
+assert('snapshot updates preserve the original R fence style', {
+  env = new.env(parent = baseenv())
+
+  f1 = tempfile(fileext = '.md')
+  writeLines(c('```r', '1 + 1', '```'), f1)
+  test_snaps(f1, env, update = TRUE)
+  l1 = readLines(f1, warn = FALSE)
+  (grepl('^```r$', l1[1]))
+  (!any(grepl('^```\\{r\\}$', l1)))
+
+  f2 = tempfile(fileext = '.md')
+  writeLines(c('```{r}', '1 + 1', '```'), f2)
+  test_snaps(f2, env, update = TRUE)
+  l2 = readLines(f2, warn = FALSE)
+  (grepl('^```\\{r\\}$', l2[1]))
+})

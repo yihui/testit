@@ -1,5 +1,9 @@
 # CHANGES IN testit VERSION 0.18
 
+- Snapshot tests now support both ```` ```r ```` and ```` ```{r} ```` R code fences, and snapshot updates preserve the original fence style.
+
+- Added and updated snapshot tests (including `mini_diff()` output snapshots) and refreshed snapshot testing documentation/examples.
+
 # CHANGES IN testit VERSION 0.17
 
 - Made `test_pkg()` compatible with R < 3.3.0 (again).
@@ -83,4 +87,3 @@
 - this is the first version of testit; the source code is hosted on Github: https://github.com/yihui/testit
 
 - added functions assert(), test_pkg(), has_error() and has_warning()
-

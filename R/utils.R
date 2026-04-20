@@ -76,8 +76,8 @@ get_fence = function(text, extra = FALSE) {
 
 # Parse markdown file to extract code blocks
 parse_snapshot = function(lines, file) {
-  # Find all fence lines
-  idx = grepl(r <- sprintf('^%s\\s*(\\{r\\})?\\s*', get_fence(lines)), lines)
+  # Find all fence lines with optional R language labels ({r} or r)
+  idx = grepl(r <- sprintf('^%s\\s*(\\{r\\}|r)?\\s*$', get_fence(lines)), lines)
   if (sum(idx) %% 2 != 0) stop('Unbalanced code fences in ', error_loc(file))
   # Change TRUE to FALSE for idx elements at even positions and their next
   # elements to TRUE to mark the start of the next block
@@ -111,7 +111,7 @@ test_snaps = function(files, env, update = NA) {
     for (i in seq_len(N)) {
       block = blocks[[i]]
       new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
-      if (block$type != '{r}') next
+      if (!block$type %in% c('{r}', 'r')) next
 
       out = capture_output(block$content, env, dirname(f))
       # look for the next output block k
@@ -142,7 +142,7 @@ test_snaps = function(files, env, update = NA) {
       fence = get_fence(all_content, TRUE)
       out_lines = unlist(lapply(new_blocks, function(b) {
         if (b$type == 'text') b$content else {
-          c(paste0(fence, if (b$type != '') '{r}'), b$content, fence)
+          c(paste0(fence, b$type), b$content, fence)
         }
       }))
       if (isTRUE(update) || is.null(pos)) {
@@ -225,8 +225,8 @@ mini_diff = function(x1, x2) {
     # Print with "..." where gaps occur
     last_idx = 0
     for (idx in keep_idx) {
-      if (idx > last_idx + 1) cat("  ...\n")
-      cat(out[idx], "\n")
+      if (idx > last_idx + 1) cat('  ...\n')
+      cat(out[idx], '\n', sep = '')
       last_idx = idx
     }
   }
