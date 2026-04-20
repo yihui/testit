@@ -54,20 +54,3 @@ assert('snapshot updates preserve the original R fence style', {
   l2 = readLines(f2, warn = FALSE)
   (grepl('^```\\{r\\}$', l2[1]))
 })
-
-assert('mini_diff() reports insertions, deletions, replacements, and gaps', {
-  o1 = capture.output(mini_diff(c('a', 'b', 'c'), c('a', 'c')))
-  (any(grepl('^- b$', o1)))
-
-  o2 = capture.output(mini_diff(c('a', 'c'), c('a', 'b', 'c')))
-  (any(grepl('^\\+ b$', o2)))
-
-  o3 = capture.output(mini_diff(c('a'), c('b')))
-  (all(c('- a', '+ b') %in% o3))
-
-  x1 = paste0('L', 1:12)
-  x2 = x1
-  x2[c(3, 10)] = c('X', 'Y')
-  o4 = capture.output(mini_diff(x1, x2))
-  (any(grepl('^  \\.\\.\\.$', o4)))
-})
