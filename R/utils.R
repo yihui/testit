@@ -225,8 +225,8 @@ mini_diff = function(x1, x2) {
     # Print with "..." where gaps occur
     last_idx = 0
     for (idx in keep_idx) {
-      if (idx > last_idx + 1) cat("  ...\n")
-      cat(out[idx], "\n")
+      if (idx > last_idx + 1) cat('  ...\n')
+      cat(out[idx], '\n', sep = '')
       last_idx = idx
     }
   }
