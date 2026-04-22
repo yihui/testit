@@ -114,12 +114,11 @@ test_snaps = function(files, env, update = NA) {
       if (!block$type %in% c('{r}', 'r')) next
 
       out = capture_output(block$content, env, dirname(f))
-      # look for the next output block k
+      # look for the next output block k (stop at the next R code block)
       k = NULL
       if (i + 1 <= N) for (j in (i + 1):N) {
-        if (blocks[[j]]$type == '') {
-          k = j; break
-        }
+        if (blocks[[j]]$type %in% c('{r}', 'r')) break
+        if (blocks[[j]]$type == '') { k = j; break }
       }
       if (is.null(k)) {
         # no output block, add one

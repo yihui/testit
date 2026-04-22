@@ -1,5 +1,8 @@
 # CHANGES IN testit VERSION 0.19
 
+- Fixed a bug in `test_snaps()` where a code block without an output block would incorrectly claim a later output block (belonging to a subsequent code block) instead of inserting a new one.
+
+- Suppressed spurious "Updated snapshot file:" messages that appeared for temporary files created within tests.
 
 # CHANGES IN testit VERSION 0.18
 
