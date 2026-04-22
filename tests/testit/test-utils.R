@@ -55,7 +55,7 @@ assert('snapshot updates preserve the original R fence style', {
   (grepl('^```\\{r\\}$', l2[1]))
 })
 
-assert('test_snaps() inserts output for a code block with no output even when followed by another code block with output', {
+assert('test_snaps() inserts missing output block before a later code block with output', {
   env = new.env(parent = baseenv())
 
   # first block has no output; second block has output
