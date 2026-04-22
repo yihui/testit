@@ -43,14 +43,32 @@ assert('snapshot updates preserve the original R fence style', {
 
   f1 = tempfile(fileext = '.md')
   writeLines(c('```r', '1 + 1', '```'), f1)
-  test_snaps(f1, env, update = TRUE)
+  suppressMessages(test_snaps(f1, env, update = TRUE))
   l1 = readLines(f1, warn = FALSE)
   (grepl('^```r$', l1[1]))
   (!any(grepl('^```\\{r\\}$', l1)))
 
   f2 = tempfile(fileext = '.md')
   writeLines(c('```{r}', '1 + 1', '```'), f2)
-  test_snaps(f2, env, update = TRUE)
+  suppressMessages(test_snaps(f2, env, update = TRUE))
   l2 = readLines(f2, warn = FALSE)
   (grepl('^```\\{r\\}$', l2[1]))
+})
+
+assert('test_snaps() inserts missing output block before a later code block with output', {
+  env = new.env(parent = baseenv())
+
+  # first block has no output; second block has output
+  f = tempfile(fileext = '.md')
+  writeLines(c(
+    '```r', '1 + 1', '```',
+    '```r', '2 + 2', '```',
+    '```', '[1] 4', '```'
+  ), f)
+  suppressMessages(test_snaps(f, env, update = TRUE))
+  lines = readLines(f, warn = FALSE)
+  # output for first block must have been inserted
+  (any(grepl('^\\[1\\] 2$', lines)))
+  # output for second block must still be present
+  (any(grepl('^\\[1\\] 4$', lines)))
 })
