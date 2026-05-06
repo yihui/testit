@@ -3,6 +3,7 @@
 export("%==%")
 export(assert)
 export(has_error)
+export(has_message)
 export(has_warning)
 export(test_pkg)
 import(utils)

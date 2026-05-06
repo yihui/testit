@@ -223,40 +223,69 @@ error_loc = function(x, line = 1, wd = '.') {
   sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, x, line)
 }
 
-#' Check if an R expression produces warnings or errors
+#' Check if an R expression produces messages, warnings, or errors
 #'
-#' The two functions \code{has_warning()} and \code{has_error()} check if an
-#' expression produces warnings and errors, respectively.
+#' The functions \code{has_message()}, \code{has_warning()}, and
+#' \code{has_error()} check if an expression produces messages, warnings, and
+#' errors, respectively. When the \code{message} argument is provided, the
+#' condition message is matched against it via \code{\link{grepl}()}.
 #' @param expr an R expression
+#' @param message optionally, a string (fixed or regex pattern) to match against
+#'   the condition message. If provided, the function returns \code{TRUE} only
+#'   when the condition is signaled \emph{and} the message matches.
+#' @param ... additional arguments passed to \code{\link{grepl}()} for matching
+#'   \code{message} against the condition message (e.g., \code{fixed = TRUE} for
+#'   fixed string matching, or \code{ignore.case = TRUE}).
 #' @param silent logical: should the report of error messages be suppressed?
 #' @return A logical value.
 #' @export
 #' @rdname has_message
 #' @examples
+#' has_message(message('hello'))
+#' has_message(1 + 1)
+#' has_message(message('hello world'), 'hello')
+#'
 #' has_warning(1 + 1)
 #' has_warning(1:2 + 1:3)
+#' has_warning(1:2 + 1:3, 'longer object length')
 #'
 #' has_error(2 - 3)
 #' has_error(1 + 'a')
-#' has_error(stop('err'), silent = TRUE)
-has_warning = function(expr) {
-  warn = FALSE
-  op = options(warn = -1); on.exit(options(op))
-  withCallingHandlers(expr, warning = function(w) {
-    warn <<- TRUE
-    invokeRestart('muffleWarning')
+#' has_error(stop('err'), 'err')
+#' has_error(stop('error occurred'), 'error')
+has_message = function(expr, message = NULL, ...) {
+  msg_text = NULL
+  withCallingHandlers(expr, message = function(m) {
+    msg_text <<- paste0(c(msg_text, conditionMessage(m)), collapse = '')
+    invokeRestart('muffleMessage')
   })
-  warn
+  match_cond(msg_text, message, ...)
 }
 #' @export
 #' @rdname has_message
-has_error = function(expr, silent = !interactive()) {
+has_warning = function(expr, message = NULL, ...) {
+  warn_text = NULL
+  op = options(warn = -1); on.exit(options(op))
+  withCallingHandlers(expr, warning = function(w) {
+    warn_text <<- paste0(c(warn_text, conditionMessage(w)), collapse = '')
+    invokeRestart('muffleWarning')
+  })
+  match_cond(warn_text, message, ...)
+}
+#' @export
+#' @rdname has_message
+has_error = function(expr, message = NULL, ..., silent = !interactive()) {
   tryCatch({
     if (silent) silence(expr) else expr; FALSE
   }, error = function(e) {
     if (!silent) cat('Error: ', conditionMessage(e), '\n', sep = '')
-    TRUE
+    match_cond(conditionMessage(e), message, ...)
   })
+}
+
+match_cond = function(text, message, ...) {
+  if (is.null(text)) FALSE else if (is.null(message)) TRUE else
+    grepl(message, text, ...)
 }
 
 hide_error = function() getOption('testit.hide.error', FALSE)

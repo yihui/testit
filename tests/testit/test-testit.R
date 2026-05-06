@@ -24,14 +24,28 @@ assert('the infix operator %==% works', {
   (!silence(1 %==% 1L))
 })
 
+assert('has_message() works', {
+  (has_message(message('hello')))
+  (!has_message(1 + 1))
+  (has_message(message('hello world'), 'hello'))
+  (!has_message(message('hello world'), 'bye'))
+  (has_message(message('Hello World'), 'hello', ignore.case = TRUE))
+})
+
 assert('has_warning() works', {
   (has_warning(warning('An intentional warning')))
   (has_warning((function() {1:2 + 1:3})()))
+  (has_warning(warning('longer object'), 'longer'))
+  (!has_warning(warning('something'), 'else'))
+  (has_warning(warning('Longer Object'), 'longer', ignore.case = TRUE))
 })
 
 assert('has_error() works', {
   (has_error(stop('An intentional error')))
   (has_error(1 + 'a'))
+  (has_error(stop('error occurred'), 'error'))
+  (!has_error(stop('oops'), 'different'))
+  (has_error(stop('Error Occurred'), 'error', ignore.case = TRUE))
 })
 
 assert('has_error() can suppress error message', {
