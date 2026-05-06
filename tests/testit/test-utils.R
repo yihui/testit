@@ -16,6 +16,12 @@ assert('deparse_key() returns the parsed code if length == 1', {
   (deparse_key(exprs[[2]]) %==% '1 + 1')
 })
 
+assert('deparse_one() collapses multi-line deparse to a single string', {
+  (deparse_one(1:3) %==% '1:3')
+  (nchar(deparse_one(seq_len(100))) > 0)
+  (!grepl('\n', deparse_one(seq_len(100))))
+})
+
 assert('insert_identical() should not work in a non-interactive R session', {
   (interactive() || has_error(insert_identical()))
 })

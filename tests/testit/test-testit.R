@@ -75,7 +75,7 @@ assert('%==% emits diagnostic info on failure inside assert()', {
     assert('check %==% message', { (1 %==% 2) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('not TRUE', msg))
+  (grepl('not TRUE but FALSE', msg))
 })
 
 assert('has_error() with silent = FALSE prints the error message', {

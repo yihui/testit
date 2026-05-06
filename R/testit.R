@@ -78,7 +78,7 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
       stop(sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
-      ), call. = FALSE, domain = NA)
+      ), ' but ', deparse_one(val), call. = FALSE, domain = NA)
     }
   }
 }

@@ -32,6 +32,8 @@ deparse_key = function(expr) {
   paste(x[1], '....', if (x[n] == '}') sub('^\\s*', '', x[n - 1L]))
 }
 
+deparse_one = function(expr) paste(deparse(expr, 500L), collapse = '')
+
 # whether every element of x is strictly TRUE
 all_true = function(x) {
   is.logical(x) && length(x) && !any(is.na(x)) && all(x)
