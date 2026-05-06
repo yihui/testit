@@ -160,15 +160,10 @@ assert('test_pkg() sources helper files before tests', {
   (test_pkg('testit', dir = d) %==% NULL)
 })
 
-assert('test_pkg() error handler shows location on test failure', {
+assert('test_pkg() error handler runs on test failure', {
   d = tempfile(); dir.create(d)
   # write a test file that errors
   writeLines('stop("deliberate error")', file.path(d, 'test-fail.R'))
-  out = capture.output(
-    has_error(test_pkg('testit', dir = d)),
-    type = 'message'
-  )
-  # error handler should produce output (may vary by R version)
   (has_error(test_pkg('testit', dir = d)))
 })
 
