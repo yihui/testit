@@ -40,9 +40,13 @@ the form \samp{test-*.R} (or \samp{test-*.md} for snapshot tests); other
 files will not be treated as test files (but may also be useful, e.g. you can
 \code{\link{source}()} other scripts in tests).
 
+Helper files named \samp{helper*.R} (e.g., \samp{helper.R},
+\samp{helper-utils.R}) are sourced before test files and remain available
+to all tests, allowing you to define shared utility functions.
+
 When a test is executed, the working directory is the same as the directory
 containing this test, and all existing objects in the test environment will
-be removed before the code is executed.
+be removed before the code is executed (except for helper functions).
 
 See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
 about snapshot testing.
@@ -52,7 +56,5 @@ All test scripts must be encoded in UTF-8 if they contain any multibyte
   characters.
 }
 \examples{
-\dontrun{
-test_pkg("testit")
-}
+\dontrun{test_pkg('testit')}
 }

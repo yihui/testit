@@ -33,14 +33,16 @@
 #' @export
 #' @examples
 #' library(testit)
-#' assert('T is bad for TRUE, and so is F for FALSE', {T=FALSE;F=TRUE
-#' (T!=TRUE)  # note the parentheses
-#' (F!=FALSE)})
+#' assert('T is bad for TRUE, and so is F for FALSE', {
+#'   T = FALSE; F = TRUE
+#'   (T != TRUE)  # note the parentheses
+#'   (F != FALSE)
+#' })
 #'
 #' assert('A Poisson random number is non-negative', {
-#' x = rpois(1, 10)
-#' (x >= 0)
-#' (x > -1)  # () is optional because it's the last expression
+#'   x = rpois(1, 10)
+#'   (x >= 0)
+#'   (x > -1)  # () is optional because it's the last expression
 #' })
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
@@ -229,9 +231,13 @@ error_loc = function(x, line = 1, wd = '.') {
 #' @return A logical value.
 #' @export
 #' @rdname has_message
-#' @examples has_warning(1+1); has_warning(1:2+1:3)
+#' @examples
+#' has_warning(1 + 1)
+#' has_warning(1:2 + 1:3)
 #'
-#' has_error(2-3); has_error(1+'a'); has_error(stop("err"), silent = TRUE)
+#' has_error(2 - 3)
+#' has_error(1 + 'a')
+#' has_error(stop('err'), silent = TRUE)
 has_warning = function(expr) {
   warn = FALSE
   op = options(warn = -1); on.exit(options(op))

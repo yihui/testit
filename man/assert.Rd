@@ -61,16 +61,15 @@ The internal implementation of \code{assert()} is different with the
 }
 \examples{
 library(testit)
-assert("T is bad for TRUE, and so is F for FALSE", {
-    T = FALSE
-    F = TRUE
-    (T != TRUE)  # note the parentheses
-    (F != FALSE)
+assert('T is bad for TRUE, and so is F for FALSE', {
+  T = FALSE; F = TRUE
+  (T != TRUE)  # note the parentheses
+  (F != FALSE)
 })
 
-assert("A Poisson random number is non-negative", {
-    x = rpois(1, 10)
-    (x >= 0)
-    (x > -1)  # () is optional because it's the last expression
+assert('A Poisson random number is non-negative', {
+  x = rpois(1, 10)
+  (x >= 0)
+  (x > -1)  # () is optional because it's the last expression
 })
 }

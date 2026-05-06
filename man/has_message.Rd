@@ -26,6 +26,6 @@ has_warning(1 + 1)
 has_warning(1:2 + 1:3)
 
 has_error(2 - 3)
-has_error(1 + "a")
-has_error(stop("err"), silent = TRUE)
+has_error(1 + 'a')
+has_error(stop('err'), silent = TRUE)
 }
