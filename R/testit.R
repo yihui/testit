@@ -160,7 +160,8 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
     file.exists('../DESCRIPTION') && package == pkg_name()
   if (install) {
     .env$lib_old = lib_old = .libPaths()
-    .env$lib_new = lib_new = tempfile('R-lib-', '.'); dir.create(lib_new)
+    dir.create(lib_new <- tempfile('R-lib-', '.'))
+    .env$lib_new = normalizePath(lib_new)
     res = system2(
       file.path(R.home('bin'), 'R'), c(
         'CMD', 'INSTALL', paste0('--library=', lib_new),

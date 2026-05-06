@@ -100,8 +100,10 @@ Always send a pull request, unless you are told otherwise. For each PR:
     per PR (on the first commit or when you first make changes), not on every
     commit to the PR
 7.  **Never commit irrelevant files**: Don't run `git add .` blindly, as that
-    might add irrelevant files such as generated output or other artifacts. Only
-    add the ones you modified or created explicitly. Normally changes generated
+    might add irrelevant files such as generated output or other artifacts. In
+    particular, after building/checking the package, clean up these possible
+    generated artifacts: `rm -rf *.tar.gz *.Rcheck/ tests/R-lib-*`. Only add the
+    ones you modified or created explicitly. Normally changes generated
     automatically by roxygen2 are the only exception (they should be committed).
 8.  **Update NEWS.md**: When making changes, make sure to update `NEWS.md`
     accordingly to document what changed. The first heading in NEWS.md always
