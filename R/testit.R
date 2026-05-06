@@ -122,9 +122,13 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
 #' files will not be treated as test files (but may also be useful, e.g. you can
 #' \code{\link{source}()} other scripts in tests).
 #'
+#' Helper files named \samp{helper*.R} (e.g., \samp{helper.R},
+#' \samp{helper-utils.R}) are sourced before test files and remain available
+#' to all tests, allowing you to define shared utility functions.
+#'
 #' When a test is executed, the working directory is the same as the directory
 #' containing this test, and all existing objects in the test environment will
-#' be removed before the code is executed.
+#' be removed before the code is executed (except for helper functions).
 #'
 #' See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
 #' about snapshot testing.
@@ -177,14 +181,19 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   }, add = TRUE)
   rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
   ms = fs[grep('^test-.+[.]md$', basename(fs))]
+  hs = fs[grep('^helper.*[.][rR]$', basename(fs))]
   wd = getwd()
 
-  # make all objects in the package visible to tests
-  env = new.env(parent = getNamespace(package))
+  # source helpers into a dedicated environment; tests inherit from it
+  ns = getNamespace(package)
+  henv = new.env(parent = ns)
+  for (h in hs) sys.source2(h, envir = henv, top.env = ns)
+
+  env = new.env(parent = henv)
   for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
     withCallingHandlers(
-      sys.source2(r, envir = env, top.env = getNamespace(package)),
+      sys.source2(r, envir = env, top.env = ns),
       error = function(e) {
         if (hide_error()) return()
         z = if (exists('.traceback', baseenv(), inherits = FALSE)) .traceback(5)
