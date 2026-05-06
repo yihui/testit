@@ -12,11 +12,11 @@ coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codec
 
 This package provides two simple functions:
 
--   `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
+- `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
 
--   `test_pkg(package)`: runs tests with all objects (exported or non-exported)
-    in the package namespace directly available, so no need to use the
-    triple-colon `package:::name` for non-exported objects
+- `test_pkg(package)`: runs tests with all objects (exported or non-exported) in
+  the package namespace directly available, so no need to use the triple-colon
+  `package:::name` for non-exported objects
 
 Snapshot testing is also supported via markdown files in `_snapshots/`
 directories.
