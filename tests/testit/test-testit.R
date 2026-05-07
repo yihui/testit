@@ -21,7 +21,7 @@ assert('assert() should stop on logical(0)', {
 
 assert('the infix operator %==% works', {
   (1 %==% 1)
-  (!silence(1 %==% 1L))
+  (!(1 %==% 1L))
 })
 
 assert('has_message() works', {
@@ -78,19 +78,8 @@ assert('%==% emits diagnostic info on failure inside assert()', {
   (grepl('not TRUE but FALSE', msg))
 })
 
-assert('has_error() with silent = FALSE prints the error message', {
-  # cover line 254: cat('Error: ', ...)
-  out = capture.output(res <- has_error(stop('visible error'), silent = FALSE))
-  (res)
-  (any(grepl('visible error', out)))
-})
-
 assert('error_loc() returns NULL for empty input', {
   (error_loc(character(0)) %==% NULL)
-})
-
-assert('has_error() returns FALSE for non-error with silent = FALSE', {
-  (!has_error(1 + 1, silent = FALSE))
 })
 
 # test error_loc() outside assert() to allow on.exit() to work properly

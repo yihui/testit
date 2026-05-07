@@ -1,7 +1,5 @@
 # CHANGES IN testit VERSION 0.19
 
-- `test_pkg()` now unloads DLLs from the temporary library before cleanup, so the temporary `R-lib-*` directories can be properly removed for packages with compiled code.
-
 - `assert()` now includes the actual value of the failed expression in the error message, making it easier to diagnose assertion failures (e.g., `(x %==% y) is not TRUE but FALSE`).
 
 - `has_message()`, `has_warning()`, and `has_error()` gained a `message` argument for matching the condition message via `grepl()`, and `...` for passing additional arguments to `grepl()` (e.g., `fixed = TRUE`, `ignore.case = TRUE`).
@@ -9,6 +7,10 @@
 - Added support for helper files in tests. Helper files matching `helper*.R` are sourced into a dedicated environment before tests run, and their objects are available to all tests and snapshots.
 
 - Fixed a bug in `test_snaps()` where a code block without an output block would incorrectly claim a later output block (belonging to a subsequent code block) instead of inserting a new one.
+
+- `has_error()` is now always silent (no longer prints error messages to the console), and its `silent` argument has been removed.
+
+- `test_pkg()` now unloads DLLs from the temporary library before cleanup, so the temporary `R-lib-*` directories can be properly removed for packages with compiled code.
 
 # CHANGES IN testit VERSION 0.18
 

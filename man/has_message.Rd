@@ -10,7 +10,7 @@ has_message(expr, message = NULL, ...)
 
 has_warning(expr, message = NULL, ...)
 
-has_error(expr, message = NULL, ..., silent = !interactive())
+has_error(expr, message = NULL, ...)
 }
 \arguments{
 \item{expr}{an R expression}
@@ -22,8 +22,6 @@ when the condition is signaled \emph{and} the message matches.}
 \item{...}{additional arguments passed to \code{\link{grepl}()} for matching
 \code{message} against the condition message (e.g., \code{fixed = TRUE} for
 fixed string matching, or \code{ignore.case = TRUE}).}
-
-\item{silent}{logical: should the report of error messages be suppressed?}
 }
 \value{
 A logical value.
