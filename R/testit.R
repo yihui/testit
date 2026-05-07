@@ -195,10 +195,10 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
   henv = new.env(parent = ns)
-  for (h in hs) sys.source2(h, envir = henv, top.env = ns)
+  for (h in hs) quietly(sys.source2(h, envir = henv, top.env = ns))
 
   env = new.env(parent = henv)
-  for (r in rs) {
+  quietly(for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
     withCallingHandlers(
       sys.source2(r, envir = env, top.env = ns),
@@ -209,10 +209,10 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
         n = length(z)
         s = if (!is.null(srcref <- attr(z, 'srcref')))
           error_loc(attr(srcref, 'srcfile')$filename, srcref[1], wd)
-        cat('Error from', z[1], if (n > 1) '...', s, '\n')
+        message('Error from ', z[1], if (n > 1) ' ...', s)
       }
     )
-  }
+  })
 
   # run snapshot tests from markdown files
   test_snaps(ms, env, update)
@@ -290,5 +290,14 @@ has_error = function(expr, message = NULL, ...) {
 match_cond = function(text, message, ...) {
   if (is.null(text)) FALSE else if (is.null(message)) TRUE else
     grepl(message, text, ...)
+}
+
+quietly = function(expr, ...) {
+  withCallingHandlers(
+    expr,
+    message = function(m) invokeRestart('muffleMessage'),
+    warning = function(w) invokeRestart('muffleWarning'),
+    ...
+  )
 }
 

@@ -10,6 +10,8 @@
 
 - `has_error()` is now always silent (no longer prints error messages to the console), and its `silent` argument has been removed.
 
+- `test_pkg()` now suppresses messages and warnings from test scripts, helper files, and snapshot code evaluation. Diagnostic output (diffs, error locations) is emitted via `message()` so it can be suppressed by callers if needed.
+
 - `test_pkg()` now unloads DLLs from the temporary library before cleanup, so the temporary `R-lib-*` directories can be properly removed for packages with compiled code.
 
 # CHANGES IN testit VERSION 0.18

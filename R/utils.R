@@ -151,13 +151,14 @@ test_snaps = function(files, env, update = NA) {
         message('Updated snapshot file: ', f)
       } else {
         tracked = system2(
-          'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = NULL, stderr = NULL
+          'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = FALSE, stderr = FALSE
         ) == 0
         if (tracked && is.na(update)) {
           write_utf8(out_lines, f)
-          system2('git', c('diff', '--color=auto', shQuote(f)))
+          d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
+          message(paste(d, collapse = '\n'))
         } else {
-          mini_diff(raw_lines, out_lines)
+          message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
         }
         stop(
           'Snapshot test failed', error_loc(f, pos), '\n',
@@ -172,13 +173,13 @@ test_snaps = function(files, env, update = NA) {
 capture_output = function(code, envir, wd) {
   owd = setwd(wd); on.exit(setwd(owd), add = TRUE)
   # Execute R code and capture output
-  out = tryCatch(capture.output({
+  out = tryCatch(capture.output(quietly({
     exprs = if (length(code)) parse(text = code, keep.source = FALSE)
     for (expr in exprs) {
       res = withVisible(eval(expr, envir = envir))
       if (res$visible) print(res$value)
     }
-  }), error = function(e) paste('Error:', conditionMessage(e)))
+  })), error = function(e) paste('Error:', conditionMessage(e)))
   # Clean output
   clean_output(out)
 }
@@ -223,12 +224,14 @@ mini_diff = function(x1, x2) {
     keep_idx = unique(as.integer(outer(change_idx, -3:3, "+")))
     keep_idx = sort(keep_idx[keep_idx > 0 & keep_idx <= length(out)])
 
-    # Print with "..." where gaps occur
+    # Build output with "..." where gaps occur
+    lines = character()
     last_idx = 0
     for (idx in keep_idx) {
-      if (idx > last_idx + 1) cat('  ...\n')
-      cat(out[idx], '\n', sep = '')
+      if (idx > last_idx + 1) lines = c(lines, '  ...')
+      lines = c(lines, out[idx])
       last_idx = idx
     }
+    lines
   }
 }

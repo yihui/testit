@@ -1,7 +1,7 @@
 This block checks deletion-style mini_diff output.
 
 ```r
-mini_diff(c('a', 'b', 'c'), c('a', 'c'))
+cat(mini_diff(c('a', 'b', 'c'), c('a', 'c')), sep = '\n')
 ```
 
 ```
@@ -13,7 +13,7 @@ mini_diff(c('a', 'b', 'c'), c('a', 'c'))
 This block checks insertion-style mini_diff output.
 
 ```r
-mini_diff(c('a', 'c'), c('a', 'b', 'c'))
+cat(mini_diff(c('a', 'c'), c('a', 'b', 'c')), sep = '\n')
 ```
 
 ```
@@ -25,7 +25,7 @@ mini_diff(c('a', 'c'), c('a', 'b', 'c'))
 This block checks replacement-style mini_diff output.
 
 ```r
-mini_diff(c('a'), c('b'))
+cat(mini_diff(c('a'), c('b')), sep = '\n')
 ```
 
 ```
@@ -39,7 +39,7 @@ This block checks that mini_diff emits an ellipsis for skipped context.
 x1 = paste0('L', 1:16)
 x2 = x1
 x2[c(3, 13)] = c('X', 'Y')
-mini_diff(x1, x2)
+cat(mini_diff(x1, x2), sep = '\n')
 ```
 
 ```
