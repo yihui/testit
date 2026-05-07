@@ -115,7 +115,7 @@ test_snaps = function(files, env, update = NA) {
       new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
       if (!block$type %in% c('{r}', 'r')) next
 
-      out = capture_output(block$content, env, dirname(f))
+      out = capture_output(block$content, env, dirname(f), f, block$line)
       # look for the next output block k (stop at the next R code block)
       k = NULL
       if (i + 1 <= N) for (j in (i + 1):N) {
@@ -170,17 +170,24 @@ test_snaps = function(files, env, update = NA) {
   }
 }
 
-capture_output = function(code, envir, wd) {
+capture_output = function(code, envir, wd, file = NULL, line = NULL) {
   owd = setwd(wd); on.exit(setwd(owd), add = TRUE)
-  # Execute R code and capture output
+  err_i = NULL
   out = tryCatch(capture.output(quietly({
-    exprs = if (length(code)) parse(text = code, keep.source = FALSE)
-    for (expr in exprs) {
-      res = withVisible(eval(expr, envir = envir))
+    exprs = if (length(code)) parse(text = code, keep.source = TRUE)
+    for (i in seq_along(exprs)) {
+      err_i = i
+      res = withVisible(eval(exprs[[i]], envir = envir))
       if (res$visible) print(res$value)
     }
-  })), error = function(e) paste('Error:', conditionMessage(e)))
-  # Clean output
+  })), error = function(e) {
+    loc = if (!is.null(file) && !is.null(err_i)) {
+      sr = attr(exprs, 'srcref')
+      err_line = if (!is.null(sr[[err_i]])) line + sr[[err_i]][1]
+      if (!is.null(err_line)) error_loc(file, err_line)
+    }
+    paste0('Error: ', conditionMessage(e), loc)
+  })
   clean_output(out)
 }
 

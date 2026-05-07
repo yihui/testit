@@ -48,9 +48,9 @@ assert('has_error() works', {
   (has_error(stop('Error Occurred'), 'error', ignore.case = TRUE))
 })
 
-assert('has_error() can suppress error message', {
-  (has_error(stop('An intentional error'), silent = TRUE))
-  (has_error(1 + 'a', silent = FALSE))
+assert('has_error() works without message matching', {
+  (has_error(stop('An intentional error')))
+  (!has_error(1 + 1))
 })
 
 assert('tests can be written in () in a single {}', {
@@ -66,7 +66,7 @@ assert('tests can be written in () in a single {}', {
 
 assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
   # when fact is not a character literal, assert2 detects fact=val at i==1
-  (has_error(assert({x = 'fact msg'; x}, 1 == 2), silent = TRUE))
+  (has_error(assert({x = 'fact msg'; x}, 1 == 2)))
 })
 
 assert('%==% emits diagnostic info on failure inside assert()', {

@@ -53,7 +53,10 @@ assert = function(fact, ...) {
     fact = mc[[2]]; mc = mc[-2]
   }
   one = one_expression(mc)
-  assert2(fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one)
+  assert2(
+    fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one,
+    assert_loc(sys.call(), one)
+  )
 }
 
 # whether the argument of a function call is a single expression in {}
@@ -61,7 +64,24 @@ one_expression = function(call) {
   length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
 }
 
-assert2 = function(fact, exprs, envir, all = TRUE) {
+# get error location info for assert(): file, start line, and per-expression offsets
+assert_loc = function(call, one) {
+  sr = getSrcref(call)
+  if (is.null(sr)) return()
+  sf = attr(sr, 'srcfile')
+  src = getSrcLines(sf, sr[1], sr[3])
+  if (!one) return(list(file = sf$filename, lines = rep(sr[1], length(call) - 1)))
+  # parse the {} body to find relative line numbers of sub-expressions
+  body_lines = src[-c(1, length(src))]
+  if (!length(body_lines)) return(list(file = sf$filename, lines = sr[1]))
+  body_exprs = tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
+  if (is.null(body_exprs)) return(list(file = sf$filename, lines = sr[1]))
+  body_sr = attr(body_exprs, 'srcref')
+  lines = vapply(body_sr, function(s) sr[1] + s[1], integer(1))
+  list(file = sf$filename, lines = lines)
+}
+
+assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   n = length(exprs)
   for (i in seq_len(n)) {
     expr = exprs[[i]]
@@ -75,10 +95,11 @@ assert2 = function(fact, exprs, envir, all = TRUE) {
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) next
       if (!is.null(fact)) message('assertion failed: ', fact)
+      s = if (!is.null(loc)) error_loc(loc$file, loc$lines[min(i, length(loc$lines))])
       stop(sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
-      ), ' but ', deparse_one(val), call. = FALSE, domain = NA)
+      ), ' but ', deparse_one(val), s, call. = FALSE, domain = NA)
     }
   }
 }
@@ -195,27 +216,37 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
   henv = new.env(parent = ns)
-  for (h in hs) quietly(sys.source2(h, envir = henv, top.env = ns))
+  for (h in hs) quietly(loc_stop(sys.source2(h, envir = henv, top.env = ns), wd))
 
   env = new.env(parent = henv)
   quietly(for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
-    withCallingHandlers(
-      sys.source2(r, envir = env, top.env = ns),
-      error = function(e) {
-        z = if (exists('.traceback', baseenv(), inherits = FALSE)) .traceback(5)
-        if (length(z) == 0) return()
-        z = z[[1]]
-        n = length(z)
-        s = if (!is.null(srcref <- attr(z, 'srcref')))
-          error_loc(attr(srcref, 'srcfile')$filename, srcref[1], wd)
-        message('Error from ', z[1], if (n > 1) ' ...', s)
-      }
-    )
+    loc_stop(sys.source2(r, envir = env, top.env = ns), wd)
   })
 
   # run snapshot tests from markdown files
   test_snaps(ms, env, update)
+}
+
+# evaluate expr; on error, append source location to the error message and re-throw
+loc_stop = function(expr, wd = '.') {
+  loc = NULL
+  tryCatch(withCallingHandlers(expr, error = function(e) {
+    if (!exists('.traceback', baseenv(), inherits = FALSE)) return()
+    for (skip in 0:20) {
+      z = .traceback(skip)
+      if (length(z) == 0) break
+      sr = attr(z[[1]], 'srcref')
+      if (!is.null(sr)) {
+        loc <<- error_loc(attr(sr, 'srcfile')$filename, sr[1], wd)
+        break
+      }
+    }
+  }), error = function(e) {
+    msg = conditionMessage(e)
+    if (!is.null(loc) && !grepl(' at .+#\\d+', msg)) msg = paste0(msg, loc)
+    stop(msg, call. = FALSE)
+  })
 }
 
 # add ANSI link on file path if supported

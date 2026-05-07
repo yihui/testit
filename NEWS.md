@@ -12,6 +12,8 @@
 
 - `test_pkg()` now suppresses messages and warnings from test scripts, helper files, and snapshot code evaluation. Diagnostic output (diffs, error locations) is emitted via `message()` so it can be suppressed by callers if needed.
 
+- Error messages now include precise source locations (file and line number). `assert()` reports the exact line of the failing sub-expression, and `test_pkg()` reports error locations in test scripts, helper files, and snapshot code blocks.
+
 - `test_pkg()` now unloads DLLs from the temporary library before cleanup, so the temporary `R-lib-*` directories can be properly removed for packages with compiled code.
 
 # CHANGES IN testit VERSION 0.18
