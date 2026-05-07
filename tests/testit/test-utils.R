@@ -187,7 +187,7 @@ if (Sys.which('git') != '') assert('test_snaps() with update = NA on git-tracked
   # now change the output to be wrong
   writeLines(c('```r', '1 + 1', '```', '```', '[1] 999', '```'), f)
   system2('git', c('add', 'test.md'))
-  system2('git', c('commit', '-q', '-m', 'wrong output'))
+  system2('git', c('commit', '-q', '-m', shQuote('wrong output')))
   env = new.env(parent = baseenv())
   # update = NA on a tracked file should rewrite and then error
   (has_error(test_snaps(f, env, update = NA)))
