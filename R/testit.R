@@ -162,17 +162,22 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
     .env$lib_old = lib_old = .libPaths()
     dir.create(lib_new <- tempfile('R-lib-', '.'))
     .env$lib_new = normalizePath(lib_new)
+    message(
+      "Installing '", package, "' to ", lib_new, ' temprarily for testing... ',
+      appendLF = FALSE
+    )
     res = system2(
       file.path(R.home('bin'), 'R'), c(
         'CMD', 'INSTALL', paste0('--library=', lib_new),
         '--no-help', '--no-staged-install', '--no-test-load', '..'
-      )
+      ), stdout = FALSE, stderr = FALSE
     )
     if (res == 0) {
       .libPaths(c(lib_new, lib_old))
       .env$installed = TRUE
       if (!is.na(i <- match(paste0('package:', package), search())))
         detach(pos = i, unload = TRUE, force = TRUE)
+      message('Done.')
     }
   }
 
