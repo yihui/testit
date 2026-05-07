@@ -218,7 +218,9 @@ error_loc = function(x, line = 1, wd = '.') {
   if (!length(x)) return()
   if (!isTRUE(as.logical(Sys.getenv('RSTUDIO_CLI_HYPERLINKS'))))
     return(sprintf(' at %s#%d', x, line))
-  full = normalizePath(if (file.exists(x)) x else file.path(wd, x), '/')
+  p = if (file.exists(x)) x else file.path(wd, x)
+  if (!file.exists(p)) return(sprintf(' at %s#%d', x, line))
+  full = normalizePath(p, '/')
   sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, x, line)
 }
 
