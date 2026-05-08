@@ -173,6 +173,19 @@ assert('test_pkg() error handler runs on test failure', {
   (has_error(test_pkg('testit', dir = d)))
 })
 
+assert('test_pkg() filter selects a subset of test files', {
+  d = tempfile(); dir.create(d)
+  writeLines(
+    'library(testit)\nassert("a passes", (TRUE))',
+    file.path(d, 'test-aaa.R')
+  )
+  writeLines('stop("should not run")', file.path(d, 'test-bbb.R'))
+  # filter matches only "aaa", so "bbb" should not run
+  (test_pkg('testit', dir = d, filter = 'aaa') %==% NULL)
+  # filter matches "bbb", which errors
+  (has_error(test_pkg('testit', dir = d, filter = 'bbb')))
+})
+
 if (Sys.which('git') != '') assert('test_snaps() with update = NA on git-tracked file writes and diffs', {
   # create a temp git repo with a snapshot file
   d = tempfile(); dir.create(d)

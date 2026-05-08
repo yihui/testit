@@ -4,15 +4,21 @@
 \alias{test_pkg}
 \title{Run the tests of a package in its namespace}
 \usage{
-test_pkg(package = pkg_name(), dir = c("testit", "tests/testit"), update = NA)
+test_pkg(package = pkg_name(), dir = NULL, filter = NULL, update = NA)
 }
 \arguments{
 \item{package}{The package name. By default, it is detected from the
 \file{DESCRIPTION} file if exists.}
 
-\item{dir}{The directory of the test files; by default, it is the directory
-\file{testit/} or \file{tests/testit/} under the current working directory,
-whichever exists. You can also specify a custom directory.}
+\item{dir}{The directory of the test files. If \code{NULL} (the default), the
+directory \file{testit/} or \file{tests/testit/} under the current working
+directory is used (whichever exists). You can also specify a custom
+directory.}
+
+\item{filter}{An optional regular expression to select a subset of test
+files. Only files whose names (without directory) match the pattern will be
+run. For example, \code{filter = "parse"} runs only test files with
+\dQuote{parse} in their names.}
 
 \item{update}{If \code{TRUE}, update snapshot files with actual output
 instead of comparing. If \code{NA} (the default), update snapshot files

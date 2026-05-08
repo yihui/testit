@@ -159,9 +159,14 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 #' about snapshot testing.
 #' @param package The package name. By default, it is detected from the
 #'   \file{DESCRIPTION} file if exists.
-#' @param dir The directory of the test files; by default, it is the directory
-#'   \file{testit/} or \file{tests/testit/} under the current working directory,
-#'   whichever exists. You can also specify a custom directory.
+#' @param dir The directory of the test files. If \code{NULL} (the default), the
+#'   directory \file{testit/} or \file{tests/testit/} under the current working
+#'   directory is used (whichever exists). You can also specify a custom
+#'   directory.
+#' @param filter An optional regular expression to select a subset of test
+#'   files. Only files whose names (without directory) match the pattern will be
+#'   run. For example, \code{filter = "parse"} runs only test files with
+#'   \dQuote{parse} in their names.
 #' @param update If \code{TRUE}, update snapshot files with actual output
 #'   instead of comparing. If \code{NA} (the default), update snapshot files
 #'   only if they are tracked by GIT (so you can view the diffs in GIT and
@@ -175,7 +180,7 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 #'   characters.
 #' @export
 #' @examples \dontrun{test_pkg('testit')}
-test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), update = NA) {
+test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA) {
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   pkg_root = if (file.exists('DESCRIPTION')) '.' else if (file.exists('../DESCRIPTION')) '..'
@@ -205,6 +210,7 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
     }
   }
 
+  if (is.null(dir)) dir = c('testit', 'tests/testit')
   if (identical(pkg_root, '.')) dir = c(dir, file.path('tests', dir))
   path = available_dir(dir)
   td = paste0(normalizePath(getwd(), '/'), '/')
@@ -216,6 +222,10 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   }, add = TRUE)
   rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
   ms = fs[grep('^test-.+[.]md$', basename(fs))]
+  if (!is.null(filter)) {
+    rs = rs[grep(filter, basename(rs))]
+    ms = ms[grep(filter, basename(ms))]
+  }
   hs = fs[grep('^helper.*[.][rR]$', basename(fs))]
 
   # source helpers into a dedicated environment; tests inherit from it
