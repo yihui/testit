@@ -20,6 +20,8 @@
 
 - `test_pkg()` now installs the package to the system temp directory instead of a local `R-lib-*` folder, and fixes DLL cleanup on Windows so the temporary library can be properly removed (thanks, @jdblischak, #20).
 
+- `test_pkg()` no longer reinstalls the package unnecessarily when called multiple times in the same session. It compares source file modification times against the installed package timestamp to decide if reinstallation is needed.
+
 # CHANGES IN testit VERSION 0.18
 
 - Snapshot tests now support both ```` ```r ```` and ```` ```{r} ```` R code fences, and snapshot updates preserve the original fence style.

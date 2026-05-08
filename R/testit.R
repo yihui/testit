@@ -191,9 +191,10 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   pkg_root = if (file.exists('DESCRIPTION')) '.' else if (file.exists('../DESCRIPTION')) '..'
-  install = !.env$installed && !interactive() &&
+  install = !interactive() &&
     is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
-    !is.null(pkg_root) && package == pkg_name()
+    !is.null(pkg_root) && package == pkg_name() &&
+    pkg_needs_install(pkg_root, package)
   if (install) {
     .env$lib_old = lib_old = .libPaths()
     dir.create(lib_new <- tempfile('R-lib-'))
@@ -210,7 +211,6 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     )
     if (res == 0) {
       .libPaths(c(lib_new, lib_old))
-      .env$installed = TRUE
       if (!is.na(i <- match(paste0('package:', package), search())))
         detach(pos = i, unload = TRUE, force = TRUE)
       message('Done.')
