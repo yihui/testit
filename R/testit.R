@@ -87,6 +87,7 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
   n = length(exprs)
+  errs = NULL
   for (i in seq_len(n)) {
     expr = exprs[[i]]
     val = eval(expr, envir = envir, enclos = NULL)
@@ -103,12 +104,14 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
         if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
       )
       s = if (!is.null(loc)) error_loc(loc$file, loc$lines[min(i, length(loc$lines))])
-      stop(paste(c(info, sprintf(
+      errs = c(errs, paste0(paste(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
-      )), collapse = '\n'), ' but ', deparse_one(val), s, call. = FALSE, domain = NA)
+      )), collapse = '\n'), ' but ', deparse_one(val), s))
+      .env$equ_info = NULL
     }
   }
+  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE, domain = NA)
 }
 
 #' @description The infix operator \code{\%==\%} is simply an alias of the

@@ -107,6 +107,22 @@ local({
   })
 })
 
+assert('assert() captures all failures, not just the first', {
+  msg = tryCatch(
+    assert('multi', { (1 == 2); (1 == 0) }),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('1 == 2', msg))
+  (grepl('1 == 0', msg))
+  # multi-argument form
+  msg2 = tryCatch(
+    assert('multi arg', 1 == 2, 1 == 0),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('1 == 2', msg2))
+  (grepl('1 == 0', msg2))
+})
+
 assert('helper functions are available in tests', {
   (is_true(1 == 1))
   (!is_true(1 == 2))
