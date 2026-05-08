@@ -60,9 +60,19 @@ See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
 about snapshot testing.
 }
 \note{
+The \pkg{testit} package must be loaded (e.g., via
+  \code{library(testit)}) before calling \code{test_pkg()}, because test
+  scripts typically call \code{\link{assert}()} and other \pkg{testit}
+  functions directly without the \code{testit::} prefix. Simply using
+  \code{testit::test_pkg()} without loading the package first will result in
+  errors like \dQuote{could not find function "assert"}.
+
 All test scripts must be encoded in UTF-8 if they contain any multibyte
   characters.
 }
 \examples{
-\dontrun{test_pkg('testit')}
+\dontrun{
+library(testit)
+test_pkg('testit')
+}
 }

@@ -191,10 +191,20 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 #' @return \code{NULL}. All test files are executed and errors are collected; if
 #'   any tests fail, a single error is thrown at the end with all failure
 #'   messages combined.
-#' @note All test scripts must be encoded in UTF-8 if they contain any multibyte
+#' @note The \pkg{testit} package must be loaded (e.g., via
+#'   \code{library(testit)}) before calling \code{test_pkg()}, because test
+#'   scripts typically call \code{\link{assert}()} and other \pkg{testit}
+#'   functions directly without the \code{testit::} prefix. Simply using
+#'   \code{testit::test_pkg()} without loading the package first will result in
+#'   errors like \dQuote{could not find function "assert"}.
+#'
+#' All test scripts must be encoded in UTF-8 if they contain any multibyte
 #'   characters.
 #' @export
-#' @examples \dontrun{test_pkg('testit')}
+#' @examples \dontrun{
+#' library(testit)
+#' test_pkg('testit')
+#' }
 test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA) {
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`

@@ -18,8 +18,8 @@ This package provides two simple functions:
   the package namespace directly available, so no need to use the triple-colon
   `package:::name` for non-exported objects
 
-Snapshot testing is also supported via markdown files in `_snapshots/`
-directories.
+Snapshot testing is also supported via markdown files (`test-*.md`) in the same
+test directory.
 
 ## Why?
 
@@ -102,6 +102,11 @@ the root directory of your package), and write a `test-all.R` under
 library(testit)
 test_pkg('pkg_name')
 ```
+
+Note that `library(testit)` is required here because test scripts call
+`assert()` and other **testit** functions directly (without the `testit::`
+prefix). Using `testit::test_pkg()` alone without loading the package first will
+result in errors like "could not find function `assert`".
 
 That is all for `R CMD check`. For package development, you can
 `Ctrl/Cmd + Shift + T` to run tests.
