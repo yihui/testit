@@ -69,16 +69,18 @@ assert_loc = function(call, one) {
   sr = getSrcref(call)
   if (is.null(sr)) return()
   sf = attr(sr, 'srcfile')
+  file = sf$filename
+  if (file.exists(file)) file = normalizePath(file, '/')
   src = getSrcLines(sf, sr[1], sr[3])
-  if (!one) return(list(file = sf$filename, lines = rep(sr[1], length(call) - 1)))
+  if (!one) return(list(file = file, lines = rep(sr[1], length(call) - 1)))
   # parse the {} body to find relative line numbers of sub-expressions
   body_lines = src[-c(1, length(src))]
-  if (!length(body_lines)) return(list(file = sf$filename, lines = sr[1]))
+  if (!length(body_lines)) return(list(file = file, lines = sr[1]))
   body_exprs = tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
-  if (is.null(body_exprs)) return(list(file = sf$filename, lines = sr[1]))
+  if (is.null(body_exprs)) return(list(file = file, lines = sr[1]))
   body_sr = attr(body_exprs, 'srcref')
   lines = vapply(body_sr, function(s) sr[1] + s[1], integer(1))
-  list(file = sf$filename, lines = lines)
+  list(file = file, lines = lines)
 }
 
 assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
