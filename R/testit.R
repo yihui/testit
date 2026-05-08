@@ -84,6 +84,8 @@ assert_loc = function(call, one) {
 }
 
 assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
+  .env$equ_info = NULL
+  on.exit(.env$equ_info <- NULL, add = TRUE)
   n = length(exprs)
   for (i in seq_len(n)) {
     expr = exprs[[i]]
@@ -95,13 +97,16 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
     # check all values in case of multiple arguments, o/w only check values in ()
     if (all || (i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
-      if (all_true(val)) next
-      if (!is.null(fact)) message('assertion failed: ', fact)
+      if (all_true(val)) { .env$equ_info = NULL; next }
+      info = c(
+        if (!is.null(fact)) paste0('assertion failed: ', fact),
+        if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
+      )
       s = if (!is.null(loc)) error_loc(loc$file, loc$lines[min(i, length(loc$lines))])
-      stop(sprintf(
+      stop(paste(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(expr)
-      ), ' but ', deparse_one(val), s, call. = FALSE, domain = NA)
+      )), collapse = '\n'), ' but ', deparse_one(val), s, call. = FALSE, domain = NA)
     }
   }
 }
@@ -128,7 +133,7 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
       str(y)
       cat('<== (RHS)', deparse_key(mc[[3]]), '\n')
     }), collapse = '\n')
-    message(info)
+    .env$equ_info = c(.env$equ_info, info)
   }
   res
 }
@@ -175,7 +180,9 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 #'   if the snapshot test fails, it will throw an error with a message showing
 #'   the location of the failed test. For \code{TRUE}, it will update the
 #'   snapshot file and never throw an error.
-#' @return \code{NULL}. All test files are executed, unless an error occurs.
+#' @return \code{NULL}. All test files are executed and errors are collected; if
+#'   any tests fail, a single error is thrown at the end with all failure
+#'   messages combined.
 #' @note All test scripts must be encoded in UTF-8 if they contain any multibyte
 #'   characters.
 #' @export
@@ -234,13 +241,25 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   for (h in hs) quietly(loc_stop(sys.source2(h, envir = henv, top.env = ns)))
 
   env = new.env(parent = henv)
-  quietly(for (r in rs) {
+  errs = character()
+  for (r in rs) {
+    message('Testing ', sub(td, '', r, fixed = TRUE))
     rm(list = ls(env, all.names = TRUE), envir = env)
-    loc_stop(sys.source2(r, envir = env, top.env = ns))
-  })
+    tryCatch(
+      quietly(loc_stop(sys.source2(r, envir = env, top.env = ns))),
+      error = function(e) errs <<- c(errs, conditionMessage(e))
+    )
+  }
 
   # run snapshot tests from markdown files
-  test_snaps(ms, env, update)
+  for (m in ms) {
+    message('Testing ', sub(td, '', m, fixed = TRUE))
+    tryCatch(
+      test_snaps(m, env, update),
+      error = function(e) errs <<- c(errs, conditionMessage(e))
+    )
+  }
+  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
 }
 
 # evaluate expr; on error, append source location to the error message and re-throw
@@ -340,12 +359,11 @@ match_cond = function(text, message, ...) {
     grepl(message, text, ...)
 }
 
-quietly = function(expr, ...) {
+quietly = function(expr) {
   withCallingHandlers(
     expr,
     message = function(m) invokeRestart('muffleMessage'),
-    warning = function(w) invokeRestart('muffleWarning'),
-    ...
+    warning = function(w) invokeRestart('muffleWarning')
   )
 }
 

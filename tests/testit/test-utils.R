@@ -166,11 +166,13 @@ assert('test_pkg() sources helper files before tests', {
   (test_pkg('testit', dir = d) %==% NULL)
 })
 
-assert('test_pkg() error handler runs on test failure', {
+assert('test_pkg() collects errors from all files and reports them together', {
   d = tempfile(); dir.create(d)
-  # write a test file that errors
-  writeLines('stop("deliberate error")', file.path(d, 'test-fail.R'))
-  (has_error(test_pkg('testit', dir = d)))
+  writeLines('stop("error one")', file.path(d, 'test-aaa.R'))
+  writeLines('stop("error two")', file.path(d, 'test-bbb.R'))
+  msg = tryCatch(test_pkg('testit', dir = d), error = conditionMessage)
+  (grepl('error one', msg))
+  (grepl('error two', msg))
 })
 
 assert('test_pkg() filter selects a subset of test files', {

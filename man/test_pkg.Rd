@@ -30,7 +30,9 @@ the location of the failed test. For \code{TRUE}, it will update the
 snapshot file and never throw an error.}
 }
 \value{
-\code{NULL}. All test files are executed, unless an error occurs.
+\code{NULL}. All test files are executed and errors are collected; if
+  any tests fail, a single error is thrown at the end with all failure
+  messages combined.
 }
 \description{
 The tests are executed in a clean environment with the namespace of the
