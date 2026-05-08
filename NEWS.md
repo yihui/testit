@@ -18,7 +18,7 @@
 
 - Error messages now include precise source locations (file and line number). `assert()` reports the exact line of the failing sub-expression, and `test_pkg()` reports error locations in test scripts, helper files, and snapshot code blocks.
 
-- `test_pkg()` now unloads DLLs from the temporary library before cleanup, so the temporary `R-lib-*` directories can be properly removed for packages with compiled code.
+- `test_pkg()` now installs the package to the system temp directory instead of a local `R-lib-*` folder, and fixes DLL cleanup on Windows so the temporary library can be properly removed (thanks, @jdblischak, #20).
 
 # CHANGES IN testit VERSION 0.18
 

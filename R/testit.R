@@ -196,10 +196,10 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     !is.null(pkg_root) && package == pkg_name()
   if (install) {
     .env$lib_old = lib_old = .libPaths()
-    dir.create(lib_new <- tempfile('R-lib-', '.'))
+    dir.create(lib_new <- tempfile('R-lib-'))
     .env$lib_new = normalizePath(lib_new)
     message(
-      "Installing '", package, "' to ", lib_new, ' temporarily for testing... ',
+      "Installing '", package, "' to ", short_temp(lib_new), ' for testing... ',
       appendLF = FALSE
     )
     res = system2(

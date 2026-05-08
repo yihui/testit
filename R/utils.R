@@ -15,13 +15,20 @@ pkg_name = function() {
   stop('Package name cannot be detected from DESCRIPTION.')
 }
 
+dir_exists = function(x) utils::file_test('-d', x)
+
 # find an available dir
 available_dir = function(dirs) {
-  for (i in dirs) {
-    if (utils::file_test('-d', i)) return(i)
-  }
-  stop('none of the directories exists:\n', paste(utils::formatUL(dirs), collapse = '\n'))
+  for (i in dirs) if (dir_exists(i)) return(i)
+  stop('None of the directories exists:\n', paste(utils::formatUL(dirs), collapse = '\n'))
 }
+
+# a compact way to display tempfile()
+short_temp = function(x) paste('tempdir()/', basename(x))
+
+cleanup_msg = function(path) message(
+  if (dir_exists(path)) 'Failed to clean' else 'Cleaned', ' up ', short_temp(path)
+)
 
 # tailored for assert(): extract the expression that is likely to be useful for
 # diagnostics if possible
