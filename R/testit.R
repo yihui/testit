@@ -178,21 +178,22 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), update = NA) {
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
+  pkg_root = if (file.exists('DESCRIPTION')) '.' else if (file.exists('../DESCRIPTION')) '..'
   install = !.env$installed && !interactive() &&
     is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
-    file.exists('../DESCRIPTION') && package == pkg_name()
+    !is.null(pkg_root) && package == pkg_name()
   if (install) {
     .env$lib_old = lib_old = .libPaths()
     dir.create(lib_new <- tempfile('R-lib-', '.'))
     .env$lib_new = normalizePath(lib_new)
     message(
-      "Installing '", package, "' to ", lib_new, ' temprarily for testing... ',
+      "Installing '", package, "' to ", lib_new, ' temporarily for testing... ',
       appendLF = FALSE
     )
     res = system2(
       file.path(R.home('bin'), 'R'), c(
         'CMD', 'INSTALL', paste0('--library=', lib_new),
-        '--no-help', '--no-staged-install', '--no-test-load', '..'
+        '--no-help', '--no-staged-install', '--no-test-load', pkg_root
       ), stdout = FALSE, stderr = FALSE
     )
     if (res == 0) {
@@ -204,6 +205,7 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
     }
   }
 
+  if (identical(pkg_root, '.')) dir = c(dir, file.path('tests', dir))
   path = available_dir(dir)
   td = paste0(normalizePath(getwd(), '/'), '/')
   op = options(testit.test_dir = td); on.exit(options(op), add = TRUE)
