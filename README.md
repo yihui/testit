@@ -18,8 +18,8 @@ This package provides two simple functions:
   the package namespace directly available, so no need to use the triple-colon
   `package:::name` for non-exported objects
 
-Snapshot testing is also supported via markdown files in `_snapshots/`
-directories.
+Snapshot testing is also supported via markdown files (`test-*.md`) in the same
+test directory.
 
 ## Why?
 
