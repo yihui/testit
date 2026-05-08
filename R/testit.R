@@ -243,12 +243,12 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   # run each file, print the relative path, and collect error messages
   run_files = function(files, helper = FALSE, snap = FALSE) for (f in files) {
     if (!helper) {
-      message('Testing ', sub(td, '', f, fixed = TRUE), '...', appendLF = FALSE)
+      message('Testing ', sub(td, '', f, fixed = TRUE), '... ', appendLF = FALSE)
       rm(list = ls(env, all.names = TRUE), envir = env)
     }
     err = if (snap) test_snap(f, env, update) else
       quietly(sys.source2(f, envir = if (helper) henv else env, top.env = ns))
-    if (length(err) == 0) message(' OK')
+    if (!helper && length(err) == 0) message('OK')
     errs <<- c(errs, err)
   }
   throw = function() {
