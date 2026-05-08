@@ -125,7 +125,7 @@ parse_snapshot = function(lines, file) {
   idx[fences[i] + 1] = TRUE
   # Split lines into code, output, and text blocks
   N = seq_along(lines)
-  blocks = split(data.frame(lines, N, stringsAsFactors = FALSE), cumsum(idx[N]))
+  blocks = split(data.frame(lines, N, stringsAsFactors = FALSE), cumsum(idx))
   lapply(blocks, function(b) {
     n = nrow(b)
     if (n < 2 || !grepl(r, b[1, 1])) list(type = 'text', content = b[, 1]) else {
@@ -162,10 +162,9 @@ test_snap = function(f, env, update = NA) {
       changed = TRUE
     } else {
       expected_lines = blocks[[k]]$content
-      if (!isTRUE(update)) {
-        if (identical(out, expected_lines)) next
-        changed = TRUE; if (is.null(pos)) pos = block$line
-      }
+      if (identical(out, expected_lines)) next
+      changed = TRUE
+      if (!isTRUE(update) && is.null(pos)) pos = block$line
       blocks[[k]] = list(type = '', content = out)
     }
   }

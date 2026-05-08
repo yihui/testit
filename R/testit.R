@@ -75,11 +75,11 @@ assert_loc = function(call, one) {
   if (!one) return(list(file = file, lines = rep(sr[1], length(call) - 1)))
   # parse the {} body to find relative line numbers of sub-expressions
   body_lines = src[-c(1, length(src))]
-  if (!length(body_lines)) return(list(file = file, lines = sr[1]))
-  body_exprs = tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
-  if (is.null(body_exprs)) return(list(file = file, lines = sr[1]))
-  body_sr = attr(body_exprs, 'srcref')
-  lines = vapply(body_sr, function(s) sr[1] + s[1], integer(1))
+  body_exprs = if (length(body_lines))
+    tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
+  body_sr = if (!is.null(body_exprs)) attr(body_exprs, 'srcref')
+  lines = if (is.null(body_sr)) sr[1] else
+    vapply(body_sr, function(s) sr[1] + s[1], integer(1))
   list(file = file, lines = lines)
 }
 
@@ -293,7 +293,7 @@ error_loc = function(x, line = 1) {
   full = norm_path(x)
   d = getOption('testit.test_dir')
   n = nchar(d)
-  rel = if (!is.null(d) && substring(full, 1, n) == d) substring(full, n + 1) else full
+  rel = if (!is.null(d) && starts_with(full, d)) substring(full, n + 1) else full
   if (!isTRUE(as.logical(Sys.getenv('RSTUDIO_CLI_HYPERLINKS'))))
     return(sprintf(' at %s#%d', rel, line))
   sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, rel, line)
