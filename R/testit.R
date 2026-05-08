@@ -212,12 +212,12 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
         '--no-help', '--no-staged-install', '--no-test-load', pkg_root
       ), stdout = FALSE, stderr = FALSE
     )
-    if (res == 0) {
+    message(if (res == 0) {
       .libPaths(c(lib_new, lib_old))
       if (!is.na(i <- match(paste0('package:', package), search())))
         detach(pos = i, unload = TRUE, force = TRUE)
-      message('Done.')
-    }
+      'Done.'
+    } else 'Failed.')
   }
 
   if (is.null(dir)) dir = c('testit', 'tests/testit')
@@ -251,7 +251,7 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     }
     err = if (snap) test_snap(f, env, update) else
       quietly(sys.source2(f, envir = if (helper) henv else env, top.env = ns))
-    if (!helper && length(err) == 0) message('OK')
+    if (!helper) message(if (length(err) == 0) 'OK' else 'FAILED')
     errs <<- c(errs, err)
   }
   throw = function() {
