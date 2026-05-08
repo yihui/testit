@@ -53,6 +53,7 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
   on.exit(options(oop), add = TRUE)
 
+  file = normalizePath(file, '/')
   lines = readLines(file, warn = FALSE, encoding = 'UTF-8')
   srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
   exprs = parse(text = lines, srcfile = srcfile, encoding = 'UTF-8')
