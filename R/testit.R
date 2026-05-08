@@ -205,6 +205,8 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   }
 
   path = available_dir(dir)
+  td = paste0(normalizePath(getwd(), '/'), '/')
+  op = options(testit.test_dir = td); on.exit(options(op), add = TRUE)
   fs = list.files(path, full.names = TRUE)
   # clean up new files/dirs generated during testing
   if (getOption('testit.cleanup', TRUE)) on.exit({
@@ -213,17 +215,16 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
   rs = fs[grep('^test-.+[.][rR]$', basename(fs))]
   ms = fs[grep('^test-.+[.]md$', basename(fs))]
   hs = fs[grep('^helper.*[.][rR]$', basename(fs))]
-  wd = getwd()
 
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
   henv = new.env(parent = ns)
-  for (h in hs) quietly(loc_stop(sys.source2(h, envir = henv, top.env = ns), wd))
+  for (h in hs) quietly(loc_stop(sys.source2(h, envir = henv, top.env = ns)))
 
   env = new.env(parent = henv)
   quietly(for (r in rs) {
     rm(list = ls(env, all.names = TRUE), envir = env)
-    loc_stop(sys.source2(r, envir = env, top.env = ns), wd)
+    loc_stop(sys.source2(r, envir = env, top.env = ns))
   })
 
   # run snapshot tests from markdown files
@@ -231,7 +232,7 @@ test_pkg = function(package = pkg_name(), dir = c('testit', 'tests/testit'), upd
 }
 
 # evaluate expr; on error, append source location to the error message and re-throw
-loc_stop = function(expr, wd = '.') {
+loc_stop = function(expr) {
   loc = NULL
   tryCatch(withCallingHandlers(expr, error = function(e) {
     if (!exists('.traceback', baseenv(), inherits = FALSE)) return()
@@ -240,7 +241,7 @@ loc_stop = function(expr, wd = '.') {
       if (length(z) == 0) break
       sr = attr(z[[1]], 'srcref')
       if (!is.null(sr)) {
-        loc <<- error_loc(attr(sr, 'srcfile')$filename, sr[1], wd)
+        loc <<- error_loc(attr(sr, 'srcfile')$filename, sr[1])
         break
       }
     }
@@ -252,14 +253,16 @@ loc_stop = function(expr, wd = '.') {
 }
 
 # add ANSI link on file path if supported
-error_loc = function(x, line = 1, wd = '.') {
+error_loc = function(x, line = 1) {
   if (!length(x)) return()
+  if (!file.exists(x)) return(sprintf(' at %s#%d', x, line))
+  full = normalizePath(x, '/')
+  d = getOption('testit.test_dir')
+  n = nchar(d)
+  rel = if (!is.null(d) && substring(full, 1, n) == d) substring(full, n + 1) else full
   if (!isTRUE(as.logical(Sys.getenv('RSTUDIO_CLI_HYPERLINKS'))))
-    return(sprintf(' at %s#%d', x, line))
-  p = if (file.exists(x)) x else file.path(wd, x)
-  if (!file.exists(p)) return(sprintf(' at %s#%d', x, line))
-  full = normalizePath(p, '/')
-  sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, x, line)
+    return(sprintf(' at %s#%d', rel, line))
+  sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, rel, line)
 }
 
 #' Check if an R expression produces messages, warnings, or errors
