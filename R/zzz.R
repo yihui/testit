@@ -5,7 +5,7 @@
     # unload DLLs loaded from lib_new, otherwise its libs/ dir can't be removed
     prefix = paste0(e$lib_new, .Platform$file.sep)
     for (d in getLoadedDLLs()) {
-      p = normalizePath(d[['path']], mustWork = FALSE)
+      p = norm_path(d[['path']], mustWork = FALSE)
       if (starts_with(p, prefix))
         tryCatch(dyn.unload(d[['path']]), error = identity)
     }

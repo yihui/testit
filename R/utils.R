@@ -4,17 +4,19 @@
 # base::startsWith() requires R >= 3.3
 starts_with = function(x, prefix) substring(x, 1, nchar(prefix)) == prefix
 
+norm_path = function(x, ...) normalizePath(x, '/', ...)
+
 # check if a source package needs (re)installation by comparing source file
 # mtimes against the installed package timestamp
 pkg_needs_install = function(pkg_root, package) {
-  pkg_root = normalizePath(pkg_root, '/')
+  pkg_root = norm_path(pkg_root)
   libs = .libPaths()
-  libs = libs[normalizePath(libs, '/', mustWork = FALSE) != dirname(pkg_root)]
+  libs = libs[norm_path(libs, mustWork = FALSE) != dirname(pkg_root)]
   # if the namespace is already loaded from outside .libPaths() (e.g., covr's
   # temp lib or load_all()), the caller set it up intentionally — skip reinstall
   if (isNamespaceLoaded(package)) {
-    ns_path = normalizePath(getNamespaceInfo(package, 'path'), '/', mustWork = FALSE)
-    if (!any(starts_with(ns_path, normalizePath(libs, '/', mustWork = FALSE)))) return(FALSE)
+    ns_path = norm_path(getNamespaceInfo(package, 'path'), mustWork = FALSE)
+    if (!any(starts_with(ns_path, norm_path(libs, mustWork = FALSE)))) return(FALSE)
   }
   lib = find.package(package, lib.loc = libs, quiet = TRUE)
   if (!length(lib)) return(TRUE)
@@ -81,7 +83,7 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
   on.exit(options(oop), add = TRUE)
 
-  file = normalizePath(file, '/')
+  file = norm_path(file)
   lines = readLines(file, warn = FALSE, encoding = 'UTF-8')
   srcfile = srcfilecopy(file, lines, file.mtime(file), isFile = TRUE)
   exprs = parse(text = lines, srcfile = srcfile, encoding = 'UTF-8')

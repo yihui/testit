@@ -70,7 +70,7 @@ assert_loc = function(call, one) {
   if (is.null(sr)) return()
   sf = attr(sr, 'srcfile')
   file = sf$filename
-  if (file.exists(file)) file = normalizePath(file, '/')
+  if (file.exists(file)) file = norm_path(file)
   src = getSrcLines(sf, sr[1], sr[3])
   if (!one) return(list(file = file, lines = rep(sr[1], length(call) - 1)))
   # parse the {} body to find relative line numbers of sub-expressions
@@ -198,7 +198,7 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   if (install) {
     .env$lib_old = lib_old = .libPaths()
     dir.create(lib_new <- tempfile('R-lib-'))
-    .env$lib_new = normalizePath(lib_new)
+    .env$lib_new = norm_path(lib_new)
     message(
       "Installing '", package, "' to ", short_temp(lib_new), ' for testing... ',
       appendLF = FALSE
@@ -220,7 +220,7 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   if (is.null(dir)) dir = c('testit', 'tests/testit')
   if (identical(pkg_root, '.')) dir = c(dir, file.path('tests', dir))
   path = available_dir(dir)
-  td = paste0(normalizePath(getwd(), '/'), '/')
+  td = paste0(norm_path(getwd()), '/')
   op = options(testit.test_dir = td); on.exit(options(op), add = TRUE)
   fs = list.files(path, full.names = TRUE)
   # clean up new files/dirs generated during testing
@@ -287,7 +287,7 @@ loc_stop = function(expr) {
 error_loc = function(x, line = 1) {
   if (!length(x)) return()
   if (!file.exists(x)) return(sprintf(' at %s#%d', x, line))
-  full = normalizePath(x, '/')
+  full = norm_path(x)
   d = getOption('testit.test_dir')
   n = nchar(d)
   rel = if (!is.null(d) && substring(full, 1, n) == d) substring(full, n + 1) else full
