@@ -158,6 +158,7 @@ test_snap = function(f, env, update = NA) {
     if (!block$type %in% c('{r}', 'r')) next
 
     out = capture_output(block$content, env, dirname(f), f, block$line)
+    if (identical(out, 'skip')) return()
     # look for the next output block k (stop at the next R code block)
     k = NULL
     if (i + 1 <= N) for (j in (i + 1):N) {

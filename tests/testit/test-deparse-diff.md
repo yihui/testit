@@ -1,4 +1,11 @@
 Test deparse_diff() via equ_info() when str() is identical for both sides.
+These tests require `digits17` deparse control (R >= 3.5.0).
+
+```r
+if (getRversion() < '3.5.0') cat('skip')
+```
+```
+```
 
 Tiny numeric difference (str() shows the same, deparse reveals the diff):
 
