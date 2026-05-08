@@ -1,6 +1,14 @@
 # an internal environment to store objects
 .env = new.env(parent = emptyenv())
 
+# trigger %==% diagnostics and return the collected info (for testing)
+equ_info = function(x, y) {
+  .env$equ_info = NULL
+  op = options(testit.asserting = TRUE); on.exit(options(op))
+  x %==% y
+  .env$equ_info
+}
+
 # base::startsWith() requires R >= 3.3
 starts_with = function(x, prefix) substring(x, 1, nchar(prefix)) == prefix
 
@@ -228,11 +236,23 @@ write_utf8 = function(text, con) {
   writeLines(enc2utf8(text), con, useBytes = TRUE)
 }
 
+# Deparse two values with full precision, split on ", " for token-level diff
+deparse_diff = function(x, y, max_diff = 50L) {
+  dx = paste(deparse(x, width.cutoff = 500L, control = 'all'), collapse = ' ')
+  dy = paste(deparse(y, width.cutoff = 500L, control = 'all'), collapse = ' ')
+  if (identical(dx, dy)) return()
+  tx = trimws(strsplit(dx, ', ')[[1]])
+  ty = trimws(strsplit(dy, ', ')[[1]])
+  mini_diff(tx, ty, max_diff)
+}
+
 # Output a minimal diff between two character vectors, showing only lines that
 # are different and 3 lines of context around them. Lines starting with " " are
-# unchanged, "-" are in x1 but not x2, "+" are in x2 but not x1.
-mini_diff = function(x1, x2) {
+# unchanged, "-" are in x1 but not x2, "+" are in x2 but not x1. When max_diff
+# is finite, bail out after that many diff lines are found (returns NULL).
+mini_diff = function(x1, x2, max_diff = Inf) {
   out = character()
+  n_diff = 0L
   i = 1; j = 1
   n1 = length(x1); n2 = length(x2)
 
@@ -244,13 +264,14 @@ mini_diff = function(x1, x2) {
       m_i = if (i <= n1 && j <= n2) match(x2[j], x1[i:n1]) else NA
       m_j = if (i <= n1 && j <= n2) match(x1[i], x2[j:n2]) else NA
       if (!is.na(m_i) && (is.na(m_j) || m_i <= m_j)) {
-        out = c(out, paste("-", x1[i])); i = i + 1
+        out = c(out, paste("-", x1[i])); i = i + 1; n_diff = n_diff + 1L
       } else if (!is.na(m_j)) {
-        out = c(out, paste("+", x2[j])); j = j + 1
+        out = c(out, paste("+", x2[j])); j = j + 1; n_diff = n_diff + 1L
       } else {
-        if (i <= n1) { out = c(out, paste("-", x1[i])); i = i + 1 }
-        if (j <= n2) { out = c(out, paste("+", x2[j])); j = j + 1 }
+        if (i <= n1) { out = c(out, paste("-", x1[i])); i = i + 1; n_diff = n_diff + 1L }
+        if (j <= n2) { out = c(out, paste("+", x2[j])); j = j + 1; n_diff = n_diff + 1L }
       }
+      if (n_diff >= max_diff) break
     }
   }
 

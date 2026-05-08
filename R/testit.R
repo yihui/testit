@@ -129,13 +129,18 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   res = identical(x, y)
   if (!res && getOption('testit.asserting', FALSE)) {
     mc = match.call()
-    info = paste(capture.output({
-      cat(deparse_key(mc[[2]]), '(LHS) ==>\n')
-      str(x)
-      cat('----------\n')
-      str(y)
-      cat('<== (RHS)', deparse_key(mc[[3]]), '\n')
-    }), collapse = '\n')
+    sx = capture.output(str(x))
+    sy = capture.output(str(y))
+    info = paste(c(
+      paste(deparse_key(mc[[2]]), '(LHS) ==>'), sx, '----------', sy,
+      paste('<== (RHS)', deparse_key(mc[[3]]))
+    ), collapse = '\n')
+    # show deparse diff only when str() is uninformative (identical for both)
+    if (identical(sx, sy)) {
+      diff = deparse_diff(x, y)
+      if (length(diff))
+        info = paste(c(info, '', 'Detailed diff (- LHS, + RHS):', diff), collapse = '\n')
+    }
     .env$equ_info = c(.env$equ_info, info)
   }
   res
