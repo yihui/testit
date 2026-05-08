@@ -166,13 +166,14 @@ assert('test_pkg() sources helper files before tests', {
   (test_pkg('testit', dir = d) %==% NULL)
 })
 
-assert('test_pkg() collects errors from all files and reports them together', {
+assert('test_pkg() collects all errors across and within files', {
   d = tempfile(); dir.create(d)
-  writeLines('stop("error one")', file.path(d, 'test-aaa.R'))
+  writeLines(c('stop("error one")', 'stop("error one and a half")'), file.path(d, 'test-aaa.R'))
   writeLines('stop("error two")', file.path(d, 'test-bbb.R'))
   msg = tryCatch(test_pkg('testit', dir = d), error = conditionMessage)
   (grepl('error one', msg))
   (grepl('error two', msg))
+  (grepl('error one and a half', msg))
 })
 
 assert('test_pkg() filter selects a subset of test files', {

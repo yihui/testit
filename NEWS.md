@@ -2,7 +2,7 @@
 
 - `test_pkg()` gained a `filter` argument that takes a regular expression to selectively run a subset of test files (e.g., `test_pkg(filter = 'parse')` runs only files with "parse" in their names).
 
-- `test_pkg()` now runs all test files instead of stopping at the first failure. Errors are collected and reported together at the end. The relative filename of each test is printed before execution.
+- `test_pkg()` now runs all test files instead of stopping at the first failure. Errors are collected and reported together at the end, including multiple errors within a single file (thanks, @jdblischak, #19). The relative filename of each test is printed before execution.
 
 - `assert()` now includes the actual value of the failed expression in the error message, making it easier to diagnose assertion failures (e.g., `(x %==% y) is not TRUE but FALSE`).
 

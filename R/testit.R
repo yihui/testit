@@ -238,17 +238,15 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
   henv = new.env(parent = ns)
-  for (h in hs) quietly(loc_stop(sys.source2(h, envir = henv, top.env = ns)))
+  errs = character()
+  for (h in hs) errs = c(errs, quietly(sys.source2(h, envir = henv, top.env = ns)))
+  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
 
   env = new.env(parent = henv)
-  errs = character()
   for (r in rs) {
     message('Testing ', sub(td, '', r, fixed = TRUE))
     rm(list = ls(env, all.names = TRUE), envir = env)
-    tryCatch(
-      quietly(loc_stop(sys.source2(r, envir = env, top.env = ns))),
-      error = function(e) errs <<- c(errs, conditionMessage(e))
-    )
+    errs = c(errs, quietly(sys.source2(r, envir = env, top.env = ns)))
   }
 
   # run snapshot tests from markdown files

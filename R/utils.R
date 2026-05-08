@@ -51,11 +51,9 @@ insert_identical = function() {
   insert(text = ' %==% ')
 }
 
-# This function is a modification of base::sys.source.  It allows to specify
-# the top-level environment, which is by default "envir" (the same as in
-# base::sys.source), but for package testing it is desirable to use the
-# package namespace to mimic the environment structure used when packages
-# are running. This function assumes that chdir = FALSE and keep.source = TRUE.
+# A modification of base::sys.source that uses the package namespace as the
+# top-level environment and collects all errors instead of stopping at the
+# first. Returns a character vector of error messages (empty if no errors).
 sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   oop = options(keep.source = TRUE, topLevelEnvironment = top.env)
   on.exit(options(oop), add = TRUE)
@@ -67,7 +65,12 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
 
   if (length(exprs) == 0L) return()
   owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
-  for (i in seq_along(exprs)) eval(exprs[i], envir)
+  errs = NULL
+  for (i in seq_along(exprs)) tryCatch(
+    loc_stop(eval(exprs[i], envir)),
+    error = function(e) errs <<- c(errs, conditionMessage(e))
+  )
+  errs
 }
 
 # Clean output to remove unstable elements like bytecode addresses
@@ -106,74 +109,72 @@ parse_snapshot = function(lines, file) {
   })
 }
 
-# Execute snapshot tests from markdown files containing R code blocks and
+# Execute snapshot tests from a markdown file containing R code blocks and
 # expected output blocks.
-test_snaps = function(files, env, update = NA) {
-  for (f in files) {
-    rm(list = ls(env, all.names = TRUE), envir = env)
-    raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
-    blocks = parse_snapshot(raw_lines, f)
-    new_blocks = list(); changed = FALSE
-    pos = NULL  # record the first line of the first failed block for error reporting
+test_snaps = function(f, env, update = NA) {
+  rm(list = ls(env, all.names = TRUE), envir = env)
+  raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
+  blocks = parse_snapshot(raw_lines, f)
+  new_blocks = list(); changed = FALSE
+  pos = NULL  # record the first line of the first failed block for error reporting
 
-    # Process blocks in pairs: R code block followed by output block
-    N = length(blocks)
-    for (i in seq_len(N)) {
-      block = blocks[[i]]
-      new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
-      if (!block$type %in% c('{r}', 'r')) next
+  # Process blocks in pairs: R code block followed by output block
+  N = length(blocks)
+  for (i in seq_len(N)) {
+    block = blocks[[i]]
+    new_blocks[[length(new_blocks) + 1]] = block  # Add current block to new_blocks
+    if (!block$type %in% c('{r}', 'r')) next
 
-      out = capture_output(block$content, env, dirname(f), f, block$line)
-      # look for the next output block k (stop at the next R code block)
-      k = NULL
-      if (i + 1 <= N) for (j in (i + 1):N) {
-        if (blocks[[j]]$type %in% c('{r}', 'r')) break
-        if (blocks[[j]]$type == '') { k = j; break }
-      }
-      if (is.null(k)) {
-        # no output block, add one
-        new_blocks[[length(new_blocks) + 1]] = list(type = '', content = out)
-        changed = TRUE
-      } else {
-        expected_lines = blocks[[k]]$content
-        if (!isTRUE(update)) {
-          if (identical(out, expected_lines)) next
-          changed = TRUE; if (is.null(pos)) pos = block$line
-        }
-        blocks[[k]] = list(type = '', content = out)
-      }
+    out = capture_output(block$content, env, dirname(f), f, block$line)
+    # look for the next output block k (stop at the next R code block)
+    k = NULL
+    if (i + 1 <= N) for (j in (i + 1):N) {
+      if (blocks[[j]]$type %in% c('{r}', 'r')) break
+      if (blocks[[j]]$type == '') { k = j; break }
     }
-
-    # Write updated markdown if needed
-    if (changed) {
-      # Determine fence to use
-      all_content = unlist(lapply(new_blocks, function(b) b$content))
-      fence = get_fence(all_content, TRUE)
-      out_lines = unlist(lapply(new_blocks, function(b) {
-        if (b$type == 'text') b$content else {
-          c(paste0(fence, b$type), b$content, fence)
-        }
-      }))
-      if (isTRUE(update) || is.null(pos)) {
-        write_utf8(out_lines, f)
-        message('Updated snapshot file: ', f)
-      } else {
-        tracked = system2(
-          'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = FALSE, stderr = FALSE
-        ) == 0
-        if (tracked && is.na(update)) {
-          write_utf8(out_lines, f)
-          d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
-          message(paste(d, collapse = '\n'))
-        } else {
-          message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
-        }
-        stop(
-          'Snapshot test failed', error_loc(f, pos), '\n',
-          if (tracked) 'If the changes are not expected, revert them in GIT.' else
-            'Call testit::test_pkg(update = TRUE) to update.', call. = FALSE
-        )
+    if (is.null(k)) {
+      # no output block, add one
+      new_blocks[[length(new_blocks) + 1]] = list(type = '', content = out)
+      changed = TRUE
+    } else {
+      expected_lines = blocks[[k]]$content
+      if (!isTRUE(update)) {
+        if (identical(out, expected_lines)) next
+        changed = TRUE; if (is.null(pos)) pos = block$line
       }
+      blocks[[k]] = list(type = '', content = out)
+    }
+  }
+
+  # Write updated markdown if needed
+  if (changed) {
+    # Determine fence to use
+    all_content = unlist(lapply(new_blocks, function(b) b$content))
+    fence = get_fence(all_content, TRUE)
+    out_lines = unlist(lapply(new_blocks, function(b) {
+      if (b$type == 'text') b$content else {
+        c(paste0(fence, b$type), b$content, fence)
+      }
+    }))
+    if (isTRUE(update) || is.null(pos)) {
+      write_utf8(out_lines, f)
+      message('Updated snapshot file: ', f)
+    } else {
+      tracked = system2(
+        'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = FALSE, stderr = FALSE
+      ) == 0
+      if (tracked && is.na(update)) {
+        write_utf8(out_lines, f)
+        d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
+        message(paste(d, collapse = '\n'))
+      } else {
+        message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
+      }
+      stop(
+        'Snapshot test failed', error_loc(f, pos), '\n',
+        if (tracked) 'If the changes are not expected, revert them in GIT.' else
+          'Call testit::test_pkg(update = TRUE) to update.', call. = FALSE
+      )
     }
   }
 }
