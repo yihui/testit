@@ -110,9 +110,8 @@ parse_snapshot = function(lines, file) {
 }
 
 # Execute snapshot tests from a markdown file containing R code blocks and
-# expected output blocks.
-test_snaps = function(f, env, update = NA) {
-  rm(list = ls(env, all.names = TRUE), envir = env)
+# expected output blocks. Returns error messages (if any) like sys.source2().
+test_snap = function(f, env, update = NA) {
   raw_lines = readLines(f, warn = FALSE, encoding = 'UTF-8')
   blocks = parse_snapshot(raw_lines, f)
   new_blocks = list(); changed = FALSE
@@ -146,37 +145,36 @@ test_snaps = function(f, env, update = NA) {
     }
   }
 
-  # Write updated markdown if needed
-  if (changed) {
-    # Determine fence to use
-    all_content = unlist(lapply(new_blocks, function(b) b$content))
-    fence = get_fence(all_content, TRUE)
-    out_lines = unlist(lapply(new_blocks, function(b) {
-      if (b$type == 'text') b$content else {
-        c(paste0(fence, b$type), b$content, fence)
-      }
-    }))
-    if (isTRUE(update) || is.null(pos)) {
-      write_utf8(out_lines, f)
-      message('Updated snapshot file: ', f)
-    } else {
-      tracked = system2(
-        'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = FALSE, stderr = FALSE
-      ) == 0
-      if (tracked && is.na(update)) {
-        write_utf8(out_lines, f)
-        d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
-        message(paste(d, collapse = '\n'))
-      } else {
-        message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
-      }
-      stop(
-        'Snapshot test failed', error_loc(f, pos), '\n',
-        if (tracked) 'If the changes are not expected, revert them in GIT.' else
-          'Call testit::test_pkg(update = TRUE) to update.', call. = FALSE
-      )
+  if (!changed) return()
+
+  # Write updated markdown
+  all_content = unlist(lapply(new_blocks, function(b) b$content))
+  fence = get_fence(all_content, TRUE)
+  out_lines = unlist(lapply(new_blocks, function(b) {
+    if (b$type == 'text') b$content else {
+      c(paste0(fence, b$type), b$content, fence)
     }
+  }))
+  if (isTRUE(update) || is.null(pos)) {
+    write_utf8(out_lines, f)
+    message('Updated snapshot file: ', f)
+    return()
   }
+  tracked = system2(
+    'git', c('ls-files', '--error-unmatch', shQuote(f)), stdout = FALSE, stderr = FALSE
+  ) == 0
+  if (tracked && is.na(update)) {
+    write_utf8(out_lines, f)
+    d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
+    message(paste(d, collapse = '\n'))
+  } else {
+    message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
+  }
+  paste0(
+    'Snapshot test failed', error_loc(f, pos), '\n',
+    if (tracked) 'If the changes are not expected, revert them in GIT.' else
+      'Call testit::test_pkg(update = TRUE) to update.'
+  )
 }
 
 capture_output = function(code, envir, wd, file = NULL, line = NULL) {

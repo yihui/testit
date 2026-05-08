@@ -238,26 +238,28 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
   henv = new.env(parent = ns)
-  errs = character()
-  for (h in hs) errs = c(errs, quietly(sys.source2(h, envir = henv, top.env = ns)))
-  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
-
   env = new.env(parent = henv)
-  for (r in rs) {
-    message('Testing ', sub(td, '', r, fixed = TRUE))
-    rm(list = ls(env, all.names = TRUE), envir = env)
-    errs = c(errs, quietly(sys.source2(r, envir = env, top.env = ns)))
+  errs = NULL
+  # run each file, print the relative path, and collect error messages
+  run_files = function(files, helper = FALSE, snap = FALSE) for (f in files) {
+    if (!helper) {
+      message('Testing ', sub(td, '', f, fixed = TRUE), '...', appendLF = FALSE)
+      rm(list = ls(env, all.names = TRUE), envir = env)
+    }
+    err = if (snap) test_snap(f, env, update) else
+      quietly(sys.source2(f, envir = if (helper) henv else env, top.env = ns))
+    if (length(err) == 0) message(' OK')
+    errs <<- c(errs, err)
+  }
+  throw = function() {
+    if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
   }
 
-  # run snapshot tests from markdown files
-  for (m in ms) {
-    message('Testing ', sub(td, '', m, fixed = TRUE))
-    tryCatch(
-      test_snaps(m, env, update),
-      error = function(e) errs <<- c(errs, conditionMessage(e))
-    )
-  }
-  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
+  # run helper scripts
+  run_files(hs, TRUE); throw()
+
+  # run test scripts and snapshots
+  run_files(rs); run_files(ms, snap = TRUE); throw()
 }
 
 # evaluate expr; on error, append source location to the error message and re-throw

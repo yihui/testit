@@ -49,19 +49,19 @@ assert('snapshot updates preserve the original R fence style', {
 
   f1 = tempfile(fileext = '.md')
   writeLines(c('```r', '1 + 1', '```'), f1)
-  suppressMessages(test_snaps(f1, env, update = TRUE))
+  suppressMessages(test_snap(f1, env, update = TRUE))
   l1 = readLines(f1, warn = FALSE)
   (grepl('^```r$', l1[1]))
   (!any(grepl('^```\\{r\\}$', l1)))
 
   f2 = tempfile(fileext = '.md')
   writeLines(c('```{r}', '1 + 1', '```'), f2)
-  suppressMessages(test_snaps(f2, env, update = TRUE))
+  suppressMessages(test_snap(f2, env, update = TRUE))
   l2 = readLines(f2, warn = FALSE)
   (grepl('^```\\{r\\}$', l2[1]))
 })
 
-assert('test_snaps() inserts missing output block before a later code block with output', {
+assert('test_snap() inserts missing output block before a later code block with output', {
   env = new.env(parent = baseenv())
 
   # first block has no output; second block has output
@@ -71,7 +71,7 @@ assert('test_snaps() inserts missing output block before a later code block with
     '```r', '2 + 2', '```',
     '```', '[1] 4', '```'
   ), f)
-  suppressMessages(test_snaps(f, env, update = TRUE))
+  suppressMessages(test_snap(f, env, update = TRUE))
   lines = readLines(f, warn = FALSE)
   # output for first block must have been inserted
   (any(grepl('^\\[1\\] 2$', lines)))
@@ -100,33 +100,32 @@ assert('parse_snapshot() errors on unbalanced fences', {
   (has_error(parse_snapshot(c('```r', '1 + 1'), 'test.md')))
 })
 
-assert('test_snaps() fails when snapshot output does not match (update = FALSE)', {
+assert('test_snap() fails when snapshot output does not match (update = FALSE)', {
   env = new.env(parent = baseenv())
   f = tempfile(fileext = '.md')
   writeLines(c(
     '```r', '1 + 1', '```',
     '```', '[1] 999', '```'
   ), f)
-  (has_error(test_snaps(f, env, update = FALSE)))
+  (length(test_snap(f, env, update = FALSE)) > 0)
 })
 
-assert('test_snaps() passes when snapshot output matches (update = FALSE)', {
+assert('test_snap() passes when snapshot output matches (update = FALSE)', {
   env = new.env(parent = baseenv())
   f = tempfile(fileext = '.md')
   writeLines(c(
     '```r', '1 + 1', '```',
     '```', '[1] 2', '```'
   ), f)
-  # should not error
-  (test_snaps(f, env, update = FALSE) %==% NULL)
+  (test_snap(f, env, update = FALSE) %==% NULL)
 })
 
-assert('test_snaps() rebuilds fence correctly including text blocks', {
+assert('test_snap() rebuilds fence correctly including text blocks', {
   env = new.env(parent = baseenv())
   # Include text before the code block to cover the 'text' type branch
   f = tempfile(fileext = '.md')
   writeLines(c('# Title', '', '```r', '1 + 1', '```'), f)
-  suppressMessages(test_snaps(f, env, update = TRUE))
+  suppressMessages(test_snap(f, env, update = TRUE))
   lines = readLines(f, warn = FALSE)
   # text is preserved and output block is added
   (lines[1] %==% '# Title')
@@ -189,7 +188,7 @@ assert('test_pkg() filter selects a subset of test files', {
   (has_error(test_pkg('testit', dir = d, filter = 'bbb')))
 })
 
-if (Sys.which('git') != '') assert('test_snaps() with update = NA on git-tracked file writes and diffs', {
+if (Sys.which('git') != '') assert('test_snap() with update = NA on git-tracked file writes and diffs', {
   # create a temp git repo with a snapshot file
   d = tempfile(); dir.create(d)
   owd = getwd(); setwd(d)
@@ -205,8 +204,8 @@ if (Sys.which('git') != '') assert('test_snaps() with update = NA on git-tracked
   system2('git', c('add', 'test.md'))
   system2('git', c('commit', '-q', '-m', shQuote('wrong output')))
   env = new.env(parent = baseenv())
-  # update = NA on a tracked file should rewrite and then error
-  (has_error(test_snaps(f, env, update = NA)))
+  # update = NA on a tracked file should rewrite and return an error message
+  (length(test_snap(f, env, update = NA)) > 0)
   # check that the file was updated with correct output
   lines = readLines(f, warn = FALSE)
   (any(grepl('^\\[1\\] 2$', lines)))
