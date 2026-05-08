@@ -106,3 +106,8 @@ local({
     (grepl('#3', loc))
   })
 })
+
+assert('helper functions are available in tests', {
+  (is_true(1 == 1))
+  (!is_true(1 == 2))
+})
