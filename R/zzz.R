@@ -6,7 +6,7 @@
     prefix = paste0(e$lib_new, .Platform$file.sep)
     for (d in getLoadedDLLs()) {
       p = normalizePath(d[['path']], mustWork = FALSE)
-      if (substring(p, 1, nchar(prefix)) == prefix)
+      if (starts_with(p, prefix))
         tryCatch(dyn.unload(d[['path']]), error = identity)
     }
     unlink(e$lib_new, recursive = TRUE, force = TRUE)

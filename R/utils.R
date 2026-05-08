@@ -1,19 +1,28 @@
 # an internal environment to store objects
 .env = new.env(parent = emptyenv())
 
+# base::startsWith() requires R >= 3.3
+starts_with = function(x, prefix) substring(x, 1, nchar(prefix)) == prefix
+
 # check if a source package needs (re)installation by comparing source file
 # mtimes against the installed package timestamp
 pkg_needs_install = function(pkg_root, package) {
   pkg_root = normalizePath(pkg_root, '/')
   libs = .libPaths()
   libs = libs[normalizePath(libs, '/', mustWork = FALSE) != dirname(pkg_root)]
+  # if the namespace is already loaded from outside .libPaths() (e.g., covr's
+  # temp lib or load_all()), the caller set it up intentionally — skip reinstall
+  if (isNamespaceLoaded(package)) {
+    ns_path = normalizePath(getNamespaceInfo(package, 'path'), '/', mustWork = FALSE)
+    if (!any(starts_with(ns_path, normalizePath(libs, '/', mustWork = FALSE)))) return(FALSE)
+  }
   lib = find.package(package, lib.loc = libs, quiet = TRUE)
   if (!length(lib)) return(TRUE)
   installed_time = file.mtime(file.path(lib, 'Meta', 'package.rds'))
   if (is.na(installed_time)) return(TRUE)
   src_files = list.files(pkg_root, recursive = TRUE, full.names = TRUE)
   tests_dir = paste0(pkg_root, '/tests/')
-  src_files = src_files[substring(src_files, 1, nchar(tests_dir)) != tests_dir]
+  src_files = src_files[!starts_with(src_files, tests_dir)]
   if (!length(src_files)) return(TRUE)
   max(file.mtime(src_files), na.rm = TRUE) > installed_time
 }
