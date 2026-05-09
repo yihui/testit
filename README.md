@@ -55,6 +55,7 @@ assert('basic arithmetic works', {
 To test if two objects are identical, use `%==%` (a shortcut for `identical()`).
 When a `%==%` comparison fails inside `assert()`, you get a helpful diff showing
 what was different:
+
 ``` r
 assert('identical comparison', {
   (c(1, 2, 3) %==% 1:3)
@@ -115,9 +116,9 @@ Place files named `test-*.md` in your `tests/testit/` directory:
 ```
 ````
 
-The R code block (` ```r `) is executed and its output is compared to the
-following plain code block (` ``` `). If the output changes, the test fails with
-a diff. To accept the new output, run:
+The R code block (```` ```r ````) is executed and its output is compared to the
+following plain code block (```` ``` ````). If the output changes, the test
+fails with a diff. To accept the new output, run:
 
 ``` r
 test_pkg(update = TRUE)
@@ -128,12 +129,12 @@ evaluated.
 
 ## Setting up tests in your package
 
-1. Create the directory `tests/testit/` in your package.
+1.  Create the directory `tests/testit/` in your package.
 
-2. Write test files named `test-*.R` (and optionally `test-*.md` for
-   snapshots).
+2.  Write test files named `test-*.R` (and optionally `test-*.md` for
+    snapshots).
 
-3. Create `tests/test-all.R` with:
+3.  Create `tests/test-all.R` with:
 
 ``` r
 library(testit)
@@ -146,9 +147,9 @@ find function `assert`".
 
 That's all. `R CMD check` will run your tests automatically. In RStudio, you can
 also press `Ctrl/Cmd + Shift + T` to run tests during development. For this to
-work, go to `Build > Configure Build Tools...` and make sure "Use devtools
-package functions if available" is **unchecked** (otherwise RStudio will try to
-use **testthat** conventions instead).
+work, go to the menu `Build > Configure Build Tools...` and make sure "Use
+devtools package functions if available" is **unchecked** (otherwise RStudio
+will try to use **testthat** conventions instead).
 
 ### Helper files
 
@@ -167,11 +168,11 @@ non-exported (internal) functions directly -- no need for the `:::` operator.
 around an expression means "this must be `TRUE`." There are no matchers like
 `expect_equal` vs. `expect_identical` vs. `expect_equivalent` to choose between.
 
-The tradeoff is that you get fewer bells and whistles (no mocking, no test
-reporters, no parallel execution). If you want a simple, dependency-free testing
-tool that stays out of your way, **testit** is a good fit.
+The tradeoff is that you get fewer bells and whistles (no mocking, no parallel
+execution). If you want a simple, dependency-free testing tool that stays out of
+your way, **testit** is a good fit.
 
----
+--------------------------------------------------------------------------------
 
 <img src="https://i.imgur.com/sDsgmfj.jpeg" alt="Xunzi" align="right" width="100"/>
 
