@@ -10,110 +10,12 @@ coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codec
 
 <!-- badges: end -->
 
-This package provides two simple functions:
-
-- `assert(fact, ...)`: think of it as `message(fact)` + `stopifnot(...)`
-
-- `test_pkg(package)`: runs tests with all objects (exported or non-exported) in
-  the package namespace directly available, so no need to use the triple-colon
-  `package:::name` for non-exported objects
-
-Snapshot testing is also supported via markdown files (`test-*.md`) in the same
-test directory.
-
-## Why?
-
-Because it is tedious to type these commands repeatedly in tests:
-
-``` r
-message('checking if these numbers are equal...')
-stopifnot(all.equal(1, 1+1e-10), 10*.1 == 1)
-
-message('checking if a non-exported function works...')
-stopifnot(is.character(package:::utility_foo(x = 'abcd', y = 1:100)))
-```
-
-With the two simple functions above, we type six letters (`assert`) instead of
-sixteen (`message` + `stopifnot`), and `assert` is also a more intuitive
-function name for testing purposes (you *assert* a fact followed by evidence):
-
-``` r
-assert('These numbers are equal', {
-
-  (all.equal(1, 1 + 1e-10))
-
-  (10 * .1 == 1)
-
-})
-
-assert('A non-exported function works', {
-  res = utility_foo(x = 'abcd', y = 1:100)
-  (is.character(res))
-})
-
-assert('T is TRUE and F is FALSE by default, but can be changed', {
-  (T == TRUE )
-  (F == FALSE)
-
-  T = FALSE
-  (T == FALSE)
-})
-```
-
-## Snapshot testing
-
-Snapshot tests use Markdown files that combine R code with expected output.
-Place `.md` files named `test-*.md` in the `tests/testit/` directory, and they
-will be automatically run by `test_pkg()`.
-
-Each Markdown file contains R code blocks followed by expected output blocks:
-
-```` markdown
-# Test description
-
-```r
-1:5
-```
-
-```
-[1] 1 2 3 4 5
-```
-````
-
-The R code blocks are marked with ```` ```r ```` (or ```` ```{r} ````) and
-output blocks with ```` ``` ````. When tests run, the R code is executed and
-output is compared to the expected output block. If a markdown file doesn't have
-output blocks initially, they will be added automatically. To update snapshots
-when output changes, run `testit::test_pkg(update = TRUE)`.
-
-Snapshot files are human-readable Markdown, making them easy to review in
-version control. Optionally, you can write ordinary text anywhere in the file,
-e.g., to explain the test or provide additional context. Snapshot testing will
-only compare the output of R code blocks to the expected output blocks, ignoring
-any other text.
-
-## R CMD check
-
-Put the tests under the directory `pkg_name/tests/testit/` (where `pkg_name` is
-the root directory of your package), and write a `test-all.R` under
-`pkg_name/tests/`:
-
-``` r
-library(testit)
-test_pkg('pkg_name')
-```
-
-Note that `library(testit)` is required here because test scripts call
-`assert()` and other **testit** functions directly (without the `testit::`
-prefix). Using `testit::test_pkg()` alone without loading the package first will
-result in errors like "could not find function `assert`".
-
-That is all for `R CMD check`. For package development, you can
-`Ctrl/Cmd + Shift + T` to run tests.
+**testit** is a minimal testing package for R with zero dependencies. If you can
+write an R expression that returns `TRUE`, you can write a test with **testit**.
 
 ## Installation
 
-Stable version on CRAN:
+From CRAN:
 
 ``` r
 install.packages('testit')
@@ -125,18 +27,152 @@ Development version:
 install.packages('testit', repos = 'https://yihui.r-universe.dev')
 ```
 
-## More
+## Quick start
 
-How about [**testthat**](https://CRAN.R-project.org/package=testthat)? Well,
-this package is far less sophisticated than **testthat**. There is nothing fancy
-in this package. I do not use **testthat** by myself because I'm too lazy to
-learn the new vocabulary (`testthat::expect_xxx`). For **testit**, I do not need
-to think if I should use `expect_equal`, `expect_equivalent`, or
-`expect_identical`; I just write test conditions in parentheses that are
-expected to return `TRUE`. That is the one and only rule to remember.
+The core idea: wrap conditions in parentheses `()` inside `assert()`. If the
+condition is `TRUE`, the test passes silently. If it is `FALSE`, you get an
+error with the message you provided.
 
-There is no plan to add new features or reinvent anything in this package. It is
-an intentionally tiny package with zero dependencies.
+``` r
+library(testit)
+
+assert('one plus one is two', {
+  (1 + 1 == 2)
+})
+```
+
+You can put multiple conditions in one `assert()` call, and mix in setup code
+(lines without parentheses are just evaluated normally):
+
+``` r
+assert('basic arithmetic works', {
+  x = 1 + 1
+  (x == 2)
+  (x > 0)
+})
+```
+
+To test if two objects are identical, use `%==%` (a shortcut for `identical()`).
+When a `%==%` comparison fails inside `assert()`, you get a helpful diff showing
+what was different:
+
+``` r
+assert('identical comparison', {
+  (c(1, 2, 3) %==% 1:3)
+})
+```
+
+## How it works
+
+**testit** has one rule: an expression in parentheses `()` is a test condition
+that must evaluate to `TRUE`. Everything else is ordinary R code.
+
+``` r
+assert('a descriptive message about what you are testing', {
+  # setup code (no parentheses = not checked)
+  x = sqrt(4)
+
+  # test conditions (parentheses = must be TRUE)
+  (x == 2)
+  (x > 0)
+  (is.numeric(x))
+})
+```
+
+That's it. No special matchers to memorize, no DSL to learn.
+
+## Testing for errors, warnings, and messages
+
+Use `has_error()`, `has_warning()`, and `has_message()` to verify that code
+signals the expected condition:
+
+``` r
+assert('errors are caught correctly', {
+  (has_error(log('a')))
+  (has_error(stop('oops'), 'oops'))  # also match the error message
+  (!has_error(log(1)))               # no error here
+})
+
+assert('warnings are caught correctly', {
+  (has_warning(warning('watch out')))
+  (has_warning(1:2 + 1:3, 'longer object'))
+})
+```
+
+## Snapshot testing
+
+Snapshot tests let you verify printed output by recording it in a Markdown file.
+Place files named `test-*.md` in your `tests/testit/` directory:
+
+```` markdown
+# Printing a sequence
+
+```r
+1:5
+```
+
+```
+[1] 1 2 3 4 5
+```
+````
+
+The R code block (```` ```r ````) is executed and its output is compared to the
+following plain code block (```` ``` ````). If the output changes, the test
+fails with a diff. To accept the new output, run:
+
+``` r
+test_pkg(update = TRUE)
+```
+
+You can write explanatory text anywhere in the file -- only code blocks are
+evaluated.
+
+## Setting up tests in your package
+
+1.  Create the directory `tests/testit/` in your package.
+
+2.  Write test files named `test-*.R` (and optionally `test-*.md` for
+    snapshots).
+
+3.  Create `tests/test-all.R` with:
+
+``` r
+library(testit)
+test_pkg('yourpkg')
+```
+
+`library(testit)` is required because test scripts call `assert()` and other
+**testit** functions directly. Without it, you will get errors like "could not
+find function `assert`".
+
+That's all. `R CMD check` will run your tests automatically. In RStudio, you can
+also press `Ctrl/Cmd + Shift + T` to run tests during development. For this to
+work, go to the menu `Build > Configure Build Tools...` and make sure "Use
+devtools package functions if available" is **unchecked** (otherwise RStudio
+will try to use **testthat** conventions instead).
+
+### Helper files
+
+If you have shared setup code, put it in files named `helper*.R` (e.g.,
+`helper.R`, `helper-utils.R`) in the same test directory. They are sourced
+before any test file runs.
+
+### Accessing internal functions
+
+`test_pkg()` runs your tests inside the package namespace, so you can call
+non-exported (internal) functions directly -- no need for the `:::` operator.
+
+## Comparison with testthat
+
+**testit** is intentionally minimal. There is one rule to remember: parentheses
+around an expression means "this must be `TRUE`." There are no matchers like
+`expect_equal` vs. `expect_identical` vs. `expect_equivalent` to choose between.
+
+The tradeoff is that you get fewer bells and whistles (no mocking, no parallel
+execution). If you want a simple, dependency-free testing tool that stays out of
+your way, **testit** is a good fit.
+
+--------------------------------------------------------------------------------
 
 <img src="https://i.imgur.com/sDsgmfj.jpeg" alt="Xunzi" align="right" width="100"/>
 
@@ -144,5 +180,8 @@ Although he did not really mean it, [Xunzi](https://en.wikipedia.org/wiki/Xunzi)
 said something that happens to apply well to unit testing:
 
 > 不积跬步，无以至千里；不积小流，无以成江海。
+
+(A journey of a thousand miles begins with a single step; a great river is
+formed from many small streams.)
 
 This package is free and open source software, licensed under MIT.

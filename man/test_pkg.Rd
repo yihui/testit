@@ -2,73 +2,64 @@
 % Please edit documentation in R/testit.R
 \name{test_pkg}
 \alias{test_pkg}
-\title{Run the tests of a package in its namespace}
+\title{Run all tests for a package}
 \usage{
 test_pkg(package = pkg_name(), dir = NULL, filter = NULL, update = NA)
 }
 \arguments{
 \item{package}{The package name. By default, it is detected from the
-\file{DESCRIPTION} file if exists.}
+\code{DESCRIPTION} file.}
 
-\item{dir}{The directory of the test files. If \code{NULL} (the default), the
-directory \file{testit/} or \file{tests/testit/} under the current working
-directory is used (whichever exists). You can also specify a custom
-directory.}
+\item{dir}{The directory containing test files. If \code{NULL} (the default),
+\verb{testit/} or \verb{tests/testit/} under the current working directory is used
+(whichever exists). You can also pass a custom path.}
 
 \item{filter}{An optional regular expression to select a subset of test
-files. Only files whose names (without directory) match the pattern will be
-run. For example, \code{filter = "parse"} runs only test files with
-\dQuote{parse} in their names.}
+files. Only files whose names match the pattern will be run. For example,
+\code{filter = "parse"} runs only test files with "parse" in their names.}
 
-\item{update}{If \code{TRUE}, update snapshot files with actual output
-instead of comparing. If \code{NA} (the default), update snapshot files
-only if they are tracked by GIT (so you can view the diffs in GIT and
-decide whether to accept or discard the changes). If \code{FALSE}, never
-update snapshot files and always compare. For \code{NA} and \code{FALSE},
-if the snapshot test fails, it will throw an error with a message showing
-the location of the failed test. For \code{TRUE}, it will update the
-snapshot file and never throw an error.}
+\item{update}{Controls snapshot file behavior:
+\itemize{
+\item \code{TRUE}: always update snapshot files with actual output (never errors).
+\item \code{NA} (default): update only if the file is tracked by Git (so you can
+review diffs before accepting).
+\item \code{FALSE}: never update; always compare and error on mismatch.
+}}
 }
 \value{
-\code{NULL}. All test files are executed and errors are collected; if
-  any tests fail, a single error is thrown at the end with all failure
-  messages combined.
+Invisible \code{NULL}. If any tests fail, a single error is thrown at the
+end with all failure messages combined.
 }
 \description{
-The tests are executed in a clean environment with the namespace of the
-package to be tested as the parent environment, which means you can use
-non-exported objects in the package without having to resort to the triple
-colon \code{\link{:::}} trick.
+Discover and execute test files (\verb{test-*.R} and \verb{test-*.md}) for a package.
+Tests are run inside the package namespace, so you can call internal
+(non-exported) functions directly without the \code{:::} operator.
 }
 \details{
-The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
-directory by default (depending on your working directory is the package root
-directory or the \file{tests/} directory). The test scripts must be named of
-the form \samp{test-*.R} (or \samp{test-*.md} for snapshot tests); other
-files will not be treated as test files (but may also be useful, e.g. you can
-\code{\link{source}()} other scripts in tests).
+Test files are looked up in the \verb{testit/} or \verb{tests/testit/} directory by
+default. Files must be named \verb{test-*.R} for regular tests or \verb{test-*.md} for
+snapshot tests. Other files in the directory are ignored (but you can
+\code{\link[=source]{source()}} them from your tests if needed).
 
-Helper files named \samp{helper*.R} (e.g., \samp{helper.R},
-\samp{helper-utils.R}) are sourced before test files and remain available
-to all tests, allowing you to define shared utility functions.
+Helper files named \code{helper*.R} (e.g., \code{helper.R}, \code{helper-utils.R}) are
+sourced before any test file runs. Objects defined in helpers are available
+to all tests.
 
-When a test is executed, the working directory is the same as the directory
-containing this test, and all existing objects in the test environment will
-be removed before the code is executed (except for helper functions).
+Each test file runs in a clean environment (previous test objects are
+removed), and the working directory is set to the directory containing the
+test file.
 
-See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
-about snapshot testing.
+See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details about
+snapshot testing.
 }
 \note{
-The \pkg{testit} package must be loaded (e.g., via
-  \code{library(testit)}) before calling \code{test_pkg()}, because test
-  scripts typically call \code{\link{assert}()} and other \pkg{testit}
-  functions directly without the \code{testit::} prefix. Simply using
-  \code{testit::test_pkg()} without loading the package first will result in
-  errors like \dQuote{could not find function "assert"}.
+You must call \code{library(testit)} before \code{test_pkg()}. Test scripts use
+\code{\link[=assert]{assert()}} and other \strong{testit} functions without the \verb{testit::} prefix, so
+the package needs to be on the search path. Without \code{library(testit)}, you
+will get "could not find function" errors.
 
-All test scripts must be encoded in UTF-8 if they contain any multibyte
-  characters.
+All test scripts must be encoded in UTF-8 if they contain multibyte
+characters.
 }
 \examples{
 \dontrun{

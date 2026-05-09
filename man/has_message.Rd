@@ -4,7 +4,7 @@
 \alias{has_message}
 \alias{has_warning}
 \alias{has_error}
-\title{Check if an R expression produces messages, warnings, or errors}
+\title{Test whether an expression signals a condition}
 \usage{
 has_message(expr, message = NULL, ...)
 
@@ -13,24 +13,25 @@ has_warning(expr, message = NULL, ...)
 has_error(expr, message = NULL, ...)
 }
 \arguments{
-\item{expr}{an R expression}
+\item{expr}{An R expression to evaluate.}
 
-\item{message}{optionally, a string (fixed or regex pattern) to match against
-the condition message. If provided, the function returns \code{TRUE} only
-when the condition is signaled \emph{and} the message matches.}
+\item{message}{An optional string to match against the condition text. Uses
+fixed (literal) matching by default. If provided, the function returns
+\code{TRUE} only when the condition is signaled \emph{and} the message matches.}
 
-\item{...}{additional arguments passed to \code{\link{grepl}()} for matching
-\code{message} against the condition message (e.g., \code{fixed = TRUE} for
-fixed string matching, or \code{ignore.case = TRUE}).}
+\item{...}{Additional arguments passed to \code{\link[=grepl]{grepl()}} for matching (e.g.,
+\code{fixed = FALSE} to use regex, or \code{ignore.case = TRUE}). Note that
+\code{fixed = TRUE} is the default.}
 }
 \value{
-A logical value.
+\code{TRUE} if the condition was signaled (and the message matched, if
+provided), \code{FALSE} otherwise.
 }
 \description{
-The functions \code{has_message()}, \code{has_warning()}, and
-\code{has_error()} check if an expression produces messages, warnings, and
-errors, respectively. When the \code{message} argument is provided, the
-condition message is matched against it via \code{\link{grepl}()}.
+Check if evaluating an expression produces a message, warning, or error.
+These functions are designed to be used inside \code{\link[=assert]{assert()}} to verify that code
+signals the expected conditions. Optionally, you can match against the
+condition's text to ensure the \emph{right} message/warning/error was signaled.
 }
 \examples{
 has_message(message('hello'))

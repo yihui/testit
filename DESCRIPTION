@@ -1,16 +1,21 @@
 Package: testit
 Type: Package
 Title: A Simple Package for Testing R Packages
-Version: 0.18.12
+Version: 0.18.13
 Authors@R: c(
   person("Yihui", "Xie", role = c("aut", "cre"), email = "xie@yihui.name", comment = c(ORCID = "0000-0003-0645-5666", URL = "https://yihui.org")),
   person("Tomas", "Kalibera", role = "ctb"),
   person("Steven", "Mortimer", role = "ctb", email="reportmort@gmail.com")
   )
-Description: Provides two convenience functions assert() and test_pkg() to
-    facilitate testing R packages.
+Description: A minimal, dependency-free testing framework for R packages.
+    Write tests as simple R expressions that return TRUE, using assert() for
+    assertions (with informative error messages on failure), has_error() /
+    has_warning() / has_message() for testing conditions, and test_pkg() to
+    run all tests with full access to internal (non-exported) package
+    functions. Snapshot testing via Markdown files is also supported.
 License: MIT + file LICENSE
 URL: https://github.com/yihui/testit
 BugReports: https://github.com/yihui/testit/issues
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0
