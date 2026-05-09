@@ -21,7 +21,8 @@ when the condition is signaled \emph{and} the message matches.}
 
 \item{...}{additional arguments passed to \code{\link{grepl}()} for matching
 \code{message} against the condition message (e.g., \code{fixed = TRUE} for
-fixed string matching, or \code{ignore.case = TRUE}).}
+fixed string matching, or \code{ignore.case = TRUE}). Note that \code{fixed
+= TRUE} is the default.}
 }
 \value{
 A logical value.

@@ -326,7 +326,8 @@ error_loc = function(x, line = 1) {
 #'   when the condition is signaled \emph{and} the message matches.
 #' @param ... additional arguments passed to \code{\link{grepl}()} for matching
 #'   \code{message} against the condition message (e.g., \code{fixed = TRUE} for
-#'   fixed string matching, or \code{ignore.case = TRUE}).
+#'   fixed string matching, or \code{ignore.case = TRUE}). Note that \code{fixed
+#'   = TRUE} is the default.
 #' @return A logical value.
 #' @export
 #' @rdname has_message
@@ -374,8 +375,10 @@ has_error = function(expr, message = NULL, ...) {
 
 match_cond = function(text, message, ...) {
   if (is.null(text)) FALSE else if (is.null(message)) TRUE else
-    grepl(message, text, ...)
+    grepl2(message, text, ...)
 }
+
+grepl2 = function(..., fixed = TRUE) grepl(..., fixed = fixed)
 
 quietly = function(expr) {
   withCallingHandlers(
