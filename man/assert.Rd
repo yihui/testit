@@ -50,8 +50,8 @@ Key differences from \code{\link[=stopifnot]{stopifnot()}}:
 \item \code{assert()} shows your custom \code{fact} message on failure, making errors
 easier to diagnose.
 \item \code{logical(0)} (empty logical) is treated as a failure, not a pass.
-\item Assertions are evaluated sequentially; \code{assert()} stops at the first
-failure and reports it.
+\item All conditions are evaluated even if earlier ones fail; all failures are
+reported together in a single error message.
 }
 }
 \examples{

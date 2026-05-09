@@ -25,8 +25,8 @@
 #' - `assert()` shows your custom `fact` message on failure, making errors
 #'   easier to diagnose.
 #' - `logical(0)` (empty logical) is treated as a failure, not a pass.
-#' - Assertions are evaluated sequentially; `assert()` stops at the first
-#'   failure and reports it.
+#' - All conditions are evaluated even if earlier ones fail; all failures are
+#'   reported together in a single error message.
 #' @export
 #' @examples
 #' library(testit)
