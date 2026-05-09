@@ -145,7 +145,10 @@ test_pkg('yourpkg')
 find function `assert`".
 
 That's all. `R CMD check` will run your tests automatically. In RStudio, you can
-also press `Ctrl/Cmd + Shift + T` to run tests during development.
+also press `Ctrl/Cmd + Shift + T` to run tests during development. For this to
+work, go to `Build > Configure Build Tools...` and make sure "Use devtools
+package functions if available" is **unchecked** (otherwise RStudio will try to
+use **testthat** conventions instead).
 
 ### Helper files
 
