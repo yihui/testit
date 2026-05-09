@@ -1,9 +1,5 @@
 # CHANGES IN testit VERSION 0.19
 
-- Improved documentation throughout: README rewritten to be more beginner-friendly with a quick-start guide and clearer examples; roxygen docs rewritten for clarity; DESCRIPTION now describes the full feature set.
-
-- Fixed `has_message()`, `has_warning()`, and `has_error()` to correctly support `ignore.case = TRUE`. Previously, `ignore.case` was silently ignored because `fixed = TRUE` (the default) takes precedence in `grepl()`. Now, passing `ignore.case = TRUE` automatically disables fixed matching.
-
 - `test_pkg()` gained a `filter` argument that takes a regular expression to selectively run a subset of test files (e.g., `test_pkg(filter = 'parse')` runs only files with "parse" in their names).
 
 - `test_pkg()` now runs all test files instead of stopping at the first failure. Errors are collected and reported together at the end, including multiple errors within a single file (thanks, @jdblischak, #19). The relative filename of each test is printed before execution.
