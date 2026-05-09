@@ -1,35 +1,34 @@
 #' Assertions with an optional message
 #'
-#' The function \code{assert()} was inspired by \code{\link{stopifnot}()}. It
-#' emits a message in case of errors, which can be a helpful hint for diagnosing
-#' the errors (\code{stopifnot()} only prints the possibly truncated source code
-#' of the expressions).
+#' The function `assert()` was inspired by [stopifnot()]. It emits a message in
+#' case of errors, which can be a helpful hint for diagnosing the errors
+#' (`stopifnot()` only prints the possibly truncated source code of the
+#' expressions).
 #'
-#' For the \code{...} argument, it should be a single R expression wrapped in
-#' \code{{}}. This expression may contain multiple sub-expressions. A
-#' sub-expression is treated as a test condition if it is wrapped in \code{()}
-#' (meaning its value will be checked to see if it is a logical vector
-#' containing any \code{FALSE} values) , otherwise it is evaluated in the normal
-#' way and its value will not be checked. If the value of the last
-#' sub-expression is logical, it will also be treated as a test condition.
+#' For the `...` argument, it should be a single R expression wrapped in `{}`.
+#' This expression may contain multiple sub-expressions. A sub-expression is
+#' treated as a test condition if it is wrapped in `()` (meaning its value will
+#' be checked to see if it is a logical vector containing any `FALSE` values) ,
+#' otherwise it is evaluated in the normal way and its value will not be
+#' checked. If the value of the last sub-expression is logical, it will also be
+#' treated as a test condition.
 #' @param fact A message for the assertions when any of them fails; treated the
-#'   same way as expressions in \code{...} if it is not a character string,
-#'   which means you are not required to provide a message to this function.
+#'   same way as expressions in `...` if it is not a character string, which
+#'   means you are not required to provide a message to this function.
 #' @param ... An R expression; see Details.
-#' @return For \code{assert()}, invisible \code{NULL} if all expressions
-#'   returned \code{TRUE}, otherwise an error is signaled and the user-provided
-#'   message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
-#' @note The internal implementation of \code{assert()} is different with the
-#'   \code{stopifnot()} function in R \pkg{base}: (1) the custom message
-#'   \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
-#'   logical values to be non-empty (\code{logical(0)} will trigger an error);
-#'   (3) if \code{...} contains a compound expression in \code{{}} that returns
-#'   \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
-#'   but one line of the source code from \code{\link{deparse}()} are printed in
-#'   the error message, otherwise the first line is printed; (4) the arguments
-#'   in \code{...} are evaluated sequentially, and \code{assert()} will signal
-#'   an error upon the first failed assertion, and will ignore the rest of
-#'   assertions.
+#' @return For `assert()`, invisible `NULL` if all expressions returned `TRUE`,
+#'   otherwise an error is signaled and the user-provided message is emitted.
+#'   For `%==%`, `TRUE` or `FALSE`.
+#' @note The internal implementation of `assert()` is different with the
+#'   `stopifnot()` function in R **base**: (1) the custom message `fact` is
+#'   emitted if an error occurs; (2) `assert()` requires the logical values to
+#'   be non-empty (`logical(0)` will trigger an error); (3) if `...` contains a
+#'   compound expression in `{}` that returns `FALSE` (e.g., `if (TRUE) {1+1;
+#'   FALSE}`), the first and the last but one line of the source code from
+#'   [deparse()] are printed in the error message, otherwise the first line is
+#'   printed; (4) the arguments in `...` are evaluated sequentially, and
+#'   `assert()` will signal an error upon the first failed assertion, and will
+#'   ignore the rest of assertions.
 #' @export
 #' @examples
 #' library(testit)
@@ -114,13 +113,12 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE, domain = NA)
 }
 
-#' @description The infix operator \code{\%==\%} is simply an alias of the
-#'   \code{\link{identical}()} function to make it slightly easier and intuitive
-#'   to write test conditions. \code{x \%==\% y} is the same as
-#'   \code{identical(x, y)}. When it is used inside \code{assert()}, a message
-#'   will be printed if the returned value is not \code{TRUE}, to show the
-#'   values of the LHS (\code{x}) and RHS (\code{y}) via \code{\link{str}()},
-#'   which can be helpful for you to check why the assertion failed.
+#' @description The infix operator `%==%` is simply an alias of the
+#'   [identical()] function to make it slightly easier and intuitive to write
+#'   test conditions. `x %==% y` is the same as `identical(x, y)`. When it is
+#'   used inside `assert()`, a message will be printed if the returned value is
+#'   not `TRUE`, to show the values of the LHS (`x`) and RHS (`y`) via
+#'   [str()], which can be helpful for you to check why the assertion failed.
 #' @param x,y two R objects to be compared
 #' @rdname assert
 #' @import utils
@@ -151,57 +149,55 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
 #' The tests are executed in a clean environment with the namespace of the
 #' package to be tested as the parent environment, which means you can use
 #' non-exported objects in the package without having to resort to the triple
-#' colon \code{\link{:::}} trick.
+#' colon `:::` trick.
 #'
-#' The tests are assumed to be under the \file{testit/} or \file{tests/testit/}
-#' directory by default (depending on your working directory is the package root
-#' directory or the \file{tests/} directory). The test scripts must be named of
-#' the form \samp{test-*.R} (or \samp{test-*.md} for snapshot tests); other
-#' files will not be treated as test files (but may also be useful, e.g. you can
-#' \code{\link{source}()} other scripts in tests).
+#' The tests are assumed to be under the `testit/` or `tests/testit/` directory
+#' by default (depending on your working directory is the package root directory
+#' or the `tests/` directory). The test scripts must be named of the form
+#' `test-*.R` (or `test-*.md` for snapshot tests); other files will not be
+#' treated as test files (but may also be useful, e.g. you can [source()] other
+#' scripts in tests).
 #'
-#' Helper files named \samp{helper*.R} (e.g., \samp{helper.R},
-#' \samp{helper-utils.R}) are sourced before test files and remain available
-#' to all tests, allowing you to define shared utility functions.
+#' Helper files named `helper*.R` (e.g., `helper.R`, `helper-utils.R`) are
+#' sourced before test files and remain available to all tests, allowing you to
+#' define shared utility functions.
 #'
 #' When a test is executed, the working directory is the same as the directory
 #' containing this test, and all existing objects in the test environment will
 #' be removed before the code is executed (except for helper functions).
 #'
-#' See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details
-#' about snapshot testing.
+#' See <https://pkg.yihui.org/testit/#snapshot-testing> for more details about
+#' snapshot testing.
 #' @param package The package name. By default, it is detected from the
-#'   \file{DESCRIPTION} file if exists.
-#' @param dir The directory of the test files. If \code{NULL} (the default), the
-#'   directory \file{testit/} or \file{tests/testit/} under the current working
-#'   directory is used (whichever exists). You can also specify a custom
-#'   directory.
+#'   `DESCRIPTION` file if exists.
+#' @param dir The directory of the test files. If `NULL` (the default), the
+#'   directory `testit/` or `tests/testit/` under the current working directory
+#'   is used (whichever exists). You can also specify a custom directory.
 #' @param filter An optional regular expression to select a subset of test
 #'   files. Only files whose names (without directory) match the pattern will be
-#'   run. For example, \code{filter = "parse"} runs only test files with
-#'   \dQuote{parse} in their names.
-#' @param update If \code{TRUE}, update snapshot files with actual output
-#'   instead of comparing. If \code{NA} (the default), update snapshot files
-#'   only if they are tracked by GIT (so you can view the diffs in GIT and
-#'   decide whether to accept or discard the changes). If \code{FALSE}, never
-#'   update snapshot files and always compare. For \code{NA} and \code{FALSE},
-#'   if the snapshot test fails, it will throw an error with a message showing
-#'   the location of the failed test. For \code{TRUE}, it will update the
-#'   snapshot file and never throw an error.
-#' @return \code{NULL}. All test files are executed and errors are collected; if
-#'   any tests fail, a single error is thrown at the end with all failure
-#'   messages combined.
-#' @note The \pkg{testit} package must be loaded (e.g., via
-#'   \code{library(testit)}) before calling \code{test_pkg()}, because test
-#'   scripts typically call \code{\link{assert}()} and other \pkg{testit}
-#'   functions directly without the \code{testit::} prefix. Simply using
-#'   \code{testit::test_pkg()} without loading the package first will result in
-#'   errors like \dQuote{could not find function "assert"}.
+#'   run. For example, `filter = "parse"` runs only test files with "parse" in
+#'   their names.
+#' @param update If `TRUE`, update snapshot files with actual output instead of
+#'   comparing. If `NA` (the default), update snapshot files only if they are
+#'   tracked by GIT (so you can view the diffs in GIT and decide whether to
+#'   accept or discard the changes). If `FALSE`, never update snapshot files and
+#'   always compare. For `NA` and `FALSE`, if the snapshot test fails, it will
+#'   throw an error with a message showing the location of the failed test. For
+#'   `TRUE`, it will update the snapshot file and never throw an error.
+#' @return `NULL`. All test files are executed and errors are collected; if any
+#'   tests fail, a single error is thrown at the end with all failure messages
+#'   combined.
+#' @note The **testit** package must be loaded (e.g., via `library(testit)`)
+#'   before calling `test_pkg()`, because test scripts typically call
+#'   [assert()] and other **testit** functions directly without the `testit::`
+#'   prefix. Simply using `testit::test_pkg()` without loading the package first
+#'   will result in errors like "could not find function \"assert\"".
 #'
 #' All test scripts must be encoded in UTF-8 if they contain any multibyte
 #'   characters.
 #' @export
-#' @examples \dontrun{
+#' @examples
+#' \dontrun{
 #' library(testit)
 #' test_pkg('testit')
 #' }
@@ -316,18 +312,18 @@ error_loc = function(x, line = 1) {
 
 #' Check if an R expression produces messages, warnings, or errors
 #'
-#' The functions \code{has_message()}, \code{has_warning()}, and
-#' \code{has_error()} check if an expression produces messages, warnings, and
-#' errors, respectively. When the \code{message} argument is provided, the
-#' condition message is matched against it via \code{\link{grepl}()}.
+#' The functions `has_message()`, `has_warning()`, and `has_error()` check if an
+#' expression produces messages, warnings, and errors, respectively. When the
+#' `message` argument is provided, the condition message is matched against it
+#' via [grepl()].
 #' @param expr an R expression
 #' @param message optionally, a string (fixed or regex pattern) to match against
-#'   the condition message. If provided, the function returns \code{TRUE} only
-#'   when the condition is signaled \emph{and} the message matches.
-#' @param ... additional arguments passed to \code{\link{grepl}()} for matching
-#'   \code{message} against the condition message (e.g., \code{fixed = TRUE} for
-#'   fixed string matching, or \code{ignore.case = TRUE}). Note that \code{fixed
-#'   = TRUE} is the default.
+#'   the condition message. If provided, the function returns `TRUE` only when
+#'   the condition is signaled *and* the message matches.
+#' @param ... additional arguments passed to [grepl()] for matching `message`
+#'   against the condition message (e.g., `fixed = TRUE` for fixed string
+#'   matching, or `ignore.case = TRUE`). Note that `fixed = TRUE` is the
+#'   default.
 #' @return A logical value.
 #' @export
 #' @rdname has_message

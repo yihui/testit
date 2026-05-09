@@ -16,22 +16,22 @@ has_error(expr, message = NULL, ...)
 \item{expr}{an R expression}
 
 \item{message}{optionally, a string (fixed or regex pattern) to match against
-the condition message. If provided, the function returns \code{TRUE} only
-when the condition is signaled \emph{and} the message matches.}
+the condition message. If provided, the function returns \code{TRUE} only when
+the condition is signaled \emph{and} the message matches.}
 
-\item{...}{additional arguments passed to \code{\link{grepl}()} for matching
-\code{message} against the condition message (e.g., \code{fixed = TRUE} for
-fixed string matching, or \code{ignore.case = TRUE}). Note that \code{fixed
-= TRUE} is the default.}
+\item{...}{additional arguments passed to \code{\link[=grepl]{grepl()}} for matching \code{message}
+against the condition message (e.g., \code{fixed = TRUE} for fixed string
+matching, or \code{ignore.case = TRUE}). Note that \code{fixed = TRUE} is the
+default.}
 }
 \value{
 A logical value.
 }
 \description{
-The functions \code{has_message()}, \code{has_warning()}, and
-\code{has_error()} check if an expression produces messages, warnings, and
-errors, respectively. When the \code{message} argument is provided, the
-condition message is matched against it via \code{\link{grepl}()}.
+The functions \code{has_message()}, \code{has_warning()}, and \code{has_error()} check if an
+expression produces messages, warnings, and errors, respectively. When the
+\code{message} argument is provided, the condition message is matched against it
+via \code{\link[=grepl]{grepl()}}.
 }
 \examples{
 has_message(message('hello'))

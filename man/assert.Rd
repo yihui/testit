@@ -11,53 +11,50 @@ x \%==\% y
 }
 \arguments{
 \item{fact}{A message for the assertions when any of them fails; treated the
-same way as expressions in \code{...} if it is not a character string,
-which means you are not required to provide a message to this function.}
+same way as expressions in \code{...} if it is not a character string, which
+means you are not required to provide a message to this function.}
 
 \item{...}{An R expression; see Details.}
 
 \item{x, y}{two R objects to be compared}
 }
 \value{
-For \code{assert()}, invisible \code{NULL} if all expressions
-  returned \code{TRUE}, otherwise an error is signaled and the user-provided
-  message is emitted. For \code{\%==\%}, \code{TRUE} or \code{FALSE}.
+For \code{assert()}, invisible \code{NULL} if all expressions returned \code{TRUE},
+otherwise an error is signaled and the user-provided message is emitted.
+For \verb{\%==\%}, \code{TRUE} or \code{FALSE}.
 }
 \description{
-The function \code{assert()} was inspired by \code{\link{stopifnot}()}. It
-emits a message in case of errors, which can be a helpful hint for diagnosing
-the errors (\code{stopifnot()} only prints the possibly truncated source code
-of the expressions).
+The function \code{assert()} was inspired by \code{\link[=stopifnot]{stopifnot()}}. It emits a message in
+case of errors, which can be a helpful hint for diagnosing the errors
+(\code{stopifnot()} only prints the possibly truncated source code of the
+expressions).
 
-The infix operator \code{\%==\%} is simply an alias of the
-  \code{\link{identical}()} function to make it slightly easier and intuitive
-  to write test conditions. \code{x \%==\% y} is the same as
-  \code{identical(x, y)}. When it is used inside \code{assert()}, a message
-  will be printed if the returned value is not \code{TRUE}, to show the
-  values of the LHS (\code{x}) and RHS (\code{y}) via \code{\link{str}()},
-  which can be helpful for you to check why the assertion failed.
+The infix operator \verb{\%==\%} is simply an alias of the
+\code{\link[=identical]{identical()}} function to make it slightly easier and intuitive to write
+test conditions. \code{x \%==\% y} is the same as \code{identical(x, y)}. When it is
+used inside \code{assert()}, a message will be printed if the returned value is
+not \code{TRUE}, to show the values of the LHS (\code{x}) and RHS (\code{y}) via
+\code{\link[=str]{str()}}, which can be helpful for you to check why the assertion failed.
 }
 \details{
-For the \code{...} argument, it should be a single R expression wrapped in
-\code{{}}. This expression may contain multiple sub-expressions. A
-sub-expression is treated as a test condition if it is wrapped in \code{()}
-(meaning its value will be checked to see if it is a logical vector
-containing any \code{FALSE} values) , otherwise it is evaluated in the normal
-way and its value will not be checked. If the value of the last
-sub-expression is logical, it will also be treated as a test condition.
+For the \code{...} argument, it should be a single R expression wrapped in \code{{}}.
+This expression may contain multiple sub-expressions. A sub-expression is
+treated as a test condition if it is wrapped in \verb{()} (meaning its value will
+be checked to see if it is a logical vector containing any \code{FALSE} values) ,
+otherwise it is evaluated in the normal way and its value will not be
+checked. If the value of the last sub-expression is logical, it will also be
+treated as a test condition.
 }
 \note{
 The internal implementation of \code{assert()} is different with the
-  \code{stopifnot()} function in R \pkg{base}: (1) the custom message
-  \code{fact} is emitted if an error occurs; (2) \code{assert()} requires the
-  logical values to be non-empty (\code{logical(0)} will trigger an error);
-  (3) if \code{...} contains a compound expression in \code{{}} that returns
-  \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last
-  but one line of the source code from \code{\link{deparse}()} are printed in
-  the error message, otherwise the first line is printed; (4) the arguments
-  in \code{...} are evaluated sequentially, and \code{assert()} will signal
-  an error upon the first failed assertion, and will ignore the rest of
-  assertions.
+\code{stopifnot()} function in R \strong{base}: (1) the custom message \code{fact} is
+emitted if an error occurs; (2) \code{assert()} requires the logical values to
+be non-empty (\code{logical(0)} will trigger an error); (3) if \code{...} contains a
+compound expression in \code{{}} that returns \code{FALSE} (e.g., \code{if (TRUE) {1+1; FALSE}}), the first and the last but one line of the source code from
+\code{\link[=deparse]{deparse()}} are printed in the error message, otherwise the first line is
+printed; (4) the arguments in \code{...} are evaluated sequentially, and
+\code{assert()} will signal an error upon the first failed assertion, and will
+ignore the rest of assertions.
 }
 \examples{
 library(testit)
