@@ -1,34 +1,32 @@
-#' Assertions with an optional message
+#' Assert that conditions are true, with an informative failure message
 #'
-#' The function `assert()` was inspired by [stopifnot()]. It emits a message in
-#' case of errors, which can be a helpful hint for diagnosing the errors
-#' (`stopifnot()` only prints the possibly truncated source code of the
-#' expressions).
+#' Test that one or more conditions are `TRUE`. If any condition fails, an error
+#' is raised with the `fact` message, making it easy to identify which test
+#' failed and why. This is the primary function for writing tests with
+#' **testit**.
 #'
-#' For the `...` argument, it should be a single R expression wrapped in `{}`.
-#' This expression may contain multiple sub-expressions. A sub-expression is
-#' treated as a test condition if it is wrapped in `()` (meaning its value will
-#' be checked to see if it is a logical vector containing any `FALSE` values) ,
-#' otherwise it is evaluated in the normal way and its value will not be
-#' checked. If the value of the last sub-expression is logical, it will also be
-#' treated as a test condition.
-#' @param fact A message for the assertions when any of them fails; treated the
-#'   same way as expressions in `...` if it is not a character string, which
-#'   means you are not required to provide a message to this function.
-#' @param ... An R expression; see Details.
-#' @return For `assert()`, invisible `NULL` if all expressions returned `TRUE`,
-#'   otherwise an error is signaled and the user-provided message is emitted.
-#'   For `%==%`, `TRUE` or `FALSE`.
-#' @note The internal implementation of `assert()` is different with the
-#'   `stopifnot()` function in R **base**: (1) the custom message `fact` is
-#'   emitted if an error occurs; (2) `assert()` requires the logical values to
-#'   be non-empty (`logical(0)` will trigger an error); (3) if `...` contains a
-#'   compound expression in `{}` that returns `FALSE` (e.g., `if (TRUE) {1+1;
-#'   FALSE}`), the first and the last but one line of the source code from
-#'   [deparse()] are printed in the error message, otherwise the first line is
-#'   printed; (4) the arguments in `...` are evaluated sequentially, and
-#'   `assert()` will signal an error upon the first failed assertion, and will
-#'   ignore the rest of assertions.
+#' The recommended usage is to pass a single expression wrapped in `{}` as the
+#' second argument. Inside `{}`, any sub-expression wrapped in parentheses `()`
+#' is treated as a test condition -- its value is checked and must be `TRUE`.
+#' Sub-expressions *without* parentheses are ordinary R code (e.g., variable
+#' assignments or setup steps) and their values are not checked. The last
+#' sub-expression is also treated as a test condition if it returns a logical
+#' value, even without explicit parentheses.
+#' @param fact A character string describing what is being tested. This message
+#'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
+#'   returns correct values'`). If `fact` is not a character string, it is
+#'   treated as a test expression (i.e., the message is optional).
+#' @param ... An R expression wrapped in `{}`; see Details.
+#' @return Invisible `NULL` if all conditions pass. If any condition fails, an
+#'   error is signaled that includes the `fact` message and the expression that
+#'   failed. For `%==%`, `TRUE` or `FALSE`.
+#' @note Key differences from [stopifnot()]:
+#'
+#' - `assert()` shows your custom `fact` message on failure, making errors
+#'   easier to diagnose.
+#' - `logical(0)` (empty logical) is treated as a failure, not a pass.
+#' - Assertions are evaluated sequentially; `assert()` stops at the first
+#'   failure and reports it.
 #' @export
 #' @examples
 #' library(testit)
@@ -113,13 +111,12 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE, domain = NA)
 }
 
-#' @description The infix operator `%==%` is simply an alias of the
-#'   [identical()] function to make it slightly easier and intuitive to write
-#'   test conditions. `x %==% y` is the same as `identical(x, y)`. When it is
-#'   used inside `assert()`, a message will be printed if the returned value is
-#'   not `TRUE`, to show the values of the LHS (`x`) and RHS (`y`) via
-#'   [str()], which can be helpful for you to check why the assertion failed.
-#' @param x,y two R objects to be compared
+#' @description The infix operator `%==%` is a shortcut for [identical()] that
+#'   provides helpful diagnostics on failure. `x %==% y` returns `TRUE` if `x`
+#'   and `y` are identical, and `FALSE` otherwise. When used inside `assert()`,
+#'   a failing `%==%` comparison will display both values via [str()] so you can
+#'   see exactly what differed.
+#' @param x,y Two R objects to be compared for identity.
 #' @rdname assert
 #' @import utils
 #' @export
@@ -144,56 +141,48 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   res
 }
 
-#' Run the tests of a package in its namespace
+#' Run all tests for a package
 #'
-#' The tests are executed in a clean environment with the namespace of the
-#' package to be tested as the parent environment, which means you can use
-#' non-exported objects in the package without having to resort to the triple
-#' colon `:::` trick.
+#' Discover and execute test files (`test-*.R` and `test-*.md`) for a package.
+#' Tests are run inside the package namespace, so you can call internal
+#' (non-exported) functions directly without the `:::` operator.
 #'
-#' The tests are assumed to be under the `testit/` or `tests/testit/` directory
-#' by default (depending on your working directory is the package root directory
-#' or the `tests/` directory). The test scripts must be named of the form
-#' `test-*.R` (or `test-*.md` for snapshot tests); other files will not be
-#' treated as test files (but may also be useful, e.g. you can [source()] other
-#' scripts in tests).
+#' Test files are looked up in the `testit/` or `tests/testit/` directory by
+#' default. Files must be named `test-*.R` for regular tests or `test-*.md` for
+#' snapshot tests. Other files in the directory are ignored (but you can
+#' [source()] them from your tests if needed).
 #'
 #' Helper files named `helper*.R` (e.g., `helper.R`, `helper-utils.R`) are
-#' sourced before test files and remain available to all tests, allowing you to
-#' define shared utility functions.
+#' sourced before any test file runs. Objects defined in helpers are available
+#' to all tests.
 #'
-#' When a test is executed, the working directory is the same as the directory
-#' containing this test, and all existing objects in the test environment will
-#' be removed before the code is executed (except for helper functions).
+#' Each test file runs in a clean environment (previous test objects are
+#' removed), and the working directory is set to the directory containing the
+#' test file.
 #'
 #' See <https://pkg.yihui.org/testit/#snapshot-testing> for more details about
 #' snapshot testing.
 #' @param package The package name. By default, it is detected from the
-#'   `DESCRIPTION` file if exists.
-#' @param dir The directory of the test files. If `NULL` (the default), the
-#'   directory `testit/` or `tests/testit/` under the current working directory
-#'   is used (whichever exists). You can also specify a custom directory.
+#'   `DESCRIPTION` file.
+#' @param dir The directory containing test files. If `NULL` (the default),
+#'   `testit/` or `tests/testit/` under the current working directory is used
+#'   (whichever exists). You can also pass a custom path.
 #' @param filter An optional regular expression to select a subset of test
-#'   files. Only files whose names (without directory) match the pattern will be
-#'   run. For example, `filter = "parse"` runs only test files with "parse" in
-#'   their names.
-#' @param update If `TRUE`, update snapshot files with actual output instead of
-#'   comparing. If `NA` (the default), update snapshot files only if they are
-#'   tracked by GIT (so you can view the diffs in GIT and decide whether to
-#'   accept or discard the changes). If `FALSE`, never update snapshot files and
-#'   always compare. For `NA` and `FALSE`, if the snapshot test fails, it will
-#'   throw an error with a message showing the location of the failed test. For
-#'   `TRUE`, it will update the snapshot file and never throw an error.
-#' @return `NULL`. All test files are executed and errors are collected; if any
-#'   tests fail, a single error is thrown at the end with all failure messages
-#'   combined.
-#' @note The **testit** package must be loaded (e.g., via `library(testit)`)
-#'   before calling `test_pkg()`, because test scripts typically call
-#'   [assert()] and other **testit** functions directly without the `testit::`
-#'   prefix. Simply using `testit::test_pkg()` without loading the package first
-#'   will result in errors like "could not find function \"assert\"".
+#'   files. Only files whose names match the pattern will be run. For example,
+#'   `filter = "parse"` runs only test files with "parse" in their names.
+#' @param update Controls snapshot file behavior:
+#'   - `TRUE`: always update snapshot files with actual output (never errors).
+#'   - `NA` (default): update only if the file is tracked by Git (so you can
+#'     review diffs before accepting).
+#'   - `FALSE`: never update; always compare and error on mismatch.
+#' @return Invisible `NULL`. If any tests fail, a single error is thrown at the
+#'   end with all failure messages combined.
+#' @note You must call `library(testit)` before `test_pkg()`. Test scripts use
+#'   [assert()] and other **testit** functions without the `testit::` prefix, so
+#'   the package needs to be on the search path. Without `library(testit)`, you
+#'   will get "could not find function" errors.
 #'
-#' All test scripts must be encoded in UTF-8 if they contain any multibyte
+#'   All test scripts must be encoded in UTF-8 if they contain multibyte
 #'   characters.
 #' @export
 #' @examples
@@ -310,21 +299,21 @@ error_loc = function(x, line = 1) {
   sprintf(' at \033]8;line = %d:col = 1;file://%s\a%s#%d\033]8;;\a', line, full, rel, line)
 }
 
-#' Check if an R expression produces messages, warnings, or errors
+#' Test whether an expression signals a condition
 #'
-#' The functions `has_message()`, `has_warning()`, and `has_error()` check if an
-#' expression produces messages, warnings, and errors, respectively. When the
-#' `message` argument is provided, the condition message is matched against it
-#' via [grepl()].
-#' @param expr an R expression
-#' @param message optionally, a string (fixed or regex pattern) to match against
-#'   the condition message. If provided, the function returns `TRUE` only when
-#'   the condition is signaled *and* the message matches.
-#' @param ... additional arguments passed to [grepl()] for matching `message`
-#'   against the condition message (e.g., `fixed = TRUE` for fixed string
-#'   matching, or `ignore.case = TRUE`). Note that `fixed = TRUE` is the
-#'   default.
-#' @return A logical value.
+#' Check if evaluating an expression produces a message, warning, or error.
+#' These functions are designed to be used inside [assert()] to verify that code
+#' signals the expected conditions. Optionally, you can match against the
+#' condition's text to ensure the *right* message/warning/error was signaled.
+#' @param expr An R expression to evaluate.
+#' @param message An optional string to match against the condition text. Uses
+#'   fixed (literal) matching by default. If provided, the function returns
+#'   `TRUE` only when the condition is signaled *and* the message matches.
+#' @param ... Additional arguments passed to [grepl()] for matching (e.g.,
+#'   `fixed = FALSE` to use regex, or `ignore.case = TRUE`). Note that
+#'   `fixed = TRUE` is the default.
+#' @return `TRUE` if the condition was signaled (and the message matched, if
+#'   provided), `FALSE` otherwise.
 #' @export
 #' @rdname has_message
 #' @examples
@@ -374,7 +363,10 @@ match_cond = function(text, message, ...) {
     grepl2(message, text, ...)
 }
 
-grepl2 = function(..., fixed = TRUE) grepl(..., fixed = fixed)
+grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
+  if (ignore.case && fixed) fixed = FALSE
+  grepl(..., fixed = fixed, ignore.case = ignore.case)
+}
 
 quietly = function(expr) {
   withCallingHandlers(
