@@ -123,6 +123,20 @@ assert('assert() captures all failures, not just the first', {
   (grepl('1 == 0', msg2))
 })
 
+assert('stop_errs() throws a short summary when message exceeds warning.length', {
+  op = options(warning.length = 200L)
+  msgs = c(strrep('x', 100), strrep('y', 100), strrep('z', 100))
+  err = tryCatch(stop_errs(msgs), error = function(e) conditionMessage(e))
+  options(op)
+  (err %==% '3 tests failed (see details above)')
+})
+
+assert('stop_errs() throws full message when it fits in warning.length', {
+  msgs = c('error 1', 'error 2', 'error 3')
+  err = tryCatch(stop_errs(msgs), error = function(e) conditionMessage(e))
+  (err %==% 'error 1\nerror 2\nerror 3')
+})
+
 assert('helper functions are available in tests', {
   (is_true(1 == 1))
   (!is_true(1 == 2))

@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 0.19
 
+- Error messages from `assert()` and `test_pkg()` are no longer truncated by R's `warning.length` option (default 1000 characters). Previously, when many test failures accumulated, the combined error message could exceed the limit and lose trailing failures (thanks, @jdblischak, #24).
+
 - `test_pkg()` gained a `filter` argument that takes a regular expression to selectively run a subset of test files (e.g., `test_pkg(filter = 'parse')` runs only files with "parse" in their names).
 
 - `test_pkg()` now runs all test files instead of stopping at the first failure. Errors are collected and reported together at the end, including multiple errors within a single file (thanks, @jdblischak, #19). The relative filename of each test is printed before execution.

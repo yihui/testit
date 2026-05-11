@@ -76,6 +76,11 @@ assert('expectation message', {
     appears more than once, factor it into a shared helper function. This
     applies to expressions, patterns, and multi-line blocks alike.
 
+### Git workflow
+
+1.  **Never force push** unless explicitly told to.
+2.  **Never create a new branch or PR** without confirming with the user first.
+
 ### Check list
 
 Always send a pull request, unless you are told otherwise. For each PR:

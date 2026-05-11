@@ -1,6 +1,19 @@
 # an internal environment to store objects
 .env = new.env(parent = emptyenv())
 
+# signal an error from one or more failure messages; when check = TRUE,
+# print full details via message() if they would exceed warning.length
+stop_errs = function(msgs, check = TRUE) {
+  if (!(n <- length(msgs))) return(invisible())
+  full = paste(msgs, collapse = '\n')
+  if (!check || nchar(full, type = 'bytes') <= getOption('warning.length', 1000L))
+    stop(full, call. = FALSE)
+  message(full)
+  stop(sprintf(
+    '%d test%s failed (see details above)', n, if (n > 1) 's' else ''
+  ), call. = FALSE)
+}
+
 # trigger %==% diagnostics and return the collected info (for testing)
 equ_info = function(x, y) {
   .env$equ_info = NULL

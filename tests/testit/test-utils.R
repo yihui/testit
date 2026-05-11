@@ -169,10 +169,30 @@ assert('test_pkg() collects all errors across and within files', {
   d = tempfile(); dir.create(d)
   writeLines(c('stop("error one")', 'stop("error one and a half")'), file.path(d, 'test-aaa.R'))
   writeLines('stop("error two")', file.path(d, 'test-bbb.R'))
-  msg = tryCatch(test_pkg('testit', dir = d), error = conditionMessage)
-  (grepl('error one', msg))
-  (grepl('error two', msg))
-  (grepl('error one and a half', msg))
+  out = NULL
+  msg = tryCatch(withCallingHandlers(
+    test_pkg('testit', dir = d),
+    message = function(m) { out <<- c(out, conditionMessage(m)); invokeRestart('muffleMessage') }
+  ), error = conditionMessage)
+  (grepl('^error one at .+\nerror one and a half at .+\nerror two at ', msg))
+})
+
+assert('test_pkg() prints details via message() when errors exceed warning.length', {
+  d = tempfile(); dir.create(d)
+  op = options(warning.length = 100L)
+  writeLines(c('stop("error one")', 'stop("error one and a half")'), file.path(d, 'test-aaa.R'))
+  writeLines('stop("error two")', file.path(d, 'test-bbb.R'))
+  out = NULL
+  msg = tryCatch(withCallingHandlers(
+    test_pkg('testit', dir = d),
+    message = function(m) { out <<- c(out, conditionMessage(m)); invokeRestart('muffleMessage') }
+  ), error = conditionMessage)
+  options(op)
+  (msg %==% '3 tests failed (see details above)')
+  printed = paste(out, collapse = '')
+  (grepl('error one', printed))
+  (grepl('error two', printed))
+  (grepl('error one and a half', printed))
 })
 
 assert('test_pkg() filter selects a subset of test files', {
