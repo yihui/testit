@@ -108,7 +108,7 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
       .env$equ_info = NULL
     }
   }
-  if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE, domain = NA)
+  stop_cond(errs)
 }
 
 #' @description The infix operator `%==%` is a shortcut for [identical()] that
@@ -254,15 +254,11 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     if (!helper) message(if (length(err) == 0) 'OK' else 'FAILED')
     errs <<- c(errs, err)
   }
-  throw = function() {
-    if (length(errs)) stop(paste(errs, collapse = '\n'), call. = FALSE)
-  }
-
   # run helper scripts
-  run_files(hs, TRUE); throw()
+  run_files(hs, TRUE); stop_cond(errs)
 
   # run test scripts and snapshots
-  run_files(rs); run_files(ms, snap = TRUE); throw()
+  run_files(rs); run_files(ms, snap = TRUE); stop_cond(errs)
 }
 
 # evaluate expr; on error, append source location to the error message and re-throw

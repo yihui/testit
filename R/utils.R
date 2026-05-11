@@ -1,6 +1,11 @@
 # an internal environment to store objects
 .env = new.env(parent = emptyenv())
 
+# stop() with a pre-built condition to bypass warning.length truncation
+stop_cond = function(msgs) {
+  if (length(msgs)) stop(simpleError(paste(msgs, collapse = '\n')))
+}
+
 # trigger %==% diagnostics and return the collected info (for testing)
 equ_info = function(x, y) {
   .env$equ_info = NULL

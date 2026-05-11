@@ -123,6 +123,16 @@ assert('assert() captures all failures, not just the first', {
   (grepl('1 == 0', msg2))
 })
 
+assert('error messages from assert() are not truncated by warning.length', {
+  op = options(warning.length = 100L)
+  on.exit(options(op))
+  msg = tryCatch(
+    assert('long', { (1 == 2); (1 == 3); (1 == 4) }),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('1 == 4', msg))
+})
+
 assert('helper functions are available in tests', {
   (is_true(1 == 1))
   (!is_true(1 == 2))
