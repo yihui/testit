@@ -6,12 +6,18 @@
 #' **testit**.
 #'
 #' The recommended usage is to pass a single expression wrapped in `{}` as the
-#' second argument. Inside `{}`, any sub-expression wrapped in parentheses `()`
-#' is treated as a test condition -- its value is checked and must be `TRUE`.
-#' Sub-expressions *without* parentheses are ordinary R code (e.g., variable
-#' assignments or setup steps) and their values are not checked. The last
-#' sub-expression is also treated as a test condition if it returns a logical
-#' value, even without explicit parentheses.
+#' second argument. Inside `{}`, any **top-level** sub-expression wrapped in
+#' parentheses `()` is treated as a test condition -- its value is checked and
+#' must be `TRUE`. Sub-expressions *without* parentheses are ordinary R code
+#' (e.g., variable assignments or setup steps) and their values are not checked.
+#' The last sub-expression is also treated as a test condition if it returns a
+#' logical value, even without explicit parentheses.
+#'
+#' **Important:** Only top-level `()` expressions are recognized as tests. A
+#' `()` expression nested inside `if`, `for`, or other control structures will
+#' *not* be checked by `assert()`. If you need a conditional test, use a logical
+#' expression like `(!condition || test)` at the top level instead of
+#' `if (condition) (test)`.
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
 #'   returns correct values'`). If `fact` is not a character string, it is
@@ -40,6 +46,13 @@
 #'   x = rpois(1, 10)
 #'   (x >= 0)
 #'   (x > -1)  # () is optional because it's the last expression
+#' })
+#'
+#' # WRONG: () inside if() is NOT a test -- it will not be checked!
+#' # if (requireNamespace('foo')) (foo::bar() == 1)
+#' # RIGHT: use a top-level logical expression instead
+#' assert('conditional test', {
+#'   (!requireNamespace('base', quietly = TRUE) || (1 + 1 == 2))
 #' })
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)

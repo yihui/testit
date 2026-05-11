@@ -125,7 +125,11 @@ assert('assert() captures all failures, not just the first', {
 
 assert('stop_errs() throws a short summary when message exceeds warning.length', {
   op = options(warning.length = 200L)
-  msgs = c(strrep('x', 100), strrep('y', 100), strrep('z', 100))
+  msgs = c(
+    paste(rep('x', 100), collapse = ''),
+    paste(rep('y', 100), collapse = ''),
+    paste(rep('z', 100), collapse = '')
+  )
   err = tryCatch(stop_errs(msgs), error = function(e) conditionMessage(e))
   options(op)
   (err %==% '3 tests failed (see details above)')
