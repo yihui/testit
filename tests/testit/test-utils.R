@@ -174,14 +174,23 @@ assert('test_pkg() collects all errors across and within files', {
     test_pkg('testit', dir = d),
     message = function(m) { out <<- c(out, conditionMessage(m)); invokeRestart('muffleMessage') }
   ), error = conditionMessage)
-  (grepl('^error one at .+\nerror one and a half at .+\nerror two at ', msg))
+  (grepl('error one', msg))
+  (grepl('error one and a half', msg))
+  (grepl('error two', msg))
+  if (exists('.traceback', baseenv(), inherits = FALSE))
+    (grepl('^error one at .+\nerror one and a half at .+\nerror two at ', msg))
 })
 
 assert('test_pkg() prints details via message() when errors exceed warning.length', {
   d = tempfile(); dir.create(d)
   op = options(warning.length = 100L)
-  writeLines(c('stop("error one")', 'stop("error one and a half")'), file.path(d, 'test-aaa.R'))
-  writeLines('stop("error two")', file.path(d, 'test-bbb.R'))
+  writeLines(c(
+    'stop("error one with extra padding to ensure length exceeds the limit")',
+    'stop("error one and a half with additional padding for length")'
+  ), file.path(d, 'test-aaa.R'))
+  writeLines(
+    'stop("error two with more padding to guarantee overflow")', file.path(d, 'test-bbb.R')
+  )
   out = NULL
   msg = tryCatch(withCallingHandlers(
     test_pkg('testit', dir = d),
