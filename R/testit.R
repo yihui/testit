@@ -58,42 +58,19 @@ assert = function(fact, ...) {
   if (is.character(mc[[2]])) {
     fact = mc[[2]]; mc = mc[-2]
   }
-  if (one_expression(mc)) {
-    assert_one(fact, mc[[2]], parent.frame())
+  one = length(mc) == 2 && length(mc[[2]]) >= 1 &&
+    identical(mc[[c(2, 1)]], as.symbol('{'))
+  if (one) {
+    assert_exec(fact, transform_assert(mc[[2]]), parent.frame())
   } else {
-    assert_many(fact, mc[-1], parent.frame())
-  }
-}
-
-# whether the argument of a function call is a single expression in {}
-one_expression = function(call) {
-  length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
-}
-
-# evaluate a {} block with ( redefined to check logical values
-assert_one = function(fact, expr, envir) {
-  errs = NULL
-  .env$equ_info = NULL
-  on.exit(.env$equ_info <- NULL, add = TRUE)
-  .testit_check = function(val) {
-    if (!all_true(val)) {
-      ec = sys.call()[[2]]
-      info = c(
-        if (!is.null(fact)) paste0('assertion failed: ', fact),
-        if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
-      )
-      errs <<- c(errs, paste0(paste(c(info, sprintf(
-        ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
-        deparse_key(ec)
-      )), collapse = '\n'), ' but ', deparse_one(val)))
+    exprs = as.list(mc[-1])
+    if (is.null(fact)) {
+      val = eval(exprs[[1]], parent.frame())
+      if (is.character(val)) { fact = val; exprs = exprs[-1] }
     }
-    .env$equ_info = NULL
-    val
+    expr = as.call(c(list(as.symbol('{')), lapply(exprs, function(x) call('(', x))))
+    assert_exec(fact, transform_assert(expr), parent.frame())
   }
-  e = new.env(parent = envir)
-  e[['.testit_check']] = .testit_check
-  eval(transform_assert(expr), envir = e)
-  stop_errs(errs, check = FALSE)
 }
 
 # indices of body sub-expressions for each control-flow construct
@@ -114,30 +91,28 @@ transform_assert = function(expr) {
   expr
 }
 
-# evaluate multiple bare expressions (the ... path)
-assert_many = function(fact, exprs, envir) {
+assert_exec = function(fact, expr, envir) {
+  errs = NULL
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
-  n = length(exprs)
-  errs = NULL
-  for (i in seq_len(n)) {
-    expr = exprs[[i]]
-    val = eval(expr, envir = envir, enclos = NULL)
-    if (is.null(fact) && i == 1 && is.character(val)) {
-      fact = val; next
-    }
+  .testit_check = function(val) {
     if (!all_true(val)) {
+      ec = sys.call()[[2]]
       info = c(
         if (!is.null(fact)) paste0('assertion failed: ', fact),
         if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
       )
-      errs = c(errs, paste0(paste(c(info, sprintf(
+      errs <<- c(errs, paste0(paste(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
-        deparse_key(expr)
+        deparse_key(ec)
       )), collapse = '\n'), ' but ', deparse_one(val)))
     }
     .env$equ_info = NULL
+    val
   }
+  e = new.env(parent = envir)
+  e[['.testit_check']] = .testit_check
+  eval(expr, envir = e)
   stop_errs(errs, check = FALSE)
 }
 
