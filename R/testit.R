@@ -22,7 +22,7 @@
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
 #'   returns correct values'`). If `fact` is not a character string, it is
 #'   treated as a test expression (i.e., the message is optional).
-#' @param ... An R expression wrapped in `{}`; see Details.
+#' @param expr An R expression wrapped in `{}`; see Details.
 #' @return Invisible `NULL` if all conditions pass. If any condition fails, an
 #'   error is signaled that includes the `fact` message and the expression that
 #'   failed. For `%==%`, `TRUE` or `FALSE`.
@@ -31,8 +31,8 @@
 #' - `assert()` shows your custom `fact` message on failure, making errors
 #'   easier to diagnose.
 #' - `logical(0)` (empty logical) is treated as a failure, not a pass.
-#' - All conditions are evaluated even if earlier ones fail; all failures are
-#'   reported together in a single error message.
+#' - All conditions inside `{}` are evaluated even if earlier ones fail; all
+#'   failures are reported together in a single error message.
 #' @export
 #' @examples
 #' library(testit)
@@ -54,24 +54,17 @@
 #' assert('conditional test', {
 #'   (!requireNamespace('base', quietly = TRUE) || (1 + 1 == 2))
 #' })
-assert = function(fact, ...) {
+assert = function(fact, expr = {}) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   mc = match.call()
-  # match.call() uses the arg order in the func def, so fact is always 1st arg
-  fact = NULL
+  msg = NULL
   if (is.character(mc[[2]])) {
-    fact = mc[[2]]; mc = mc[-2]
+    msg = mc[[2]]; mc = mc[-2]
   }
-  one = one_expression(mc)
-  assert2(
-    fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one,
-    assert_loc(sys.call(), one)
-  )
-}
-
-# whether the argument of a function call is a single expression in {}
-one_expression = function(call) {
-  length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
+  if (length(mc) < 2) return(invisible())
+  e = mc[[2]]
+  one = length(e) >= 1 && identical(e[[1]], as.symbol('{'))
+  assert2(msg, if (one) e[-1] else list(e), parent.frame(), !one, assert_loc(sys.call(), one))
 }
 
 # get error location info for assert(): file, start line, and per-expression offsets
@@ -82,7 +75,7 @@ assert_loc = function(call, one) {
   file = sf$filename
   if (file.exists(file)) file = norm_path(file)
   src = getSrcLines(sf, sr[1], sr[3])
-  if (!one) return(list(file = file, lines = rep(sr[1], length(call) - 1)))
+  if (!one) return(list(file = file, lines = sr[1]))
   # parse the {} body to find relative line numbers of sub-expressions
   body_lines = src[-c(1, length(src))]
   body_exprs = if (length(body_lines))
@@ -93,7 +86,7 @@ assert_loc = function(call, one) {
   list(file = file, lines = lines)
 }
 
-assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
+assert2 = function(fact, exprs, envir, all = FALSE, loc = NULL) {
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
   n = length(exprs)
@@ -101,11 +94,6 @@ assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
   for (i in seq_len(n)) {
     expr = exprs[[i]]
     val = eval(expr, envir = envir, enclos = NULL)
-    # special case: fact is an expression instead of a string constant in assert()
-    if (is.null(fact) && all && i == 1 && is.character(val)) {
-      fact = val; next
-    }
-    # check all values in case of multiple arguments, o/w only check values in ()
     if (all || (i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) { .env$equ_info = NULL; next }

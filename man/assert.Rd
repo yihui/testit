@@ -5,7 +5,11 @@
 \alias{\%==\%}
 \title{Assert that conditions are true, with an informative failure message}
 \usage{
-assert(fact, ...)
+assert(
+  fact,
+  expr = {
+ }
+)
 
 x \%==\% y
 }
@@ -14,7 +18,7 @@ x \%==\% y
 is shown when an assertion fails, so make it descriptive (e.g., \code{'log() returns correct values'}). If \code{fact} is not a character string, it is
 treated as a test expression (i.e., the message is optional).}
 
-\item{...}{An R expression wrapped in \code{{}}; see Details.}
+\item{expr}{An R expression wrapped in \code{{}}; see Details.}
 
 \item{x, y}{Two R objects to be compared for identity.}
 }
@@ -56,8 +60,8 @@ Key differences from \code{\link[=stopifnot]{stopifnot()}}:
 \item \code{assert()} shows your custom \code{fact} message on failure, making errors
 easier to diagnose.
 \item \code{logical(0)} (empty logical) is treated as a failure, not a pass.
-\item All conditions are evaluated even if earlier ones fail; all failures are
-reported together in a single error message.
+\item All conditions inside \code{{}} are evaluated even if earlier ones fail; all
+failures are reported together in a single error message.
 }
 }
 \examples{

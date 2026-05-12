@@ -64,9 +64,8 @@ assert('tests can be written in () in a single {}', {
 
 })
 
-assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
-  # when fact is not a character literal, assert2 detects fact=val at i==1
-  (has_error(assert({x = 'fact msg'; x}, 1 == 2)))
+assert('assert() treats a non-string first arg as an expression', {
+  (has_error(assert(1 == 2)))
 })
 
 assert('%==% emits diagnostic info on failure inside assert()', {
@@ -114,13 +113,6 @@ assert('assert() captures all failures, not just the first', {
   )
   (grepl('1 == 2', msg))
   (grepl('1 == 0', msg))
-  # multi-argument form
-  msg2 = tryCatch(
-    assert('multi arg', 1 == 2, 1 == 0),
-    error = function(e) conditionMessage(e)
-  )
-  (grepl('1 == 2', msg2))
-  (grepl('1 == 0', msg2))
 })
 
 assert('stop_errs() throws a short summary when message exceeds warning.length', {
