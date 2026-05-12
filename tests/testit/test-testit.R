@@ -4,9 +4,8 @@ assert('assert works', {
   (1 == 1)
 })
 
-# Okay, that is kind of cheating
 assert('assert() should signal an error if a condition does not hold', {
-  (has_error(assert('this should produce an error', 1 == 2)))
+  (has_error(assert('this should produce an error', { (1 == 2) })))
 })
 
 # a meaningless test in terms of R (failure is irrelevant to Frequentist or Bayesian)
@@ -16,12 +15,12 @@ has_error(assert('Frequentists must be correct (http://xkcd.com/1132/): the sun 
 
 # fail logical(0)
 assert('assert() should stop on logical(0)', {
-  (has_error(assert('1 equals integer(0)', 1 == integer(0))))
+  (has_error(assert('1 equals integer(0)', { (1 == integer(0)) })))
 })
 
 assert('the infix operator %==% works', {
   (1 %==% 1)
-  (!(1 %==% 1L))
+  (!identical(1, 1L))
 })
 
 assert('has_message() works', {
@@ -54,23 +53,22 @@ assert('has_error() works without message matching', {
 })
 
 assert('tests can be written in () in a single {}', {
-
   (1 == 1L)
 
   z = 1:10
   (rev(z) %==% 10:1)
-
-  !!TRUE
-
 })
 
-assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
-  # when fact is not a character literal, assert2 detects fact=val at i==1
-  (has_error(assert({x = 'fact msg'; x}, 1 == 2)))
+assert('() works inside control structures', {
+  if (TRUE) (1 == 1)
+  for (i in 1:3) (i > 0)
+})
+
+assert('assert() requires fact to be a character string', {
+  (has_error(assert(1 == 2, { (1 == 1) }), 'must be a character string'))
 })
 
 assert('%==% emits diagnostic info on failure inside assert()', {
-  # trigger the %==% failure message branch
   msg = tryCatch(
     assert('check %==% message', { (1 %==% 2) }),
     error = function(e) conditionMessage(e)
@@ -114,13 +112,6 @@ assert('assert() captures all failures, not just the first', {
   )
   (grepl('1 == 2', msg))
   (grepl('1 == 0', msg))
-  # multi-argument form
-  msg2 = tryCatch(
-    assert('multi arg', 1 == 2, 1 == 0),
-    error = function(e) conditionMessage(e)
-  )
-  (grepl('1 == 2', msg2))
-  (grepl('1 == 0', msg2))
 })
 
 assert('stop_errs() throws a short summary when message exceeds warning.length', {

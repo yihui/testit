@@ -5,16 +5,19 @@
 \alias{\%==\%}
 \title{Assert that conditions are true, with an informative failure message}
 \usage{
-assert(fact, ...)
+assert(
+  fact,
+  expr = {
+ }
+)
 
 x \%==\% y
 }
 \arguments{
 \item{fact}{A character string describing what is being tested. This message
-is shown when an assertion fails, so make it descriptive (e.g., \code{'log() returns correct values'}). If \code{fact} is not a character string, it is
-treated as a test expression (i.e., the message is optional).}
+is shown when an assertion fails, so make it descriptive (e.g., \code{'log() returns correct values'}).}
 
-\item{...}{An R expression wrapped in \code{{}}; see Details.}
+\item{expr}{An R expression wrapped in \code{{}}; see Details.}
 
 \item{x, y}{Two R objects to be compared for identity.}
 }
@@ -36,19 +39,20 @@ a failing \verb{\%==\%} comparison will display both values via \code{\link[=str
 see exactly what differed.
 }
 \details{
-The recommended usage is to pass a single expression wrapped in \code{{}} as the
-second argument. Inside \code{{}}, any \strong{top-level} sub-expression wrapped in
-parentheses \verb{()} is treated as a test condition -- its value is checked and
-must be \code{TRUE}. Sub-expressions \emph{without} parentheses are ordinary R code
-(e.g., variable assignments or setup steps) and their values are not checked.
-The last sub-expression is also treated as a test condition if it returns a
-logical value, even without explicit parentheses.
+The \code{expr} argument is typically an expression wrapped in \code{{}}. Inside
+\code{expr}, any sub-expression wrapped in parentheses \verb{()} that returns a
+logical value is treated as a test condition -- its value is checked and
+must be \code{TRUE}. Sub-expressions in \verb{()} that return non-logical values are
+ignored (passed through unchanged). Sub-expressions \emph{without} parentheses
+are ordinary R code (e.g., variable assignments or setup steps) and are
+never checked.
 
-\strong{Important:} Only top-level \verb{()} expressions are recognized as tests. A
-\verb{()} expression nested inside \code{if}, \code{for}, or other control structures will
-\emph{not} be checked by \code{assert()}. If you need a conditional test, use a logical
-expression like \code{(!condition || test)} at the top level instead of
-\code{if (condition) (test)}.
+Unlike previous versions, \verb{()} works at \emph{any} nesting level -- inside \code{if},
+\code{for}, \code{local()}, or other control structures. This is because \code{assert()}
+evaluates \code{expr} in a special environment where \code{(} is redefined to check
+logical values. Note that only the outermost \verb{()} should contain your test;
+avoid nesting logical \verb{()} expressions like \code{(!(x))} because the inner \code{(x)}
+would also be checked. Instead, write \code{(!x)} directly.
 }
 \note{
 Key differences from \code{\link[=stopifnot]{stopifnot()}}:
@@ -71,13 +75,11 @@ assert('T is bad for TRUE, and so is F for FALSE', {
 assert('A Poisson random number is non-negative', {
   x = rpois(1, 10)
   (x >= 0)
-  (x > -1)  # () is optional because it's the last expression
+  (x > -1)
 })
 
-# WRONG: () inside if() is NOT a test -- it will not be checked!
-# if (requireNamespace('foo')) (foo::bar() == 1)
-# RIGHT: use a top-level logical expression instead
+# () works inside control structures too
 assert('conditional test', {
-  (!requireNamespace('base', quietly = TRUE) || (1 + 1 == 2))
+  if (requireNamespace('base', quietly = TRUE)) (1 + 1 == 2)
 })
 }

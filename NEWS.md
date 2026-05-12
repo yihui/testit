@@ -1,6 +1,6 @@
 # CHANGES IN testit VERSION 0.19
 
-- Documented that only **top-level** `()` expressions inside `assert()` are treated as test conditions. A `()` nested inside `if`, `for`, or other control structures will not be checked. Use `(!condition || test)` at the top level for conditional tests.
+- **Breaking change**: `assert()` has been rewritten with a simpler mechanism. The new signature is `assert(fact, expr = {})`, where `fact` is a required character string. The `...` argument has been removed. Internally, `assert()` now evaluates `expr` in a special environment where `(` is redefined to check values, which means `()` tests now work at *any* nesting level (inside `if`, `for`, `local()`, etc.), not just at the top level of `{}`.
 
 - Error messages from `assert()` and `test_pkg()` are no longer truncated by R's `warning.length` option (default 1000 characters). Previously, when many test failures accumulated, the combined error message could exceed the limit and lose trailing failures (thanks, @jdblischak, #24).
 

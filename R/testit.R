@@ -5,24 +5,24 @@
 #' failed and why. This is the primary function for writing tests with
 #' **testit**.
 #'
-#' The recommended usage is to pass a single expression wrapped in `{}` as the
-#' second argument. Inside `{}`, any **top-level** sub-expression wrapped in
-#' parentheses `()` is treated as a test condition -- its value is checked and
-#' must be `TRUE`. Sub-expressions *without* parentheses are ordinary R code
-#' (e.g., variable assignments or setup steps) and their values are not checked.
-#' The last sub-expression is also treated as a test condition if it returns a
-#' logical value, even without explicit parentheses.
+#' The `expr` argument is typically an expression wrapped in `{}`. Inside
+#' `expr`, any sub-expression wrapped in parentheses `()` that returns a
+#' logical value is treated as a test condition -- its value is checked and
+#' must be `TRUE`. Sub-expressions in `()` that return non-logical values are
+#' ignored (passed through unchanged). Sub-expressions *without* parentheses
+#' are ordinary R code (e.g., variable assignments or setup steps) and are
+#' never checked.
 #'
-#' **Important:** Only top-level `()` expressions are recognized as tests. A
-#' `()` expression nested inside `if`, `for`, or other control structures will
-#' *not* be checked by `assert()`. If you need a conditional test, use a logical
-#' expression like `(!condition || test)` at the top level instead of
-#' `if (condition) (test)`.
+#' Unlike previous versions, `()` works at *any* nesting level -- inside `if`,
+#' `for`, `local()`, or other control structures. This is because `assert()`
+#' evaluates `expr` in a special environment where `(` is redefined to check
+#' logical values. Note that only the outermost `()` should contain your test;
+#' avoid nesting logical `()` expressions like `(!(x))` because the inner `(x)`
+#' would also be checked. Instead, write `(!x)` directly.
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
-#'   returns correct values'`). If `fact` is not a character string, it is
-#'   treated as a test expression (i.e., the message is optional).
-#' @param ... An R expression wrapped in `{}`; see Details.
+#'   returns correct values'`).
+#' @param expr An R expression wrapped in `{}`; see Details.
 #' @return Invisible `NULL` if all conditions pass. If any condition fails, an
 #'   error is signaled that includes the `fact` message and the expression that
 #'   failed. For `%==%`, `TRUE` or `FALSE`.
@@ -45,82 +45,40 @@
 #' assert('A Poisson random number is non-negative', {
 #'   x = rpois(1, 10)
 #'   (x >= 0)
-#'   (x > -1)  # () is optional because it's the last expression
+#'   (x > -1)
 #' })
 #'
-#' # WRONG: () inside if() is NOT a test -- it will not be checked!
-#' # if (requireNamespace('foo')) (foo::bar() == 1)
-#' # RIGHT: use a top-level logical expression instead
+#' # () works inside control structures too
 #' assert('conditional test', {
-#'   (!requireNamespace('base', quietly = TRUE) || (1 + 1 == 2))
+#'   if (requireNamespace('base', quietly = TRUE)) (1 + 1 == 2)
 #' })
-assert = function(fact, ...) {
-  opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
-  mc = match.call()
-  # match.call() uses the arg order in the func def, so fact is always 1st arg
-  fact = NULL
-  if (is.character(mc[[2]])) {
-    fact = mc[[2]]; mc = mc[-2]
-  }
-  one = one_expression(mc)
-  assert2(
-    fact, if (one) mc[[2]][-1] else mc[-1], parent.frame(), !one,
-    assert_loc(sys.call(), one)
+assert = function(fact, expr = {}) {
+  if (!is.character(fact)) stop(
+    "'fact' must be a character string (did you forget to provide a description?)",
+    call. = FALSE
   )
-}
-
-# whether the argument of a function call is a single expression in {}
-one_expression = function(call) {
-  length(call) == 2 && length(call[[2]]) >= 1 && identical(call[[c(2, 1)]], as.symbol('{'))
-}
-
-# get error location info for assert(): file, start line, and per-expression offsets
-assert_loc = function(call, one) {
-  sr = getSrcref(call)
-  if (is.null(sr)) return()
-  sf = attr(sr, 'srcfile')
-  file = sf$filename
-  if (file.exists(file)) file = norm_path(file)
-  src = getSrcLines(sf, sr[1], sr[3])
-  if (!one) return(list(file = file, lines = rep(sr[1], length(call) - 1)))
-  # parse the {} body to find relative line numbers of sub-expressions
-  body_lines = src[-c(1, length(src))]
-  body_exprs = if (length(body_lines))
-    tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
-  body_sr = if (!is.null(body_exprs)) attr(body_exprs, 'srcref')
-  lines = if (is.null(body_sr)) sr[1] else
-    vapply(body_sr, function(s) sr[1] + s[1], integer(1))
-  list(file = file, lines = lines)
-}
-
-assert2 = function(fact, exprs, envir, all = TRUE, loc = NULL) {
+  opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
+  errs = NULL
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
-  n = length(exprs)
-  errs = NULL
-  for (i in seq_len(n)) {
-    expr = exprs[[i]]
-    val = eval(expr, envir = envir, enclos = NULL)
-    # special case: fact is an expression instead of a string constant in assert()
-    if (is.null(fact) && all && i == 1 && is.character(val)) {
-      fact = val; next
-    }
-    # check all values in case of multiple arguments, o/w only check values in ()
-    if (all || (i == n && is.logical(val)) ||
-        (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
-      if (all_true(val)) { .env$equ_info = NULL; next }
+  `(` = function(val) {
+    if (is.logical(val) && !all_true(val)) {
+      ec = sys.call()[[2]]
       info = c(
-        if (!is.null(fact)) paste0('assertion failed: ', fact),
+        paste0('assertion failed: ', fact),
         if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
       )
-      s = if (!is.null(loc)) error_loc(loc$file, loc$lines[min(i, length(loc$lines))])
-      errs = c(errs, paste0(paste(c(info, sprintf(
+      errs <<- c(errs, paste0(paste(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
-        deparse_key(expr)
-      )), collapse = '\n'), ' but ', deparse_one(val), s))
-      .env$equ_info = NULL
+        deparse_key(ec)
+      )), collapse = '\n'), ' but ', deparse_one(val)))
     }
+    .env$equ_info = NULL
+    val
   }
+  e = new.env(parent = parent.frame())
+  e[['(']] = `(`
+  eval(substitute(expr), envir = e)
   stop_errs(errs, check = FALSE)
 }
 
