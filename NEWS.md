@@ -1,6 +1,6 @@
 # CHANGES IN testit VERSION 0.19
 
-- **Breaking change**: `assert()` no longer accepts multiple expressions via `...`. The new signature is `assert(fact, expr = {})`, where `expr` is a single expression (typically a `{}` block). This simplifies the internal logic and makes the API more consistent with the recommended usage pattern.
+- **Breaking change**: `assert()` no longer accepts multiple expressions via `...`. The new signature is `assert(fact, expr = {})`, where `fact` is a required character string and `expr` is a single expression (typically a `{}` block). Previously, a non-character `fact` was silently treated as a test expression; now it will error.
 
 - Documented that only **top-level** `()` expressions inside `assert()` are treated as test conditions. A `()` nested inside `if`, `for`, or other control structures will not be checked. Use `(!condition || test)` at the top level for conditional tests.
 

@@ -15,8 +15,7 @@ x \%==\% y
 }
 \arguments{
 \item{fact}{A character string describing what is being tested. This message
-is shown when an assertion fails, so make it descriptive (e.g., \code{'log() returns correct values'}). If \code{fact} is not a character string, it is
-treated as a test expression (i.e., the message is optional).}
+is shown when an assertion fails, so make it descriptive (e.g., \code{'log() returns correct values'}).}
 
 \item{expr}{An R expression wrapped in \code{{}}; see Details.}
 

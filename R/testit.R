@@ -20,8 +20,7 @@
 #' `if (condition) (test)`.
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
-#'   returns correct values'`). If `fact` is not a character string, it is
-#'   treated as a test expression (i.e., the message is optional).
+#'   returns correct values'`).
 #' @param expr An R expression wrapped in `{}`; see Details.
 #' @return Invisible `NULL` if all conditions pass. If any condition fails, an
 #'   error is signaled that includes the `fact` message and the expression that
@@ -55,16 +54,15 @@
 #'   (!requireNamespace('base', quietly = TRUE) || (1 + 1 == 2))
 #' })
 assert = function(fact, expr = {}) {
+  if (!is.character(fact)) stop(
+    "'fact' must be a character string (did you forget to provide a description?)",
+    call. = FALSE
+  )
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
-  mc = match.call()
-  msg = NULL
-  if (is.character(mc[[2]])) {
-    msg = mc[[2]]; mc = mc[-2]
-  }
-  if (length(mc) < 2) return(invisible())
-  e = mc[[2]]
+  e = match.call()[[3]]
+  if (is.null(e)) return(invisible())
   one = length(e) >= 1 && identical(e[[1]], as.symbol('{'))
-  assert2(msg, if (one) e[-1] else list(e), parent.frame(), !one, assert_loc(sys.call(), one))
+  assert2(fact, if (one) e[-1] else list(e), parent.frame(), !one, assert_loc(sys.call(), one))
 }
 
 # get error location info for assert(): file, start line, and per-expression offsets
@@ -98,7 +96,7 @@ assert2 = function(fact, exprs, envir, all = FALSE, loc = NULL) {
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) { .env$equ_info = NULL; next }
       info = c(
-        if (!is.null(fact)) paste0('assertion failed: ', fact),
+        paste0('assertion failed: ', fact),
         if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
       )
       s = if (!is.null(loc)) error_loc(loc$file, loc$lines[min(i, length(loc$lines))])

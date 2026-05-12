@@ -64,8 +64,8 @@ assert('tests can be written in () in a single {}', {
 
 })
 
-assert('assert() treats a non-string first arg as an expression', {
-  (has_error(assert(1 == 2)))
+assert('assert() requires fact to be a character string', {
+  (has_error(assert(1 == 2, { (1 == 1) }), 'must be a character string'))
 })
 
 assert('%==% emits diagnostic info on failure inside assert()', {
