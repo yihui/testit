@@ -54,23 +54,15 @@
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   mc = match.call()
-  fact = NULL
-  if (is.character(mc[[2]])) {
-    fact = mc[[2]]; mc = mc[-2]
+  msg = NULL
+  if (is.character(fact)) {
+    msg = fact; mc = mc[-2]
   }
   one = length(mc) == 2 && length(mc[[2]]) >= 1 &&
     identical(mc[[c(2, 1)]], as.symbol('{'))
-  if (one) {
-    assert_exec(fact, transform_assert(mc[[2]]), parent.frame())
-  } else {
-    exprs = as.list(mc[-1])
-    if (is.null(fact)) {
-      val = eval(exprs[[1]], parent.frame())
-      if (is.character(val)) { fact = val; exprs = exprs[-1] }
-    }
-    expr = as.call(c(list(as.symbol('{')), lapply(exprs, function(x) call('(', x))))
-    assert_exec(fact, transform_assert(expr), parent.frame())
-  }
+  expr = if (one) mc[[2]] else
+    as.call(c(list(as.symbol('{')), lapply(as.list(mc[-1]), function(x) call('(', x))))
+  assert_exec(msg, transform_assert(expr), parent.frame())
 }
 
 # indices of body sub-expressions for each control-flow construct
