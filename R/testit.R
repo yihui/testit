@@ -96,6 +96,9 @@ assert_one = function(fact, expr, envir) {
   stop_errs(errs, check = FALSE)
 }
 
+# indices of body sub-expressions for each control-flow construct
+.assert_body_idx = list('if' = 3:4, 'for' = 4L, 'while' = 3L, 'repeat' = 2L)
+
 # walk AST to replace statement-level ( with .testit_check
 transform_assert = function(expr) {
   if (!is.call(expr)) return(expr)
@@ -104,15 +107,9 @@ transform_assert = function(expr) {
     expr[[1]] = as.symbol('.testit_check')
   } else if (identical(head, as.symbol('{'))) {
     for (i in seq_along(expr)[-1]) expr[[i]] = transform_assert(expr[[i]])
-  } else if (identical(head, as.symbol('if'))) {
-    expr[[3]] = transform_assert(expr[[3]])
-    if (length(expr) == 4) expr[[4]] = transform_assert(expr[[4]])
-  } else if (identical(head, as.symbol('for'))) {
-    expr[[4]] = transform_assert(expr[[4]])
-  } else if (identical(head, as.symbol('while'))) {
-    expr[[3]] = transform_assert(expr[[3]])
-  } else if (identical(head, as.symbol('repeat'))) {
-    expr[[2]] = transform_assert(expr[[2]])
+  } else {
+    for (i in intersect(.assert_body_idx[[as.character(head)]], seq_along(expr)))
+      expr[[i]] = transform_assert(expr[[i]])
   }
   expr
 }
