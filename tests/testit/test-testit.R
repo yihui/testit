@@ -21,7 +21,7 @@ assert('assert() should stop on logical(0)', {
 
 assert('the infix operator %==% works', {
   (1 %==% 1)
-  (!(1 %==% 1L))
+  (!identical(1, 1L))
 })
 
 assert('has_message() works', {
@@ -54,14 +54,15 @@ assert('has_error() works without message matching', {
 })
 
 assert('tests can be written in () in a single {}', {
-
   (1 == 1L)
 
   z = 1:10
   (rev(z) %==% 10:1)
+})
 
-  !!TRUE
-
+assert('() works inside control structures', {
+  if (TRUE) (1 == 1)
+  for (i in 1:3) (i > 0)
 })
 
 assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
