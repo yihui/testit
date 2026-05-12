@@ -21,7 +21,7 @@ assert('assert() should stop on logical(0)', {
 
 assert('the infix operator %==% works', {
   (1 %==% 1)
-  (!identical(1, 1L))
+  (!(1 %==% 1L))
 })
 
 assert('has_message() works', {

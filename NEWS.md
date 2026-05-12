@@ -1,6 +1,6 @@
 # CHANGES IN testit VERSION 0.19
 
-- `()` test conditions inside `assert('fact', { ... })` now work at **any nesting level** -- inside `if`, `for`, `local()`, or other control structures. Previously only top-level `()` expressions were checked. This is achieved by evaluating the `{}` block in a special environment where `(` is redefined to check logical values. Only logical values in `()` are checked; non-logical values pass through unchanged. Note: avoid nesting logical `()` like `(!(x))`; write `(!x)` instead.
+- `()` test conditions inside `assert('fact', { ... })` now work at **any nesting level** -- inside `if`, `for`, `local()`, or other control structures. Previously only top-level `()` expressions were checked. This is achieved by evaluating the `{}` block in a special environment where `(` is redefined to check logical values. Only logical values in `()` are checked; non-logical values pass through unchanged. Nested parentheses like `(!(x))` are handled correctly (only the outermost `()` is checked).
 
 - Error messages from `assert()` and `test_pkg()` are no longer truncated by R's `warning.length` option (default 1000 characters). Previously, when many test failures accumulated, the combined error message could exceed the limit and lose trailing failures (thanks, @jdblischak, #24).
 

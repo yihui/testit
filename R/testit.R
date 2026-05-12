@@ -15,10 +15,9 @@
 #'
 #' `()` works at *any* nesting level -- inside `if`, `for`, `local()`, or other
 #' control structures. This is because `assert()` evaluates the `{}` block in a
-#' special environment where `(` is redefined to check logical values. Note that
-#' only the outermost `()` should contain your test; avoid nesting logical `()`
-#' expressions like `(!(x))` because the inner `(x)` would also be checked.
-#' Instead, write `(!x)` directly.
+#' special environment where `(` is redefined to check logical values. Nested
+#' parentheses like `(!(x))` are handled correctly -- only the outermost `()`
+#' is checked as a test condition.
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
 #'   returns correct values'`). If `fact` is not a character string, it is
@@ -75,10 +74,13 @@ one_expression = function(call) {
 # evaluate a {} block with ( redefined to check logical values
 assert_one = function(fact, expr, envir) {
   errs = NULL
+  depth = 0L
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
   `(` = function(val) {
-    if (is.logical(val) && !all_true(val)) {
+    depth <<- depth + 1L
+    on.exit(depth <<- depth - 1L)
+    if (depth == 1L && is.logical(val) && !all_true(val)) {
       ec = sys.call()[[2]]
       info = c(
         if (!is.null(fact)) paste0('assertion failed: ', fact),
@@ -89,7 +91,7 @@ assert_one = function(fact, expr, envir) {
         deparse_key(ec)
       )), collapse = '\n'), ' but ', deparse_one(val)))
     }
-    .env$equ_info = NULL
+    if (depth == 1L) .env$equ_info = NULL
     val
   }
   e = new.env(parent = envir)

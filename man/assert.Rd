@@ -46,10 +46,9 @@ and are never checked.
 
 \verb{()} works at \emph{any} nesting level -- inside \code{if}, \code{for}, \code{local()}, or other
 control structures. This is because \code{assert()} evaluates the \code{{}} block in a
-special environment where \code{(} is redefined to check logical values. Note that
-only the outermost \verb{()} should contain your test; avoid nesting logical \verb{()}
-expressions like \code{(!(x))} because the inner \code{(x)} would also be checked.
-Instead, write \code{(!x)} directly.
+special environment where \code{(} is redefined to check logical values. Nested
+parentheses like \code{(!(x))} are handled correctly -- only the outermost \verb{()}
+is checked as a test condition.
 }
 \note{
 Key differences from \code{\link[=stopifnot]{stopifnot()}}:
