@@ -6,18 +6,17 @@
 #' **testit**.
 #'
 #' The recommended usage is to pass a single expression wrapped in `{}` as the
-#' second argument. Inside `{}`, any sub-expression wrapped in parentheses `()`
-#' that returns a logical value is treated as a test condition -- its value is
-#' checked and must be `TRUE`. Sub-expressions in `()` that return non-logical
-#' values are ignored (passed through unchanged). Sub-expressions *without*
-#' parentheses are ordinary R code (e.g., variable assignments or setup steps)
-#' and are never checked.
+#' second argument. Inside `{}`, any **statement-level** sub-expression wrapped
+#' in parentheses `()` is treated as a test condition -- its value is checked
+#' and must be `TRUE`. Parentheses used for grouping within a larger expression
+#' (e.g., `(a + b) * c`) are not checked. Sub-expressions *without* parentheses
+#' are ordinary R code (e.g., variable assignments or setup steps) and are never
+#' checked.
 #'
-#' `()` works at *any* nesting level -- inside `if`, `for`, `local()`, or other
-#' control structures. This is because `assert()` evaluates the `{}` block in a
-#' special environment where `(` is redefined to check logical values. Nested
-#' parentheses like `(!(x))` are handled correctly -- only the outermost `()`
-#' is checked as a test condition.
+#' `()` tests work inside `if`, `for`, `while`, and `repeat` bodies. Internally,
+#' `assert()` walks the expression tree and transforms statement-level `()` into
+#' checks before evaluating the entire block in one frame (so `on.exit()` works
+#' as expected).
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
 #'   returns correct values'`). If `fact` is not a character string, it is
@@ -74,13 +73,10 @@ one_expression = function(call) {
 # evaluate a {} block with ( redefined to check logical values
 assert_one = function(fact, expr, envir) {
   errs = NULL
-  depth = 0L
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
-  `(` = function(val) {
-    depth <<- depth + 1L
-    on.exit(depth <<- depth - 1L)
-    if (depth == 1L && is.logical(val) && !all_true(val)) {
+  .check = function(val) {
+    if (!all_true(val)) {
       ec = sys.call()[[2]]
       info = c(
         if (!is.null(fact)) paste0('assertion failed: ', fact),
@@ -91,13 +87,45 @@ assert_one = function(fact, expr, envir) {
         deparse_key(ec)
       )), collapse = '\n'), ' but ', deparse_one(val)))
     }
-    if (depth == 1L) .env$equ_info = NULL
+    .env$equ_info = NULL
     val
   }
   e = new.env(parent = envir)
-  e[['(']] = `(`
-  eval(expr, envir = e)
+  e[['.check']] = .check
+  eval(transform_assert(expr), envir = e)
   stop_errs(errs, check = FALSE)
+}
+
+# walk AST to replace statement-level ( with .check
+transform_assert = function(expr) {
+  if (!is.call(expr)) return(expr)
+  head = expr[[1]]
+  if (identical(head, as.symbol('('))) {
+    expr[[1]] = as.symbol('.check')
+    return(expr)
+  }
+  if (identical(head, as.symbol('{'))) {
+    for (i in seq_along(expr)[-1]) expr[[i]] = transform_assert(expr[[i]])
+    return(expr)
+  }
+  if (identical(head, as.symbol('if'))) {
+    expr[[3]] = transform_assert(expr[[3]])
+    if (length(expr) == 4) expr[[4]] = transform_assert(expr[[4]])
+    return(expr)
+  }
+  if (identical(head, as.symbol('for'))) {
+    expr[[4]] = transform_assert(expr[[4]])
+    return(expr)
+  }
+  if (identical(head, as.symbol('while'))) {
+    expr[[3]] = transform_assert(expr[[3]])
+    return(expr)
+  }
+  if (identical(head, as.symbol('repeat'))) {
+    expr[[2]] = transform_assert(expr[[2]])
+    return(expr)
+  }
+  expr
 }
 
 # evaluate multiple bare expressions (the ... path)

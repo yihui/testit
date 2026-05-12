@@ -37,18 +37,17 @@ see exactly what differed.
 }
 \details{
 The recommended usage is to pass a single expression wrapped in \code{{}} as the
-second argument. Inside \code{{}}, any sub-expression wrapped in parentheses \verb{()}
-that returns a logical value is treated as a test condition -- its value is
-checked and must be \code{TRUE}. Sub-expressions in \verb{()} that return non-logical
-values are ignored (passed through unchanged). Sub-expressions \emph{without}
-parentheses are ordinary R code (e.g., variable assignments or setup steps)
-and are never checked.
+second argument. Inside \code{{}}, any \strong{statement-level} sub-expression wrapped
+in parentheses \verb{()} is treated as a test condition -- its value is checked
+and must be \code{TRUE}. Parentheses used for grouping within a larger expression
+(e.g., \code{(a + b) * c}) are not checked. Sub-expressions \emph{without} parentheses
+are ordinary R code (e.g., variable assignments or setup steps) and are never
+checked.
 
-\verb{()} works at \emph{any} nesting level -- inside \code{if}, \code{for}, \code{local()}, or other
-control structures. This is because \code{assert()} evaluates the \code{{}} block in a
-special environment where \code{(} is redefined to check logical values. Nested
-parentheses like \code{(!(x))} are handled correctly -- only the outermost \verb{()}
-is checked as a test condition.
+\verb{()} tests work inside \code{if}, \code{for}, \code{while}, and \code{repeat} bodies. Internally,
+\code{assert()} walks the expression tree and transforms statement-level \verb{()} into
+checks before evaluating the entire block in one frame (so \code{on.exit()} works
+as expected).
 }
 \note{
 Key differences from \code{\link[=stopifnot]{stopifnot()}}:
