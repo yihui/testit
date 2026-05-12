@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 0.19
 
+- `test_pkg()` now checks `commandArgs(TRUE)` for `--filter=PATTERN` and `--update` when the `filter` and `update` arguments are not explicitly provided. This allows you to run `Rscript tests/*.R --filter=PATTERN --update` without modifying individual `test_pkg()` calls.
+
 - The `fact` argument of `assert()` now works with any character value, not just string literals. For example, `assert(paste('test', name), { ... })` and `assert(msg, { ... })` now work correctly.
 
 - `()` test conditions inside `assert('fact', { ... })` now work inside `if`, `for`, `while`, and `repeat` bodies. Previously only top-level `()` expressions in `{}` were checked. Only statement-level `()` is treated as a test; parentheses used for grouping within expressions (e.g., `(a + b) * c`) are not affected. The entire `{}` block is now evaluated in a single frame, so `on.exit()` works as expected inside `assert()`.

@@ -259,6 +259,17 @@ deparse_diff = function(x, y, max_diff = 50L) {
   mini_diff(tx, ty, max_diff)
 }
 
+# parse command-line args for test_pkg() defaults (--filter=PATTERN, --update)
+parse_args = function(args = commandArgs(TRUE)) {
+  filter = NULL
+  update = NA
+  for (a in args) {
+    if (starts_with(a, '--filter=')) filter = sub('^--filter=', '', a)
+    else if (a == '--update') update = TRUE
+  }
+  list(filter = filter, update = update)
+}
+
 # Output a minimal diff between two character vectors, showing only lines that
 # are different and 3 lines of context around them. Lines starting with " " are
 # unchanged, "-" are in x1 but not x2, "+" are in x2 but not x1. When max_diff

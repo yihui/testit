@@ -167,7 +167,7 @@ assert_exec = function(fact, expr, envir) {
 #'   (whichever exists). You can also pass a custom path.
 #' @param filter An optional regular expression to select a subset of test
 #'   files. Only files whose names match the pattern will be run. For example,
-#'   `filter = "parse"` runs only test files with "parse" in their names.
+#'   `filter = "plot"` runs only test files with "plot" in their names.
 #' @param update Controls snapshot file behavior:
 #'   - `TRUE`: always update snapshot files with actual output (never errors).
 #'   - `NA` (default): update only if the file is tracked by Git (so you can
@@ -182,6 +182,12 @@ assert_exec = function(fact, expr, envir) {
 #'
 #'   All test scripts must be encoded in UTF-8 if they contain multibyte
 #'   characters.
+#'
+#'   When `filter` or `update` are not explicitly provided, `test_pkg()` checks
+#'   `commandArgs(TRUE)` for command-line arguments: `--filter=PATTERN` sets the
+#'   filter, and `--update` sets `update = TRUE`. This allows you to pass these
+#'   options via `Rscript tests/*.R --filter=PATTERN --update` without modifying
+#'   individual `test_pkg()` calls.
 #' @export
 #' @examples
 #' \dontrun{
@@ -189,6 +195,9 @@ assert_exec = function(fact, expr, envir) {
 #' test_pkg('testit')
 #' }
 test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA) {
+  args = parse_args()
+  if (missing(filter)) filter = args$filter
+  if (missing(update)) update = args$update
   # install the source package before running tests when this function is called
   # in a non-interactive R session that is not `R CMD check`
   pkg_root = if (file.exists('DESCRIPTION')) '.' else if (file.exists('../DESCRIPTION')) '..'

@@ -16,7 +16,7 @@ test_pkg(package = pkg_name(), dir = NULL, filter = NULL, update = NA)
 
 \item{filter}{An optional regular expression to select a subset of test
 files. Only files whose names match the pattern will be run. For example,
-\code{filter = "parse"} runs only test files with "parse" in their names.}
+\code{filter = "plot"} runs only test files with "plot" in their names.}
 
 \item{update}{Controls snapshot file behavior:
 \itemize{
@@ -60,6 +60,12 @@ will get "could not find function" errors.
 
 All test scripts must be encoded in UTF-8 if they contain multibyte
 characters.
+
+When \code{filter} or \code{update} are not explicitly provided, \code{test_pkg()} checks
+\code{commandArgs(TRUE)} for command-line arguments: \code{--filter=PATTERN} sets the
+filter, and \code{--update} sets \code{update = TRUE}. This allows you to pass these
+options via \verb{Rscript tests/*.R --filter=PATTERN --update} without modifying
+individual \code{test_pkg()} calls.
 }
 \examples{
 \dontrun{

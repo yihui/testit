@@ -204,6 +204,18 @@ assert('test_pkg() prints details via message() when errors exceed warning.lengt
   (grepl('error one and a half', printed))
 })
 
+assert('parse_args() extracts --filter and --update from command-line args', {
+  res = parse_args(c('--filter=parse', '--update'))
+  (res$filter %==% 'parse')
+  (res$update %==% TRUE)
+})
+
+assert('parse_args() returns defaults when no relevant args are present', {
+  res = parse_args(character(0))
+  (res$filter %==% NULL)
+  (res$update %==% NA)
+})
+
 assert('test_pkg() filter selects a subset of test files', {
   d = tempfile(); dir.create(d)
   writeLines(
