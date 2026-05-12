@@ -54,9 +54,8 @@
 assert = function(fact, ...) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   mc = match.call()
-  msg = NULL
-  if (is.character(fact)) {
-    msg = fact; mc = mc[-2]
+  msg = if (is.character(fact)) {
+    mc = mc[-2]; fact
   }
   one = length(mc) == 2 && length(mc[[2]]) >= 1 &&
     identical(mc[[c(2, 1)]], as.symbol('{'))
@@ -87,7 +86,8 @@ assert_exec = function(fact, expr, envir) {
   errs = NULL
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
-  .testit_check = function(val) {
+  e = new.env(parent = envir)
+  e[['.testit_check']] = function(val) {
     if (!all_true(val)) {
       ec = sys.call()[[2]]
       info = c(
@@ -102,8 +102,6 @@ assert_exec = function(fact, expr, envir) {
     .env$equ_info = NULL
     val
   }
-  e = new.env(parent = envir)
-  e[['.testit_check']] = .testit_check
   eval(expr, envir = e)
   stop_errs(errs, check = FALSE)
 }
