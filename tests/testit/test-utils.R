@@ -177,8 +177,8 @@ assert('test_pkg() collects all errors across and within files', {
   (grepl('error one', msg))
   (grepl('error one and a half', msg))
   (grepl('error two', msg))
-  (!exists('.traceback', baseenv(), inherits = FALSE) ||
-    grepl('^error one at .+\nerror one and a half at .+\nerror two at ', msg))
+  if (exists('.traceback', baseenv(), inherits = FALSE))
+    (grepl('^error one at .+\nerror one and a half at .+\nerror two at ', msg))
 })
 
 assert('test_pkg() prints details via message() when errors exceed warning.length', {
