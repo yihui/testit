@@ -89,15 +89,18 @@ assert_exec = function(fact, expr, envir) {
   e = new.env(parent = envir)
   e[['.testit_check']] = function(val) {
     if (!all_true(val)) {
-      ec = sys.call()[[2]]
+      sc = sys.call()
+      ec = sc[[2]]
       info = c(
         if (!is.null(fact)) paste0('assertion failed: ', fact),
         if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
       )
+      sr = attr(sc, 'srcref')
+      loc = if (!is.null(sr)) error_loc(attr(sr, 'srcfile')$filename, sr[1])
       errs <<- c(errs, paste0(paste(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(ec)
-      )), collapse = '\n'), ' but ', deparse_one(val)))
+      )), collapse = '\n'), ' but ', deparse_one(val), loc))
     }
     .env$equ_info = NULL
     val

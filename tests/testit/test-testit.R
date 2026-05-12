@@ -145,6 +145,23 @@ assert('stop_errs() throws full message when it fits in warning.length', {
   (err %==% 'error 1\nerror 2\nerror 3')
 })
 
+assert('assert() error includes precise line number of failing () expression', {
+  f = tempfile(fileext = '.R')
+  writeLines(c(
+    'library(testit)',
+    'assert("loc test", {',
+    '  x = 1',
+    '  (x == 2)',
+    '})'
+  ), f)
+  msg = tryCatch(
+    sys.source(f, envir = new.env(parent = .GlobalEnv), keep.source = TRUE),
+    error = function(e) conditionMessage(e)
+  )
+  # line 4 is where (x == 2) lives
+  (grepl('#4', msg))
+})
+
 assert('helper functions are available in tests', {
   (is_true(1 == 1))
   (!is_true(1 == 2))
