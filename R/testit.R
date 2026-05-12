@@ -61,20 +61,19 @@ assert = function(fact, expr = {}) {
   opt = options(testit.asserting = TRUE); on.exit(options(opt), add = TRUE)
   e = match.call()[[3]]
   if (is.null(e)) return(invisible())
-  one = length(e) >= 1 && identical(e[[1]], as.symbol('{'))
-  assert2(fact, if (one) e[-1] else list(e), parent.frame(), !one, assert_loc(sys.call(), one))
+  exprs = if (length(e) >= 1 && identical(e[[1]], as.symbol('{'))) e[-1] else
+    list(call('(', e))
+  assert2(fact, exprs, parent.frame(), assert_loc(sys.call()))
 }
 
 # get error location info for assert(): file, start line, and per-expression offsets
-assert_loc = function(call, one) {
+assert_loc = function(call) {
   sr = getSrcref(call)
   if (is.null(sr)) return()
   sf = attr(sr, 'srcfile')
   file = sf$filename
   if (file.exists(file)) file = norm_path(file)
   src = getSrcLines(sf, sr[1], sr[3])
-  if (!one) return(list(file = file, lines = sr[1]))
-  # parse the {} body to find relative line numbers of sub-expressions
   body_lines = src[-c(1, length(src))]
   body_exprs = if (length(body_lines))
     tryCatch(parse(text = body_lines, keep.source = TRUE), error = function(e) NULL)
@@ -84,7 +83,7 @@ assert_loc = function(call, one) {
   list(file = file, lines = lines)
 }
 
-assert2 = function(fact, exprs, envir, all = FALSE, loc = NULL) {
+assert2 = function(fact, exprs, envir, loc = NULL) {
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
   n = length(exprs)
@@ -92,7 +91,7 @@ assert2 = function(fact, exprs, envir, all = FALSE, loc = NULL) {
   for (i in seq_len(n)) {
     expr = exprs[[i]]
     val = eval(expr, envir = envir, enclos = NULL)
-    if (all || (i == n && is.logical(val)) ||
+    if ((i == n && is.logical(val)) ||
         (length(expr) >= 1 && identical(expr[[1]], as.symbol('(')))) {
       if (all_true(val)) { .env$equ_info = NULL; next }
       info = c(
