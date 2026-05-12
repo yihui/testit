@@ -54,14 +54,18 @@ assert('has_error() works without message matching', {
 })
 
 assert('tests can be written in () in a single {}', {
-
   (1 == 1L)
 
   z = 1:10
   (rev(z) %==% 10:1)
+})
 
-  !!TRUE
-
+assert('() works inside control structures', {
+  if (TRUE) (1 == 1)
+  for (i in 1:3) (i > 0)
+  # prove that () inside if/for actually triggers checks (not just grouping)
+  (has_error(assert('if body', { if (TRUE) (1 == 2) }), '1 == 2'))
+  (has_error(assert('for body', { for (i in 1) (i == 0) }), 'i == 0'))
 })
 
 assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
