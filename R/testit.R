@@ -75,7 +75,7 @@ assert_one = function(fact, expr, envir) {
   errs = NULL
   .env$equ_info = NULL
   on.exit(.env$equ_info <- NULL, add = TRUE)
-  .check = function(val) {
+  .testit_check = function(val) {
     if (!all_true(val)) {
       ec = sys.call()[[2]]
       info = c(
@@ -91,39 +91,28 @@ assert_one = function(fact, expr, envir) {
     val
   }
   e = new.env(parent = envir)
-  e[['.check']] = .check
+  e[['.testit_check']] = .testit_check
   eval(transform_assert(expr), envir = e)
   stop_errs(errs, check = FALSE)
 }
 
-# walk AST to replace statement-level ( with .check
+# walk AST to replace statement-level ( with .testit_check
 transform_assert = function(expr) {
   if (!is.call(expr)) return(expr)
   head = expr[[1]]
   if (identical(head, as.symbol('('))) {
-    expr[[1]] = as.symbol('.check')
-    return(expr)
-  }
-  if (identical(head, as.symbol('{'))) {
+    expr[[1]] = as.symbol('.testit_check')
+  } else if (identical(head, as.symbol('{'))) {
     for (i in seq_along(expr)[-1]) expr[[i]] = transform_assert(expr[[i]])
-    return(expr)
-  }
-  if (identical(head, as.symbol('if'))) {
+  } else if (identical(head, as.symbol('if'))) {
     expr[[3]] = transform_assert(expr[[3]])
     if (length(expr) == 4) expr[[4]] = transform_assert(expr[[4]])
-    return(expr)
-  }
-  if (identical(head, as.symbol('for'))) {
+  } else if (identical(head, as.symbol('for'))) {
     expr[[4]] = transform_assert(expr[[4]])
-    return(expr)
-  }
-  if (identical(head, as.symbol('while'))) {
+  } else if (identical(head, as.symbol('while'))) {
     expr[[3]] = transform_assert(expr[[3]])
-    return(expr)
-  }
-  if (identical(head, as.symbol('repeat'))) {
+  } else if (identical(head, as.symbol('repeat'))) {
     expr[[2]] = transform_assert(expr[[2]])
-    return(expr)
   }
   expr
 }
