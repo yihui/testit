@@ -132,20 +132,14 @@ assert_exec = function(fact, expr, envir) {
   res = identical(x, y)
   if (!res && getOption('testit.asserting', FALSE)) {
     mc = match.call()
-    sx = capture.output(str(x))
-    sy = capture.output(str(y))
-    info = if (length(sx) + length(sy) > 10L) {
+    sx = capture.output(str(x)); sy = capture.output(str(y))
+    dx = deparse_key(mc[[2]]); dy = deparse_key(mc[[3]])
+    info = one_string(if (length(sx) + length(sy) > 10L) {
       d = mini_diff(sx, sy)
-      one_string(c(
-        paste(deparse_key(mc[[2]]), '(- LHS) vs', deparse_key(mc[[3]]), '(+ RHS):'),
-        d
-      ))
+      c(paste(dx, '(- LHS) vs', dy, '(+ RHS):'), d)
     } else {
-      one_string(c(
-        paste(deparse_key(mc[[2]]), '(LHS) ==>'), sx, '----------', sy,
-        paste('<== (RHS)', deparse_key(mc[[3]]))
-      ))
-    }
+      c(paste(dx, '(LHS) ==>'), sx, '----------', sy, paste('<== (RHS)', dy))
+    })
     # show deparse diff only when str() is uninformative (identical for both)
     if (identical(sx, sy)) {
       diff = deparse_diff(x, y)
