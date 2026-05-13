@@ -134,10 +134,18 @@ assert_exec = function(fact, expr, envir) {
     mc = match.call()
     sx = capture.output(str(x))
     sy = capture.output(str(y))
-    info = one_string(c(
-      paste(deparse_key(mc[[2]]), '(LHS) ==>'), sx, '----------', sy,
-      paste('<== (RHS)', deparse_key(mc[[3]]))
-    ))
+    info = if (length(sx) + length(sy) > 10L) {
+      d = mini_diff(sx, sy)
+      one_string(c(
+        paste(deparse_key(mc[[2]]), '(- LHS) vs', deparse_key(mc[[3]]), '(+ RHS):'),
+        d
+      ))
+    } else {
+      one_string(c(
+        paste(deparse_key(mc[[2]]), '(LHS) ==>'), sx, '----------', sy,
+        paste('<== (RHS)', deparse_key(mc[[3]]))
+      ))
+    }
     # show deparse diff only when str() is uninformative (identical for both)
     if (identical(sx, sy)) {
       diff = deparse_diff(x, y)
