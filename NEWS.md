@@ -1,3 +1,6 @@
+# CHANGES IN testit VERSION 1.1
+
+
 # CHANGES IN testit VERSION 1.0
 
 - `test_pkg()` now checks `commandArgs(TRUE)` for `--filter=PATTERN` and `--update` when the `filter` and `update` arguments are not explicitly provided. This allows you to run `Rscript tests/*.R --filter=PATTERN --update` without modifying individual `test_pkg()` calls.
