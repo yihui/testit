@@ -91,22 +91,32 @@ assert_exec = function(fact, expr, envir) {
     if (!all_true(val)) {
       sc = sys.call()
       ec = sc[[2]]
-      info = c(
-        if (!is.null(fact)) paste0('assertion failed: ', fact),
-        if (length(.env$equ_info)) paste(.env$equ_info, collapse = '\n')
-      )
+      info = if (length(.env$equ_info)) one_string(.env$equ_info)
       sr = attr(sc, 'srcref')
       loc = if (!is.null(sr)) error_loc(attr(sr, 'srcfile')$filename, sr[1])
-      errs <<- c(errs, paste0(paste(c(info, sprintf(
+      errs <<- c(errs, paste0(one_string(c(info, sprintf(
         ngettext(length(val), '%s is not TRUE', '%s are not all TRUE'),
         deparse_key(ec)
-      )), collapse = '\n'), ' but ', deparse_one(val), loc))
+      ))), ' but ', deparse_one(val), loc))
     }
     .env$equ_info = NULL
     val
   }
   eval(expr, envir = e)
-  stop_errs(errs, check = FALSE)
+  if (length(errs)) {
+    header = if (!is.null(fact)) paste0('-- Assertion failed: ', fact, ' --') else
+      '-- Assertion failed --'
+    n = length(errs)
+    body = if (n == 1) paste0('   ', strsplit(errs, '\n')[[1]]) else {
+      pad = nchar(n) + 5L
+      vapply(seq_along(errs), function(i) {
+        lines = strsplit(errs[i], '\n')[[1]]
+        lines[-1] = paste0(one_string(rep(' ', pad), ''), lines[-1])
+        paste0('   ', sprintf(paste0('%', nchar(n), 'd'), i), '. ', one_string(lines))
+      }, '')
+    }
+    stop_errs(one_string(c(header, body)), check = FALSE)
+  }
 }
 
 #' @description The infix operator `%==%` is a shortcut for [identical()] that
@@ -124,15 +134,15 @@ assert_exec = function(fact, expr, envir) {
     mc = match.call()
     sx = capture.output(str(x))
     sy = capture.output(str(y))
-    info = paste(c(
+    info = one_string(c(
       paste(deparse_key(mc[[2]]), '(LHS) ==>'), sx, '----------', sy,
       paste('<== (RHS)', deparse_key(mc[[3]]))
-    ), collapse = '\n')
+    ))
     # show deparse diff only when str() is uninformative (identical for both)
     if (identical(sx, sy)) {
       diff = deparse_diff(x, y)
       if (length(diff))
-        info = paste(c(info, '', 'Detailed diff (- LHS, + RHS):', diff), collapse = '\n')
+        info = one_string(c(info, '', 'Detailed diff (- LHS, + RHS):', diff))
     }
     .env$equ_info = c(.env$equ_info, info)
   }

@@ -151,7 +151,9 @@ assert('stop_errs() throws a short summary when message exceeds warning.length',
 assert('stop_errs() throws full message when it fits in warning.length', {
   msgs = c('error 1', 'error 2', 'error 3')
   err = tryCatch(stop_errs(msgs), error = function(e) conditionMessage(e))
-  (err %==% 'error 1\nerror 2\nerror 3')
+  (grepl('error 1', err))
+  (grepl('error 2', err))
+  (grepl('error 3', err))
 })
 
 assert('assert() error includes precise line number of failing () expression', {

@@ -1,11 +1,17 @@
 # an internal environment to store objects
 .env = new.env(parent = emptyenv())
 
+one_string = function(x, collapse = '\n') paste(x, collapse = collapse)
+
 # signal an error from one or more failure messages; when check = TRUE,
 # print full details via message() if they would exceed warning.length
 stop_errs = function(msgs, check = TRUE) {
   if (!(n <- length(msgs))) return(invisible())
-  full = paste(msgs, collapse = '\n')
+  msgs = vapply(msgs, function(m) {
+    if (starts_with(m, '-- ')) m else
+      one_string(c('-- Error --', paste0('   ', strsplit(m, '\n')[[1]])))
+  }, '', USE.NAMES = FALSE)
+  full = one_string(msgs, '\n\n')
   if (!check || nchar(full, type = 'bytes') <= getOption('warning.length', 1000L))
     stop(full, call. = FALSE)
   message(full)
@@ -66,7 +72,7 @@ dir_exists = function(x) utils::file_test('-d', x)
 # find an available dir
 available_dir = function(dirs) {
   for (i in dirs) if (dir_exists(i)) return(i)
-  stop('None of the directories exists:\n', paste(utils::formatUL(dirs), collapse = '\n'))
+  stop('None of the directories exists:\n', one_string(utils::formatUL(dirs)))
 }
 
 # a compact way to display tempfile()
@@ -85,7 +91,7 @@ deparse_key = function(expr) {
   paste(x[1], '....', if (x[n] == '}') sub('^\\s*', '', x[n - 1L]))
 }
 
-deparse_one = function(expr) paste(deparse(expr, 500L), collapse = '')
+deparse_one = function(expr) one_string(deparse(expr, 500L), '')
 
 # whether every element of x is strictly TRUE
 all_true = function(x) {
@@ -130,7 +136,7 @@ get_fence = function(text, extra = FALSE) {
   ms = gregexpr('^`+', text, perl = TRUE)
   n = max(unlist(lapply(ms, attr, 'match.length')))
   if (extra && n >= 3) n = n + 1
-  paste(rep('`', max(n, 3)), collapse = '')
+  one_string(rep('`', max(n, 3)), '')
 }
 
 # Parse markdown file to extract code blocks
@@ -211,9 +217,9 @@ test_snap = function(f, env, update = NA) {
   if (tracked && is.na(update)) {
     write_utf8(out_lines, f)
     d = system2('git', c('diff', '--color=auto', shQuote(f)), stdout = TRUE, stderr = FALSE)
-    message(paste(d, collapse = '\n'))
+    message(one_string(d))
   } else {
-    message(paste(mini_diff(raw_lines, out_lines), collapse = '\n'))
+    message(one_string(mini_diff(raw_lines, out_lines)))
   }
   paste0(
     'Snapshot test failed', error_loc(f, pos), '\n',
@@ -251,8 +257,8 @@ write_utf8 = function(text, con) {
 
 # Deparse two values with full precision, split on ", " for token-level diff
 deparse_diff = function(x, y, max_diff = 50L) {
-  dx = paste(deparse(x, width.cutoff = 500L, control = 'all'), collapse = ' ')
-  dy = paste(deparse(y, width.cutoff = 500L, control = 'all'), collapse = ' ')
+  dx = one_string(deparse(x, width.cutoff = 500L, control = 'all'), ' ')
+  dy = one_string(deparse(y, width.cutoff = 500L, control = 'all'), ' ')
   if (identical(dx, dy)) return()
   tx = trimws(strsplit(dx, ', ')[[1]])
   ty = trimws(strsplit(dy, ', ')[[1]])
