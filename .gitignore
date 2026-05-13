@@ -4,3 +4,4 @@
 *.Rcheck
 *.tar.gz
 .claude
+.positai

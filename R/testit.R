@@ -133,11 +133,13 @@ assert_exec = function(fact, expr, envir) {
   if (!res && getOption('testit.asserting', FALSE)) {
     mc = match.call()
     sx = capture.output(str(x)); sy = capture.output(str(y))
+    nx = length(sx); ny = length(sy)
     dx = deparse_key(mc[[2]]); dy = deparse_key(mc[[3]])
-    info = one_string(if (length(sx) + length(sy) > 10L) {
-      d = mini_diff(sx, sy)
-      c(paste(dx, '(- LHS) vs', dy, '(+ RHS):'), d)
+    show_diff = (nx + ny > 10L) && length(d <- mini_diff(sx, sy, 50L))
+    info = one_string(if (show_diff) {
+      c('Structure diff:', paste(dx, '(- LHS) vs', dy, '(+ RHS):'), d)
     } else {
+      sx = trunc_vec(sx, 10L, nx); sy = trunc_vec(sy, 10L, ny)
       c(paste(dx, '(LHS) ==>'), sx, '----------', sy, paste('<== (RHS)', dy))
     })
     # show deparse diff only when str() is uninformative (identical for both)
@@ -150,6 +152,8 @@ assert_exec = function(fact, expr, envir) {
   }
   res
 }
+
+trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 
 #' Run all tests for a package
 #'

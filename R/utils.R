@@ -76,7 +76,7 @@ available_dir = function(dirs) {
 }
 
 # a compact way to display tempfile()
-short_temp = function(x) paste('tempdir()/', basename(x))
+short_temp = function(x) paste0('tempdir()/', basename(x))
 
 cleanup_msg = function(path) message(
   if (dir_exists(path)) 'Failed to clean' else 'Cleaned', ' up ', short_temp(path)

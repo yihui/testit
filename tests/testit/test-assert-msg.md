@@ -21,7 +21,7 @@ cat(msg, sep = '\n')
    list(a = 1, b = 2) %==% list(a = 1, b = 99) is not TRUE but FALSE at <text>#2
 ```
 
-Long `%==%` failure shows mini_diff instead.
+Long `%==%` failure shows `mini_diff` instead.
 
 ```r
 x = as.list(setNames(1:15, paste0('item', 1:15)))
@@ -34,6 +34,7 @@ cat(msg, sep = '\n')
 ```
 ```
 -- Assertion failed: long --
+   Structure diff:
    x (- LHS) vs y (+ RHS):
      ...
       $ item2 : int 2
@@ -52,5 +53,57 @@ cat(msg, sep = '\n')
       $ item13: int 13
       $ item14: int 14
       $ item15: int 15
+   x %==% y is not TRUE but FALSE at <text>#4
+```
+
+Long `%==%` failure when `str()` is the same for x amd y.
+
+```r
+x = as.list(setNames(as.numeric(1:15), paste0('item', 1:15)))
+y = x; y$item5 = x$item5 + 1/2^10
+msg = tryCatch(
+  assert('long', { (x %==% y) }),
+  error = conditionMessage
+)
+cat(msg, sep = '\n')
+```
+```
+-- Assertion failed: long --
+   x (LHS) ==>
+   List of 15
+    $ item1 : num 1
+    $ item2 : num 2
+    $ item3 : num 3
+    $ item4 : num 4
+    $ item5 : num 5
+    $ item6 : num 6
+    $ item7 : num 7
+    $ item8 : num 8
+    $ item9 : num 9
+   ...
+   ----------
+   List of 15
+    $ item1 : num 1
+    $ item2 : num 2
+    $ item3 : num 3
+    $ item4 : num 4
+    $ item5 : num 5
+    $ item6 : num 6
+    $ item7 : num 7
+    $ item8 : num 8
+    $ item9 : num 9
+   ...
+   <== (RHS) y
+   
+   Detailed diff (- LHS, + RHS):
+     ...
+     item2 = 2
+     item3 = 3
+     item4 = 4
+   - item5 = 5
+   + item5 = 5.0009765625
+     item6 = 6
+     item7 = 7
+     item8 = 8
    x %==% y is not TRUE but FALSE at <text>#4
 ```
