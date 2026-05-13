@@ -75,7 +75,7 @@ transform_assert = function(expr) {
     expr[[1]] = as.symbol('.testit_check')
   } else if (identical(head, as.symbol('{'))) {
     for (i in seq_along(expr)[-1]) expr[[i]] = transform_assert(expr[[i]])
-  } else {
+  } else if (is.symbol(head)) {
     for (i in intersect(.assert_body_idx[[as.character(head)]], seq_along(expr)))
       expr[[i]] = transform_assert(expr[[i]])
   }

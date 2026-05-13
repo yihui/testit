@@ -68,6 +68,15 @@ assert('() works inside control structures', {
   (has_error(assert('for body', { for (i in 1) (i == 0) }), 'i == 0'))
 })
 
+assert('assert() handles non-symbol call heads (e.g., obj$method())', {
+  env = list2env(list(x = 1))
+  # $ calls and [[ calls should not confuse the AST walker
+  (env$x %==% 1)
+  l = list(f = function() TRUE)
+  (l$f())
+  (l[['f']]())
+})
+
 assert('assert() treats a non-string first arg as an expression (fact-as-expression)', {
   # when fact is not a character literal, assert2 detects fact=val at i==1
   (has_error(assert({x = 'fact msg'; x}, 1 == 2)))
