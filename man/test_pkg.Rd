@@ -49,8 +49,8 @@ Each test file runs in a clean environment (previous test objects are
 removed), and the working directory is set to the directory containing the
 test file.
 
-See \url{https://pkg.yihui.org/testit/#snapshot-testing} for more details about
-snapshot testing.
+See \url{https://pkg.yihui.org/testit/#sec:snapshot-testing} for more details
+about snapshot testing.
 }
 \note{
 You must call \code{library(testit)} before \code{test_pkg()}. Test scripts use

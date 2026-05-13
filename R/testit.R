@@ -174,8 +174,8 @@ trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 #' removed), and the working directory is set to the directory containing the
 #' test file.
 #'
-#' See <https://pkg.yihui.org/testit/#snapshot-testing> for more details about
-#' snapshot testing.
+#' See <https://pkg.yihui.org/testit/#sec:snapshot-testing> for more details
+#' about snapshot testing.
 #' @param package The package name. By default, it is detected from the
 #'   `DESCRIPTION` file.
 #' @param dir The directory containing test files. If `NULL` (the default),
