@@ -172,6 +172,10 @@ The tradeoff is that you get fewer bells and whistles (no mocking, no parallel
 execution). If you want a simple, dependency-free testing tool that stays out of
 your way, **testit** is a good fit.
 
+If you want to convert your existing **testthat** tests to **testit**, you may
+take a look at this post <https://yihui.org/en/2026/05/testthat-to-testit/>.
+If you use AI assistance, this should be a straightforward task.
+
 --------------------------------------------------------------------------------
 
 <img src="https://i.imgur.com/sDsgmfj.jpeg" alt="Xunzi" align="right" width="100"/>
