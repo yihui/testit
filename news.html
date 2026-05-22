@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.9.9">
+<title>News</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/copy-button.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/heading-anchor.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/pages.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/css/site.min.css">
+</head>
+<body>
+<nav><p><a href="index.html">Home</a>
+<a href="manual.html">Manual</a>
+<a href="news.html">News</a>
+<a href="playground/">Playground</a></p></nav>
+<div class="frontmatter">
+<div class="title"><h1>News</h1></div>
+</div>
+<div class="body">
+<div id="TOC">
+<ul>
+<li><a href="#sec:testit-1-1">testit 1.1</a></li>
+<li><a href="#sec:testit-1-0">testit 1.0</a></li>
+<li><a href="#sec:testit-0-18">testit 0.18</a></li>
+<li><a href="#sec:testit-0-17">testit 0.17</a></li>
+<li><a href="#sec:testit-0-16">testit 0.16</a></li>
+<li><a href="#sec:testit-0-15">testit 0.15</a></li>
+<li><a href="#sec:testit-0-14">testit 0.14</a></li>
+<li><a href="#sec:testit-0-13">testit 0.13</a></li>
+<li><a href="#sec:testit-0-12">testit 0.12</a></li>
+<li><a href="#sec:testit-0-11">testit 0.11</a></li>
+<li><a href="#sec:testit-0-10">testit 0.10</a></li>
+<li><a href="#sec:testit-0-9">testit 0.9</a></li>
+<li><a href="#sec:testit-0-8">testit 0.8</a></li>
+<li><a href="#sec:testit-0-7">testit 0.7</a></li>
+<li><a href="#sec:testit-0-6">testit 0.6</a></li>
+<li><a href="#sec:testit-0-5">testit 0.5</a></li>
+<li><a href="#sec:testit-0-4">testit 0.4</a></li>
+<li><a href="#sec:testit-0-3">testit 0.3</a></li>
+<li><a href="#sec:testit-0-2-1">testit 0.2.1</a></li>
+<li><a href="#sec:testit-0-2">testit 0.2</a></li>
+<li><a href="#sec:testit-0-1">testit 0.1</a></li>
+</ul>
+</div>
+<h2 id="sec:testit-1-1" class="unnumbered">testit 1.1</h2>
+<h2 id="sec:testit-1-0" class="unnumbered">testit 1.0</h2>
+<ul>
+<li>
+<p><code>test_pkg()</code> now checks <code>commandArgs(TRUE)</code> for <code>--filter=PATTERN</code> and <code>--update</code> when the <code>filter</code> and <code>update</code> arguments are not explicitly provided. This allows you to run <code>Rscript tests/*.R --filter=PATTERN --update</code> without modifying individual <code>test_pkg()</code> calls.</p>
+</li>
+<li>
+<p>The <code>fact</code> argument of <code>assert()</code> now works with any character value, not just string literals. For example, <code>assert(paste('test', name), { ... })</code> and <code>assert(msg, { ... })</code> now work correctly.</p>
+</li>
+<li>
+<p><code>()</code> test conditions inside <code>assert('fact', { ... })</code> now work inside <code>if</code>, <code>for</code>, <code>while</code>, and <code>repeat</code> bodies. Previously only top-level <code>()</code> expressions in <code>{}</code> were checked. Only statement-level <code>()</code> is treated as a test; parentheses used for grouping within expressions (e.g., <code>(a + b) * c</code>) are not affected. The entire <code>{}</code> block is now evaluated in a single frame, so <code>on.exit()</code> works as expected inside <code>assert()</code>.</p>
+</li>
+<li>
+<p>Error messages from <code>assert()</code> and <code>test_pkg()</code> are no longer truncated by R’s <code>warning.length</code> option (default 1000 characters). Previously, when many test failures accumulated, the combined error message could exceed the limit and lose trailing failures (thanks, <a href="https://github.com/jdblischak">@jdblischak</a>, <a href="https://github.com/yihui/testit/issues/24">#24</a>).</p>
+</li>
+<li>
+<p><code>test_pkg()</code> gained a <code>filter</code> argument that takes a regular expression to selectively run a subset of test files (e.g., <code>test_pkg(filter = 'parse')</code> runs only files with “parse” in their names).</p>
+</li>
+<li>
+<p><code>test_pkg()</code> now runs all test files instead of stopping at the first failure. Errors are collected and reported together at the end, including multiple errors within a single file (thanks, <a href="https://github.com/jdblischak">@jdblischak</a>, <a href="https://github.com/yihui/testit/issues/19">#19</a>). The relative filename of each test is printed before execution.</p>
+</li>
+<li>
+<p><code>assert()</code> now includes the actual value of the failed expression in the error message, making it easier to diagnose assertion failures (e.g., <code>(x %==% y) is not TRUE but FALSE</code>).</p>
+</li>
+<li>
+<p><code>has_message()</code>, <code>has_warning()</code>, and <code>has_error()</code> gained a <code>message</code> argument for matching the condition message via <code>grepl()</code>, and <code>...</code> for passing additional arguments to <code>grepl()</code> (e.g., <code>fixed = TRUE</code>, <code>ignore.case = TRUE</code>).</p>
+</li>
+<li>
+<p>Added support for helper files in tests. Helper files matching <code>helper*.R</code> are sourced into a dedicated environment before tests run, and their objects are available to all tests and snapshots.</p>
+</li>
+<li>
+<p>Fixed a bug in <code>test_snaps()</code> where a code block without an output block would incorrectly claim a later output block (belonging to a subsequent code block) instead of inserting a new one.</p>
+</li>
+<li>
+<p><code>has_error()</code> is now always silent (no longer prints error messages to the console), and its <code>silent</code> argument has been removed.</p>
+</li>
+<li>
+<p><code>test_pkg()</code> now suppresses messages and warnings from test scripts, helper files, and snapshot code evaluation. Diagnostic output (diffs, error locations) is emitted via <code>message()</code> so it can be suppressed by callers if needed.</p>
+</li>
+<li>
+<p>Error messages now include precise source locations (file and line number). <code>assert()</code> reports the exact line of the failing sub-expression, and <code>test_pkg()</code> reports error locations in test scripts, helper files, and snapshot code blocks.</p>
+</li>
+<li>
+<p><code>test_pkg()</code> now installs the package to the system temp directory instead of a local <code>R-lib-*</code> folder, and fixes DLL cleanup on Windows so the temporary library can be properly removed (thanks, <a href="https://github.com/jdblischak">@jdblischak</a>, <a href="https://github.com/yihui/testit/issues/20">#20</a>).</p>
+</li>
+<li>
+<p><code>test_pkg()</code> no longer reinstalls the package unnecessarily when called multiple times in the same session. It compares source file modification times against the installed package timestamp to decide if reinstallation is needed.</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-18" class="unnumbered">testit 0.18</h2>
+<ul>
+<li>
+<p>Snapshot tests now support both <code>```r</code> and <code>```{r}</code> R code fences, and snapshot updates preserve the original fence style.</p>
+</li>
+<li>
+<p>Added and updated snapshot tests (including <code>mini_diff()</code> output snapshots) and refreshed snapshot testing documentation/examples.</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-17" class="unnumbered">testit 0.17</h2>
+<ul>
+<li>Made <code>test_pkg()</code> compatible with R &lt; 3.3.0 (again).</li>
+</ul>
+<h2 id="sec:testit-0-16" class="unnumbered">testit 0.16</h2>
+<ul>
+<li>Added support for snapshot testing with Markdown files; see <a href="https://pkg.yihui.org/testit/#snapshot-testing">https://pkg.yihui.org/testit/#snapshot-testing</a> for more information.</li>
+</ul>
+<h2 id="sec:testit-0-15" class="unnumbered">testit 0.15</h2>
+<ul>
+<li>
+<p>The error location reporting stopped working in the previous version and was fixed in this version.</p>
+</li>
+<li>
+<p>The error location will come with a clickable link on it if the environment supports ANSI links.</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-14" class="unnumbered">testit 0.14</h2>
+<ul>
+<li>
+<p><code>test_pkg()</code> is compatible with R &lt; 3.3.0 (if the function <code>.traceback()</code> is unavailable, the error location will not be printed).</p>
+</li>
+<li>
+<p>Re-licensed the package to MIT.</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-13" class="unnumbered">testit 0.13</h2>
+<ul>
+<li>The global option <code>options(testit.cleanup = TRUE)</code> (<code>TRUE</code> is the default) can be used to clean up additional files or directories generated in the <code>tests/</code> directory during the test process.</li>
+</ul>
+<h2 id="sec:testit-0-12" class="unnumbered">testit 0.12</h2>
+<ul>
+<li><code>test_pkg()</code> installs the package before running tests when it is called from a non-interactive R session that is not launched by <code>R CMD check</code>, e.g., when you run tests in RStudio via <code>Ctrl/Cmd + Shift + T</code>, so you will not have to install the package manually (<code>Ctrl/Cmd + Shift + B</code>) before running tests.</li>
+</ul>
+<h2 id="sec:testit-0-11" class="unnumbered">testit 0.11</h2>
+<ul>
+<li>The package license was changed from GPL to GPL-3 (@jayvdb <a href="https://github.com/yihui/testit/issues/8">#8</a>).</li>
+</ul>
+<h2 id="sec:testit-0-10" class="unnumbered">testit 0.10</h2>
+<ul>
+<li><code>test_pkg()</code> also looks for tests under the <code>tests/testit/</code> directory. This makes it easier for you to run <code>test_pkg()</code> under the root directory of the package, and you don’t need to change the working directory to <code>tests/</code>.</li>
+</ul>
+<h2 id="sec:testit-0-9" class="unnumbered">testit 0.9</h2>
+<ul>
+<li>Added a new argument <code>silent</code> to has_error() (thanks, <a href="https://github.com/StevenMMortimer">@StevenMMortimer</a>, <a href="https://github.com/yihui/testit/issues/6">#6</a>).</li>
+</ul>
+<h2 id="sec:testit-0-8" class="unnumbered">testit 0.8</h2>
+<ul>
+<li>When <code>%==%</code> is used inside assert(), a message will be printed if the value is not TRUE, to show the values of the LHS and RHS, respectively.</li>
+</ul>
+<h2 id="sec:testit-0-7" class="unnumbered">testit 0.7</h2>
+<ul>
+<li>provided an alternative way to write assertions of the form assert(‘fact’, {(condition_2); (condition_2)}); see ?testit::assert for more information</li>
+</ul>
+<h2 id="sec:testit-0-6" class="unnumbered">testit 0.6</h2>
+<ul>
+<li>
+<p>test_pkg() runs package tests with top-level environment being set to the namespace of the tested package (thanks, <a href="https://github.com/kalibera">@kalibera</a>, <a href="https://github.com/yihui/testit/issues/3">#3</a>)</p>
+</li>
+<li>
+<p>all test scripts (test-*.R) are assumed to be encoded in UTF-8 if they contain multibyte characters</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-5" class="unnumbered">testit 0.5</h2>
+<ul>
+<li>
+<p>added an infix operator <code>%==%</code> as an alias of identical() (in RStudio, you can use an add-in to insert the text <code>%==%</code>)</p>
+</li>
+<li>
+<p>test_pkg() will print out the filename of the R script that errored</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-4" class="unnumbered">testit 0.4</h2>
+<ul>
+<li>the <code>fact</code> argument of <code>assert()</code> is optional now: all arguments of <code>assert()</code> can be test conditions</li>
+</ul>
+<h2 id="sec:testit-0-3" class="unnumbered">testit 0.3</h2>
+<ul>
+<li>
+<p>the test files have to be named of the form test-<em>.R (or test-</em>.r), i.e. they have to use the prefix test-</p>
+</li>
+<li>
+<p>the test environment is always cleaned (all objects removed) before the next test is run</p>
+</li>
+</ul>
+<h2 id="sec:testit-0-2-1" class="unnumbered">testit 0.2.1</h2>
+<ul>
+<li>fixed a test that failed under R 2.15.x because the argument keep.source did not exist in parse()</li>
+</ul>
+<h2 id="sec:testit-0-2" class="unnumbered">testit 0.2</h2>
+<ul>
+<li>assert() does not use base::stopifnot() any more; a tailored version of stopifnot() is used now; see ?assert for the differences between this version and base::stopifnot(); in particular, assert(fact, logical(0)) will fail but stopifnot(logical(0)) will not</li>
+</ul>
+<h2 id="sec:testit-0-1" class="unnumbered">testit 0.1</h2>
+<ul>
+<li>
+<p>this is the first version of testit; the source code is hosted on Github: <a href="https://github.com/yihui/testit">https://github.com/yihui/testit</a></p>
+</li>
+<li>
+<p>added functions assert(), test_pkg(), has_error() and has_warning()</p>
+</li>
+</ul>
+</div>
+<footer><div class="flex-col">
+<p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v0.9.9</p>
+</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/appendix.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/copy-button.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/heading-anchor.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.44/js/pages.min.js" defer></script>
+</body>
+</html>
