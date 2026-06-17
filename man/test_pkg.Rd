@@ -43,7 +43,9 @@ snapshot tests. Other files in the directory are ignored (but you can
 
 Helper files named \code{helper*.R} (e.g., \code{helper.R}, \code{helper-utils.R}) are
 sourced before any test file runs. Objects defined in helpers are available
-to all tests.
+to all tests. Global helpers in the parent directory (e.g., \code{tests/helper.R})
+are sourced first, followed by helpers in the test subdirectory itself. This
+allows you to share common utilities across all test subdirectories.
 
 Each test file runs in a clean environment (previous test objects are
 removed), and the working directory is set to the directory containing the

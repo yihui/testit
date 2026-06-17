@@ -177,3 +177,30 @@ assert('helper functions are available in tests', {
   (is_true(1 == 1))
   (!is_true(1 == 2))
 })
+
+assert('global helpers from parent directory are sourced', {
+  d = tempfile()
+  dir.create(sub_dir <- file.path(d, 'testit'), recursive = TRUE)
+  # global helper in parent
+  writeLines('global_val = 42', file.path(d, 'helper-global.R'))
+  # local helper in subdir
+  writeLines('local_val = 99', file.path(sub_dir, 'helper-local.R'))
+  # test file that uses both helpers
+  writeLines(c(
+    'library(testit)',
+    'assert("globals and locals", {',
+    '  (identical(global_val, 42))',
+    '  (identical(local_val, 99))',
+    '})'
+  ), file.path(sub_dir, 'test-check.R'))
+  writeLines(c('Package: testit', 'Version: 0.0.1'), file.path(d, 'DESCRIPTION'))
+  owd = setwd(d); on.exit(setwd(owd))
+  # skip reinstall by faking R CMD check context
+  old_env = Sys.getenv('_R_CHECK_PACKAGE_NAME_', unset = NA)
+  Sys.setenv('_R_CHECK_PACKAGE_NAME_' = 'testit')
+  on.exit({
+    if (is.na(old_env)) Sys.unsetenv('_R_CHECK_PACKAGE_NAME_') else
+      Sys.setenv('_R_CHECK_PACKAGE_NAME_' = old_env)
+  }, add = TRUE)
+  (!has_error(test_pkg('testit', dir = 'testit')))
+})

@@ -168,7 +168,9 @@ trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 #'
 #' Helper files named `helper*.R` (e.g., `helper.R`, `helper-utils.R`) are
 #' sourced before any test file runs. Objects defined in helpers are available
-#' to all tests.
+#' to all tests. Global helpers in the parent directory (e.g., `tests/helper.R`)
+#' are sourced first, followed by helpers in the test subdirectory itself. This
+#' allows you to share common utilities across all test subdirectories.
 #'
 #' Each test file runs in a clean environment (previous test objects are
 #' removed), and the working directory is set to the directory containing the
@@ -260,6 +262,9 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     ms = ms[grep(filter, basename(ms))]
   }
   hs = fs[grep('^helper.*[.][rR]$', basename(fs))]
+  # prepend global helpers from the parent directory
+  pfs = list.files(dirname(path), full.names = TRUE)
+  hs = c(pfs[grep('^helper.*[.][rR]$', basename(pfs))], hs)
 
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)

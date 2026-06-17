@@ -1,5 +1,6 @@
 # CHANGES IN testit VERSION 1.1
 
+- `test_pkg()` now sources global helper files (`helper*.R`) from the parent directory of the test directory before sourcing helpers in the test subdirectory itself. This allows sharing common test utilities across multiple test subdirectories (e.g., `tests/testit/`, `tests/test-cran/`).
 
 # CHANGES IN testit VERSION 1.0
 
