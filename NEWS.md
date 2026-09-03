@@ -1,9 +1,8 @@
 # CHANGES IN testit VERSION 1.2
 
+- `test_pkg()` no longer reinstalls the package when it is run under `covr` (detected via the `R_COVR` environment variable), and installs the package at most once per session so that repeated `test_pkg()` calls (e.g. a CRAN suite plus a CI-only suite in `tests/test-all.R`) reuse the first install. Previously the reinstall clobbered `covr`'s instrumented build, breaking coverage with errors such as `undefined symbol: __gcov_merge_add` (#28).
 
 # CHANGES IN testit VERSION 1.1
-
-- `test_pkg()` no longer reinstalls the package when it is run under `covr` (detected via the `R_COVR` environment variable), and installs the package at most once per session so that repeated `test_pkg()` calls (e.g. a CRAN suite plus a CI-only suite in `tests/test-all.R`) reuse the first install. Previously the reinstall clobbered `covr`'s instrumented build, breaking coverage with errors such as `undefined symbol: __gcov_merge_add` (#28).
 
 - `test_pkg()` now sources global helper files (`helper*.R`) from the parent directory of the test directory before sourcing helpers in the test subdirectory itself. This allows sharing common test utilities across multiple test subdirectories (e.g., `tests/testit/`, `tests/test-cran/`).
 
