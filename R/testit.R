@@ -217,10 +217,16 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   if (missing(filter)) filter = args$filter
   if (missing(update)) update = args$update
   # install the source package before running tests when this function is called
-  # in a non-interactive R session that is not `R CMD check`
+  # in a non-interactive R session in which the package has not already been
+  # installed by a harness (`R CMD check` sets `_R_CHECK_PACKAGE_NAME_`, and
+  # covr installs an instrumented build and sets `R_COVR`; reinstalling would
+  # clobber it), and has not already been installed in this session by an
+  # earlier test_pkg() call (multiple calls should install at most once)
   pkg_root = if (file.exists('DESCRIPTION')) '.' else if (file.exists('../DESCRIPTION')) '..'
   install = !interactive() &&
     is.na(Sys.getenv('_R_CHECK_PACKAGE_NAME_', NA)) &&
+    is.na(Sys.getenv('R_COVR', NA)) &&
+    !(package %in% .env$installed) &&
     !is.null(pkg_root) && package == pkg_name() &&
     pkg_needs_install(pkg_root, package)
   if (install) {
@@ -241,6 +247,8 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
       .libPaths(c(lib_new, lib_old))
       if (!is.na(i <- match(paste0('package:', package), search())))
         detach(pos = i, unload = TRUE, force = TRUE)
+      # remember it so later test_pkg() calls in this session don't reinstall
+      .env$installed = c(.env$installed, package)
       'Done.'
     } else 'Failed.')
   }
