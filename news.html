@@ -24,6 +24,7 @@
 <div id="TOC">
 <ul>
 <li><a href="#sec:testit-1-2">testit 1.2</a></li>
+<li><a href="#sec:testit-1-1-2">testit 1.1.2</a></li>
 <li><a href="#sec:testit-1-1">testit 1.1</a></li>
 <li><a href="#sec:testit-1-0">testit 1.0</a></li>
 <li><a href="#sec:testit-0-18">testit 0.18</a></li>
@@ -48,6 +49,7 @@
 </ul>
 </div>
 <h2 id="sec:testit-1-2" class="unnumbered">testit 1.2</h2>
+<h2 id="sec:testit-1-1-2" class="unnumbered">testit 1.1.2</h2>
 <ul>
 <li><code>test_pkg()</code> no longer reinstalls the package when it is run under <code>covr</code> (detected via the <code>R_COVR</code> environment variable), and installs the package at most once per session so that repeated <code>test_pkg()</code> calls (e.g. a CRAN suite plus a CI-only suite in <code>tests/test-all.R</code>) reuse the first install. Previously the reinstall clobbered <code>covr</code>’s instrumented build, breaking coverage with errors such as <code>undefined symbol: __gcov_merge_add</code> (#28).</li>
 </ul>
