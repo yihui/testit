@@ -68,6 +68,15 @@ assert('() works inside control structures', {
   (has_error(assert('for body', { for (i in 1) (i == 0) }), 'i == 0'))
 })
 
+assert('() works inside a {} block passed as a function argument', {
+  # a passing check inside a call-argument block does not error
+  identity({ (1 == 1) })
+  # and a failing one is actually checked (previously it was silently ignored)
+  (has_error(assert('call-arg block', { identity({ (1 == 2) }) }), '1 == 2'))
+  # also for a namespaced call head, and nested control flow inside the block
+  (has_error(assert('nested', { local({ for (i in 1) (i == 0) }) }), 'i == 0'))
+})
+
 assert('assert() handles non-symbol call heads (e.g., obj$method())', {
   env = list2env(list(x = 1))
   # $ calls and [[ calls should not confuse the AST walker
