@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="generator" content="litedown 0.11.3">
+<meta name="generator" content="litedown 0.11.4">
 <title>News</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/css/default.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/css/article.min.css">
@@ -49,6 +49,9 @@
 </ul>
 </div>
 <h2 id="sec:testit-1-2" class="unnumbered">testit 1.2</h2>
+<ul>
+<li><code>()</code> test conditions inside <code>assert('fact', { ... })</code> now also work inside a <code>{}</code> block passed as an argument to a function call, e.g. <code>xfun::in_dir(dir, { (x %==% y) })</code>. Previously such <code>()</code> expressions were silently treated as ordinary grouping parentheses and never checked, so a failing condition inside the block would not fail the test. As before, only statement-level <code>()</code> is treated as a test; parentheses used for grouping within an expression (e.g., <code>(a + b) * c</code>) are not affected.</li>
+</ul>
 <h2 id="sec:testit-1-1-2" class="unnumbered">testit 1.1.2</h2>
 <ul>
 <li><code>test_pkg()</code> no longer reinstalls the package when it is run under <code>covr</code> (detected via the <code>R_COVR</code> environment variable), and installs the package at most once per session so that repeated <code>test_pkg()</code> calls (e.g. a CRAN suite plus a CI-only suite in <code>tests/test-all.R</code>) reuse the first install. Previously the reinstall clobbered <code>covr</code>’s instrumented build, breaking coverage with errors such as <code>undefined symbol: __gcov_merge_add</code> (#28).</li>
@@ -219,7 +222,7 @@
 </div>
 <footer><div class="flex-col">
 <p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
-<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v0.11.3</p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v0.11.4</p>
 </div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/js/sidenotes.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/js/appendix.min.js" defer></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="generator" content="litedown 0.11.3">
+<meta name="generator" content="litedown 0.11.4">
 <title>Help pages</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/css/default.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/css/article.min.css">
@@ -96,10 +96,11 @@ and must be <code>TRUE</code>. Parentheses used for grouping within a larger exp
 are ordinary R code (e.g., variable assignments or setup steps) and are never
 checked.
 </p>
-<p><code>()</code> tests work inside <code>if</code>, <code>for</code>, <code>while</code>, and <code>repeat</code> bodies. Internally,
-<code>assert()</code> walks the expression tree and transforms statement-level <code>()</code> into
-checks before evaluating the entire block in one frame (so <code>on.exit()</code> works
-as expected).
+<p><code>()</code> tests work inside <code>if</code>, <code>for</code>, <code>while</code>, and <code>repeat</code> bodies, as well as
+inside a <code>{}</code> block passed as an argument to a function call (e.g.
+<code>xfun::in_dir(dir, { ... })</code>). Internally, <code>assert()</code> walks the expression
+tree and transforms statement-level <code>()</code> into checks before evaluating the
+entire block in one frame (so <code>on.exit()</code> works as expected).
 </p>
 <h3 id="sec:value_1" class="unnumbered unlisted">Value</h3>
 <p>Invisible <code>NULL</code> if all conditions pass. If any condition fails, an
@@ -307,7 +308,7 @@ test_pkg('testit')
 </div>
 <footer><div class="flex-col">
 <p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
-<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v0.11.3</p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v0.11.4</p>
 </div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/js/sidenotes.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/js/appendix.min.js" defer></script>
