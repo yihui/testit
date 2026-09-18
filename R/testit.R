@@ -13,10 +13,11 @@
 #' are ordinary R code (e.g., variable assignments or setup steps) and are never
 #' checked.
 #'
-#' `()` tests work inside `if`, `for`, `while`, and `repeat` bodies. Internally,
-#' `assert()` walks the expression tree and transforms statement-level `()` into
-#' checks before evaluating the entire block in one frame (so `on.exit()` works
-#' as expected).
+#' `()` tests work inside `if`, `for`, `while`, and `repeat` bodies, as well as
+#' inside a `{}` block passed as an argument to a function call (e.g.
+#' `xfun::in_dir(dir, { ... })`). Internally, `assert()` walks the expression
+#' tree and transforms statement-level `()` into checks before evaluating the
+#' entire block in one frame (so `on.exit()` works as expected).
 #' @param fact A character string describing what is being tested. This message
 #'   is shown when an assertion fails, so make it descriptive (e.g., `'log()
 #'   returns correct values'`). If `fact` is not a character string, it is
@@ -75,9 +76,17 @@ transform_assert = function(expr) {
     expr[[1]] = as.symbol('.testit_check')
   } else if (identical(head, as.symbol('{'))) {
     for (i in seq_along(expr)[-1]) expr[[i]] = transform_assert(expr[[i]])
-  } else if (is.symbol(head)) {
-    for (i in intersect(.assert_body_idx[[as.character(head)]], seq_along(expr)))
-      expr[[i]] = transform_assert(expr[[i]])
+  } else {
+    if (is.symbol(head))
+      for (i in intersect(.assert_body_idx[[as.character(head)]], seq_along(expr)))
+        expr[[i]] = transform_assert(expr[[i]])
+    # a `{ }` block passed as an argument to any function (e.g. in_dir(dir, {
+    # ... })) is still a sequence of statements, so recurse into it to find
+    # `()` checks
+    for (i in seq_along(expr)[-1]) {
+      a = expr[[i]]
+      if (is.call(a) && identical(a[[1]], as.symbol('{'))) expr[[i]] = transform_assert(a)
+    }
   }
   expr
 }

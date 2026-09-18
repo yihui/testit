@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 1.2
 
+- `()` test conditions inside `assert('fact', { ... })` now also work inside a `{}` block passed as an argument to a function call, e.g. `xfun::in_dir(dir, { (x %==% y) })`. Previously such `()` expressions were silently treated as ordinary grouping parentheses and never checked, so a failing condition inside the block would not fail the test. As before, only statement-level `()` is treated as a test; parentheses used for grouping within an expression (e.g., `(a + b) * c`) are not affected.
+
 
 # CHANGES IN testit VERSION 1.1.2
 

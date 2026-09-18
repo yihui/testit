@@ -44,10 +44,11 @@ and must be \code{TRUE}. Parentheses used for grouping within a larger expressio
 are ordinary R code (e.g., variable assignments or setup steps) and are never
 checked.
 
-\verb{()} tests work inside \code{if}, \code{for}, \code{while}, and \code{repeat} bodies. Internally,
-\code{assert()} walks the expression tree and transforms statement-level \verb{()} into
-checks before evaluating the entire block in one frame (so \code{on.exit()} works
-as expected).
+\verb{()} tests work inside \code{if}, \code{for}, \code{while}, and \code{repeat} bodies, as well as
+inside a \code{{}} block passed as an argument to a function call (e.g.
+\code{xfun::in_dir(dir, { ... })}). Internally, \code{assert()} walks the expression
+tree and transforms statement-level \verb{()} into checks before evaluating the
+entire block in one frame (so \code{on.exit()} works as expected).
 }
 \note{
 Key differences from \code{\link[=stopifnot]{stopifnot()}}:
