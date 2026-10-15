@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 1.3
 
+- Removed support for sourcing global `helper*.R` files placed directly in the parent of the test directory (e.g., `tests/helper.R`). Put shared helpers in a sibling `helpers/` directory (e.g., `tests/helpers/`) instead.
+
 
 # CHANGES IN testit VERSION 1.2
 

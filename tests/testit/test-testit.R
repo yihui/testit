@@ -250,10 +250,11 @@ assert('helper functions are available in tests', {
   (!is_true(1 == 2))
 })
 
-assert('global helpers are sourced before tests (helpers/ dir and legacy)', {
+assert('global helpers are sourced from the helpers/ directory only', {
   # build a package tree with a global helper (in `global_dir/global_file`) and
-  # a local helper, plus a test that relies on both; then run test_pkg() on it
-  run_case = function(global_dir, global_file) {
+  # a local helper, plus a test that checks whether the global helper was
+  # sourced (`found`) and that the local helper always is; run test_pkg() on it
+  run_case = function(global_dir, global_file, found) {
     d = tempfile()
     dir.create(sub_dir <- file.path(d, 'testit'), recursive = TRUE)
     gdir = file.path(d, global_dir)
@@ -263,7 +264,7 @@ assert('global helpers are sourced before tests (helpers/ dir and legacy)', {
     writeLines(c(
       'library(testit)',
       'assert("globals and locals", {',
-      '  (identical(global_val, 42))',
+      if (found) '  (identical(global_val, 42))' else '  (!exists("global_val"))',
       '  (identical(local_val, 99))',
       '})'
     ), file.path(sub_dir, 'test-check.R'))
@@ -278,8 +279,8 @@ assert('global helpers are sourced before tests (helpers/ dir and legacy)', {
     }, add = TRUE)
     test_pkg('testit', dir = 'testit')
   }
-  # the sibling helpers/ directory (any .R name)
-  (!has_error(run_case('helpers', 'globals.R')))
-  # legacy helper*.R directly in the parent directory is still sourced
-  (!has_error(run_case('.', 'helper-global.R')))
+  # global helpers in the sibling helpers/ directory are sourced (any .R name)
+  (!has_error(run_case('helpers', 'globals.R', TRUE)))
+  # helper*.R directly in the parent directory is no longer sourced
+  (!has_error(run_case('.', 'helper-global.R', FALSE)))
 })

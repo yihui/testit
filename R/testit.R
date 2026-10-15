@@ -299,10 +299,7 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   gs = list.files(
     file.path(dirname(path), 'helpers'), '[.][rR]$', full.names = TRUE
   )
-  # also still source legacy global helper*.R from the parent directory, kept
-  # for backward compatibility (to be removed in a future version)
-  pfs = list.files(dirname(path), '^helper.*[.][rR]$', full.names = TRUE)
-  hs = c(gs, pfs, hs)
+  hs = c(gs, hs)
 
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)
