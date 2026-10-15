@@ -1,3 +1,6 @@
+# CHANGES IN testit VERSION 1.3
+
+
 # CHANGES IN testit VERSION 1.2
 
 - Global test helpers shared across subdirectories can be placed in a sibling `helpers/` directory (e.g., `tests/helpers/`), where all `.R` files are sourced before any test runs.
