@@ -22,10 +22,10 @@ stop_errs = function(msgs, check = TRUE) {
 
 # trigger %==% diagnostics and return the collected info (for testing)
 equ_info = function(x, y) {
-  .env$equ_info = NULL
+  .env$diag = NULL
   op = options(testit.asserting = TRUE); on.exit(options(op))
   x %==% y
-  .env$equ_info
+  .env$diag
 }
 
 # base::startsWith() requires R >= 3.3

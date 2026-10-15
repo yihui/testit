@@ -93,14 +93,18 @@ transform_assert = function(expr) {
 
 assert_exec = function(fact, expr, envir) {
   errs = NULL
-  .env$equ_info = NULL
-  on.exit(.env$equ_info <- NULL, add = TRUE)
+  .env$diag = NULL
+  on.exit(.env$diag <- NULL, add = TRUE)
   e = new.env(parent = envir)
   e[['.testit_check']] = function(val) {
+    # discard diagnostics produced before this check (e.g. by a bare statement,
+    # or by a negated comparison whose result was consumed into a pass); only
+    # diagnostics stashed while forcing `val` below belong to this check
+    .env$diag = NULL
     if (!all_true(val)) {
       sc = sys.call()
       ec = sc[[2]]
-      info = if (length(.env$equ_info)) one_string(.env$equ_info)
+      info = if (length(.env$diag)) one_string(.env$diag)
       sr = attr(sc, 'srcref')
       loc = if (!is.null(sr)) error_loc(attr(sr, 'srcfile')$filename, sr[1])
       errs <<- c(errs, paste0(one_string(c(info, sprintf(
@@ -108,7 +112,7 @@ assert_exec = function(fact, expr, envir) {
         deparse_key(ec)
       ))), ' but ', deparse_one(val), loc))
     }
-    .env$equ_info = NULL
+    .env$diag = NULL
     val
   }
   eval(expr, envir = e)
@@ -138,28 +142,38 @@ assert_exec = function(fact, expr, envir) {
 #' @import utils
 #' @export
 `%==%` = function(x, y) {
-  res = identical(x, y)
-  if (!res && getOption('testit.asserting', FALSE)) {
-    mc = match.call()
-    sx = capture.output(str(x)); sy = capture.output(str(y))
-    nx = length(sx); ny = length(sy)
-    dx = deparse_key(mc[[2]]); dy = deparse_key(mc[[3]])
-    show_diff = (nx + ny > 10L) && length(d <- mini_diff(sx, sy, 50L))
-    info = one_string(if (show_diff) {
-      c('Structure diff:', paste(dx, '(- LHS) vs', dy, '(+ RHS):'), d)
-    } else {
-      sx = trunc_vec(sx, 10L, nx); sy = trunc_vec(sy, 10L, ny)
-      c(paste(dx, '(LHS) ==>'), sx, '----------', sy, paste('<== (RHS)', dy))
-    })
-    # show deparse diff only when str() is uninformative (identical for both)
-    if (identical(sx, sy)) {
-      diff = deparse_diff(x, y)
-      if (length(diff))
-        info = one_string(c(info, '', 'Detailed diff (- LHS, + RHS):', diff))
-    }
-    .env$equ_info = c(.env$equ_info, info)
-  }
+  mc = match.call()
+  add_diag(identical(x, y), equ_diag(x, y, mc[[2]], mc[[3]]))
+}
+
+# record a diagnostic for a failed check (only while asserting) and return the
+# result. `info` is lazily evaluated, so the (possibly expensive) message is
+# built only when it is actually recorded.
+add_diag = function(res, info) {
+  if (!res && getOption('testit.asserting', FALSE))
+    .env$diag = c(.env$diag, one_string(info))
   res
+}
+
+# build the diagnostic message (a character vector) for a failed `%==%`, where
+# `ex`/`ey` are the unevaluated LHS/RHS expressions
+equ_diag = function(x, y, ex, ey) {
+  sx = capture.output(str(x)); sy = capture.output(str(y))
+  nx = length(sx); ny = length(sy)
+  dx = deparse_key(ex); dy = deparse_key(ey)
+  show_diff = (nx + ny > 10L) && length(d <- mini_diff(sx, sy, 50L))
+  info = if (show_diff) {
+    c('Structure diff:', paste(dx, '(- LHS) vs', dy, '(+ RHS):'), d)
+  } else {
+    sx = trunc_vec(sx, 10L, nx); sy = trunc_vec(sy, 10L, ny)
+    c(paste(dx, '(LHS) ==>'), sx, '----------', sy, paste('<== (RHS)', dy))
+  }
+  # show deparse diff only when str() is uninformative (identical for both)
+  if (identical(sx, sy)) {
+    diff = deparse_diff(x, y)
+    if (length(diff)) info = c(info, '', 'Detailed diff (- LHS, + RHS):', diff)
+  }
+  info
 }
 
 trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
@@ -407,6 +421,50 @@ match_cond = function(text, message, ...) {
 grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
   if (ignore.case && fixed) fixed = FALSE
   grepl(..., fixed = fixed, ignore.case = ignore.case)
+}
+
+#' Test whether a string matches a regular expression
+#'
+#' Check whether `x` matches the regular expression `pattern`. This is intended
+#' for use inside [assert()]: unlike [grepl()], which only returns
+#' `TRUE`/`FALSE` and hides the input on failure, a failing `has_match()` shows
+#' the actual string so you can see what was produced.
+#' @param x A character vector. Multiple elements are collapsed into a single
+#'   string (separated by newlines) before matching.
+#' @param pattern A regular expression. By default, matching uses Perl mode with
+#'   the "dotall" flag enabled, so `.` also matches newlines, which is
+#'   convenient for searching multi-line text such as rendered HTML.
+#' @param negate If `TRUE`, test that `x` does *not* match `pattern`. Prefer
+#'   this over negating with `!` (e.g. `!has_match(x, p)`), since `negate` also
+#'   makes the failure message show `x`.
+#' @param perl Whether to use Perl-compatible regular expressions (which also
+#'   enables the dotall flag).
+#' @param ... Additional arguments passed to [grepl()] (e.g.,
+#'   `ignore.case = TRUE`).
+#' @return `TRUE` if `x` matches `pattern` (or does not match it when
+#'   `negate = TRUE`), otherwise `FALSE`.
+#' @export
+#' @examples
+#' library(testit)
+#' assert('the page has a script but no style', {
+#'   html = '<html>\n<script>x</script>\n</html>'
+#'   (has_match(html, '<script>.*</script>'))
+#'   (has_match(html, '<style>', negate = TRUE))
+#' })
+has_match = function(x, pattern, negate = FALSE, perl = TRUE, ...) {
+  s = one_string(x)
+  # enable dotall in Perl mode so `.` also matches newlines
+  p = if (isTRUE(perl)) paste0('(?s)', pattern) else pattern
+  res = xor(grepl(p, s, perl = perl, ...), negate)
+  add_diag(res, match_diag(s, pattern, negate))
+}
+
+# build the diagnostic message (a character vector) for a failed has_match()
+match_diag = function(s, pattern, negate) {
+  c(sprintf(
+    'Pattern "%s" %s the string:', pattern,
+    if (negate) 'unexpectedly matched' else 'did not match'
+  ), s)
 }
 
 quietly = function(expr) {

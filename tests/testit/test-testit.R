@@ -100,6 +100,69 @@ assert('%==% emits diagnostic info on failure inside assert()', {
   (grepl('not TRUE but FALSE', msg))
 })
 
+assert('has_match() tests whether a string matches a regular expression', {
+  (has_match('hello world', 'wor'))
+  (!has_match('hello world', 'xyz'))
+  # character vectors are collapsed with newlines before matching
+  (has_match(c('a', 'b'), 'a\nb'))
+  # dotall is on by default so . matches newlines
+  (has_match(c('<a>', '<b>'), '<a>.*<b>'))
+  # negate inverts the result
+  (has_match('hello', 'xyz', negate = TRUE))
+  (!has_match('hello', 'ell', negate = TRUE))
+  # ... is passed to grepl()
+  (has_match('HELLO', 'hello', ignore.case = TRUE))
+  (!has_match('HELLO', 'hello'))
+})
+
+assert('has_match() shows the actual string in diagnostics on failure', {
+  msg = tryCatch(
+    assert('check has_match message', { (has_match('abc', 'xyz')) }),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('did not match', msg))
+  (grepl('abc', msg))
+  # negate failure (unexpected match) also shows the string
+  msg2 = tryCatch(
+    assert('check negate message', { (has_match('abc', 'abc', negate = TRUE)) }),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('unexpectedly matched', msg2))
+  (grepl('abc', msg2))
+})
+
+assert('has_match() shows the full string, not a truncated version', {
+  x = paste(sprintf('line %d', 1:30), collapse = '\n')
+  msg = tryCatch(
+    assert('long string', { (has_match(x, 'nomatch')) }),
+    error = function(e) conditionMessage(e)
+  )
+  (grepl('line 1\n', msg))
+  (grepl('line 30', msg))  # last line is present, i.e. not truncated
+})
+
+assert('diagnostics do not leak from a passed check into a later failing one', {
+  # a passed negated test (via !) stashes a bogus diagnostic; it must not show
+  # up in the next failing check's message
+  msg = tryCatch(
+    assert('leak', {
+      (!has_match('abc', 'zzz'))  # passes; stashes "zzz did not match"
+      (1 %==% 2)                  # fails; should not mention zzz
+    }),
+    error = function(e) conditionMessage(e)
+  )
+  (!grepl('zzz', msg))
+  # a bare has_match() statement must not leak into a later check either
+  msg2 = tryCatch(
+    assert('bare leak', {
+      found = has_match('abc', 'zzz')
+      (1 %==% 2)
+    }),
+    error = function(e) conditionMessage(e)
+  )
+  (!grepl('zzz', msg2))
+})
+
 assert('error_loc() returns NULL for empty input', {
   (error_loc(character(0)) %==% NULL)
 })

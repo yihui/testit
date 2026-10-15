@@ -1,5 +1,9 @@
 # CHANGES IN testit VERSION 1.2
 
+- Added `has_match()` to test whether a string matches a regular expression. Unlike `grepl()`, it collapses a character vector into a single string, enables the dotall flag by default (so `.` also matches newlines), and shows the actual string in the failure message when used inside `assert()`. Use `negate = TRUE` to test that a string does *not* match.
+
+- Fixed a bug where diagnostic information from a comparison (such as `%==%`) that did not itself cause a test failure could leak into the failure message of a later check. Diagnostics are now scoped to the `()` check being evaluated.
+
 - `()` test conditions inside `assert('fact', { ... })` now also work inside a `{}` block passed as an argument to a function call, e.g. `xfun::in_dir(dir, { (x %==% y) })`. Previously such `()` expressions were silently treated as ordinary grouping parentheses and never checked, so a failing condition inside the block would not fail the test. As before, only statement-level `()` is treated as a test; parentheses used for grouping within an expression (e.g., `(a + b) * c`) are not affected.
 
 
