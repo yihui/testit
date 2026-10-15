@@ -41,11 +41,12 @@ default. Files must be named \verb{test-*.R} for regular tests or \verb{test-*.m
 snapshot tests. Other files in the directory are ignored (but you can
 \code{\link[=source]{source()}} them from your tests if needed).
 
-Helper files named \code{helper*.R} (e.g., \code{helper.R}, \code{helper-utils.R}) are
-sourced before any test file runs. Objects defined in helpers are available
-to all tests. Global helpers in the parent directory (e.g., \code{tests/helper.R})
-are sourced first, followed by helpers in the test subdirectory itself. This
-allows you to share common utilities across all test subdirectories.
+Helper files named \code{helper*.R} (e.g., \code{helper.R}, \code{helper-utils.R}) in the
+test directory are sourced before any test file runs. Objects defined in
+helpers are available to all tests. To share helpers across multiple test
+subdirectories, put them in a sibling \verb{helpers/} directory (e.g.,
+\verb{tests/helpers/}); all \code{.R} files there are sourced first, before the test
+subdirectory's own helpers.
 
 Each test file runs in a clean environment (previous test objects are
 removed), and the working directory is set to the directory containing the

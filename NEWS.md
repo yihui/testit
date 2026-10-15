@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 1.2
 
+- Global test helpers shared across subdirectories can be placed in a sibling `helpers/` directory (e.g., `tests/helpers/`), where all `.R` files are sourced before any test runs.
+
 - Added `has_match()` to test whether a string matches a regular expression. Unlike `grepl()`, it collapses a character vector into a single string, enables the dotall flag by default (so `.` also matches newlines), and shows the actual string in the failure message when used inside `assert()`. Use `negate = TRUE` to test that a string does *not* match.
 
 - Fixed a bug where diagnostic information from a comparison (such as `%==%`) that did not itself cause a test failure could leak into the failure message of a later check. Diagnostics are now scoped to the `()` check being evaluated.

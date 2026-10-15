@@ -189,11 +189,12 @@ trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 #' snapshot tests. Other files in the directory are ignored (but you can
 #' [source()] them from your tests if needed).
 #'
-#' Helper files named `helper*.R` (e.g., `helper.R`, `helper-utils.R`) are
-#' sourced before any test file runs. Objects defined in helpers are available
-#' to all tests. Global helpers in the parent directory (e.g., `tests/helper.R`)
-#' are sourced first, followed by helpers in the test subdirectory itself. This
-#' allows you to share common utilities across all test subdirectories.
+#' Helper files named `helper*.R` (e.g., `helper.R`, `helper-utils.R`) in the
+#' test directory are sourced before any test file runs. Objects defined in
+#' helpers are available to all tests. To share helpers across multiple test
+#' subdirectories, put them in a sibling `helpers/` directory (e.g.,
+#' `tests/helpers/`); all `.R` files there are sourced first, before the test
+#' subdirectory's own helpers.
 #'
 #' Each test file runs in a clean environment (previous test objects are
 #' removed), and the working directory is set to the directory containing the
@@ -293,9 +294,15 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
     ms = ms[grep(filter, basename(ms))]
   }
   hs = fs[grep('^helper.*[.][rR]$', basename(fs))]
-  # prepend global helpers from the parent directory
-  pfs = list.files(dirname(path), full.names = TRUE)
-  hs = c(pfs[grep('^helper.*[.][rR]$', basename(pfs))], hs)
+  # global helpers shared across test subdirectories: all `.R` files in the
+  # sibling `helpers/` directory
+  gs = list.files(
+    file.path(dirname(path), 'helpers'), '[.][rR]$', full.names = TRUE
+  )
+  # also still source legacy global helper*.R from the parent directory, kept
+  # for backward compatibility (to be removed in a future version)
+  pfs = list.files(dirname(path), '^helper.*[.][rR]$', full.names = TRUE)
+  hs = c(gs, pfs, hs)
 
   # source helpers into a dedicated environment; tests inherit from it
   ns = getNamespace(package)

@@ -157,10 +157,10 @@ If you have shared setup code, put it in files named `helper*.R` (e.g.,
 `helper.R`, `helper-utils.R`) in the same test directory. They are sourced
 before any test file runs.
 
-Global helpers in the parent directory (e.g., `tests/helper.R`) are also
-sourced -- before the subdirectory-level helpers. This is useful when you have
-multiple test subdirectories (e.g., `tests/testit/`, `tests/test-cran/`) and
-want to share common utilities across all of them.
+To share helpers across multiple test subdirectories (e.g., `tests/testit/`,
+`tests/test-cran/`), put them in a sibling `helpers/` directory (e.g.,
+`tests/helpers/`). All `.R` files there are sourced first, before the
+subdirectory-level helpers.
 
 ### Accessing internal functions
 
