@@ -71,14 +71,10 @@ assert('expectation message', {
 10. **US spelling**: Use US spelling throughout all documentation, code
     comments, and example text (e.g., "color" not "colour", "center" not
     "centre", "summarize" not "summarise").
-11. **DRY (Don't Repeat Yourself)**: Never duplicate code. When the same logic
-    appears more than once, factor it into a shared helper function. This
-    applies to expressions, patterns, and multi-line blocks alike.
 
 ### Git workflow
 
-1.  **Never force push** unless explicitly told to.
-2.  **Never create a new branch or PR** without confirming with the user first.
+1.  **Never create a new branch or PR** without confirming with the user first.
 
 ### Check list
 
@@ -90,26 +86,17 @@ Always send a pull request, unless you are told otherwise. For each PR:
     catch regressions and errors.
 2.  **Always re-roxygenize**: Run `roxygen2::roxygenize()` after changing any
     roxygen documentation to update man files
-3.  **MANDATORY: `R CMD check` before `git push`**: You MUST run a comprehensive
-    `R CMD check` successfully before submitting ANY code changes.
-4.  **MANDATORY: Wait for CI to be green**: After pushing code, you MUST wait
-    for GitHub Actions CI to complete successfully before claiming the task is
-    done. Do not wait more than 5 minutes for any single CI job; if it hasn't
-    finished, skip it and continue your work. Fix problems in CI as soon as any
-    job has failed instead of waiting for all jobs to finish.
-5.  **MANDATORY: Merge latest main before pushing**: Before pushing to a branch
+3.  **MANDATORY: Merge latest main before pushing**: Before pushing to a branch
     or PR, always pull and merge the latest main branch. If there are merge
     conflicts, resolve them before pushing.
-6.  **Bump version in PRs**: Bump the patch version number in DESCRIPTION once
+4.  **Bump version in PRs**: Bump the patch version number in DESCRIPTION once
     per PR (on the first commit or when you first make changes), not on every
     commit to the PR
-7.  **Never commit irrelevant files**: Don't run `git add .` blindly, as that
-    might add irrelevant files such as generated output or other artifacts. In
-    particular, after building/checking the package, clean up these possible
-    generated artifacts: `rm -rf *.tar.gz *.Rcheck/ tests/R-lib-*`. Only add the
-    ones you modified or created explicitly. Normally changes generated
-    automatically by roxygen2 are the only exception (they should be committed).
-8.  **Update NEWS.md**: When making changes, make sure to update `NEWS.md`
+5.  **Clean up build artifacts**: After building/checking the package, remove
+    generated artifacts: `rm -rf *.tar.gz *.Rcheck/ tests/R-lib-*`. Add only
+    files you modified or created explicitly (roxygen2-generated man files are
+    the expected exception — commit them).
+6.  **Update NEWS.md**: When making changes, make sure to update `NEWS.md`
     accordingly to document what changed. The first heading in NEWS.md always
     represents the dev version and must be of the form `# PKG x.y` where PKG is
     the package name and x.y is the next version to be released to CRAN (note:
