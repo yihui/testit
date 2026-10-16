@@ -439,9 +439,10 @@ grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
 #'   the "dotall" flag enabled, so `.` also matches newlines, which is
 #'   convenient for searching multi-line text such as rendered HTML. Wrap the
 #'   pattern in [I()] to match it literally, as a shorthand for `fixed = TRUE`.
-#' @param negate If `TRUE`, test that `x` does *not* match `pattern`. Prefer
-#'   this over negating with `!` (e.g. `!has_match(x, p)`), since `negate` also
-#'   makes the failure message show `x`.
+#' @param negate If `TRUE`, test that `x` does *not* match `pattern`. As a
+#'   shorthand, negating the pattern itself (`has_match(x, !pattern)`) sets this
+#'   to `TRUE`. Prefer either form over negating the whole call (`!has_match(x,
+#'   p)`), since `negate` also makes the failure message show `x`.
 #' @param fixed Whether to match `pattern` literally instead of as a regular
 #'   expression. Defaults to `TRUE` when `pattern` is wrapped in [I()], so
 #'   `has_match(x, I(p))` is a shorthand for `has_match(x, p, fixed = TRUE)`.
@@ -459,10 +460,18 @@ grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
 #'   html = '<html>\n<script>x</script>\n</html>'
 #'   (has_match(html, '<script>.*</script>'))
 #'   (has_match(html, '<style>', negate = TRUE))
+#'   (has_match(html, !'<style>'))  # same, via the !pattern shorthand
 #'   (has_match(html, I('<script>x</script>')))  # literal match (fixed = TRUE)
 #' })
 has_match = function(x, pattern, negate = FALSE, fixed = inherits(pattern, 'AsIs'),
                      perl = !fixed, ...) {
+  # !pattern is shorthand for negate = TRUE; capture it before `pattern` is
+  # evaluated, so `!` is never actually applied to a string (which would error)
+  e = substitute(pattern)
+  if (is.call(e) && e[[1]] == '!') {
+    negate = !negate
+    pattern = eval.parent(e[[2]])
+  }
   s = one_string(x)
   # enable dotall in Perl mode so `.` also matches newlines (a fixed search,
   # e.g. from I(pattern), uses neither Perl mode nor dotall)

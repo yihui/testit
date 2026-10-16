@@ -6,6 +6,8 @@
 
 - `has_match()` treats a `pattern` wrapped in `I()` as a shorthand for `fixed = TRUE`, i.e. `has_match(x, I(p))` matches `p` literally.
 
+- `has_match()` accepts `!pattern` as a shorthand for `negate = TRUE`, i.e. `has_match(x, !p)` tests that `x` does not match `p`.
+
 # CHANGES IN testit VERSION 1.2
 
 - Global test helpers shared across subdirectories can be placed in a sibling `helpers/` directory (e.g., `tests/helpers/`), where all `.R` files are sourced before any test runs.

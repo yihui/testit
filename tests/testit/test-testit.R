@@ -110,6 +110,11 @@ assert('has_match() tests whether a string matches a regular expression', {
   # negate inverts the result
   (has_match('hello', 'xyz', negate = TRUE))
   (!has_match('hello', 'ell', negate = TRUE))
+  # !pattern is shorthand for negate = TRUE (works on a literal, variable, or
+  # I()-wrapped pattern, and composes with the fixed/I() shorthand)
+  (has_match('hello', !'xyz'))
+  (!has_match('hello', !'ell'))
+  (has_match('axbc', !I('.[b]')))
   # ... is passed to grepl()
   (has_match('HELLO', 'hello', ignore.case = TRUE))
   (!has_match('HELLO', 'hello'))

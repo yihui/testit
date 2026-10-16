@@ -22,9 +22,9 @@ the "dotall" flag enabled, so \code{.} also matches newlines, which is
 convenient for searching multi-line text such as rendered HTML. Wrap the
 pattern in \code{\link[=I]{I()}} to match it literally, as a shorthand for \code{fixed = TRUE}.}
 
-\item{negate}{If \code{TRUE}, test that \code{x} does \emph{not} match \code{pattern}. Prefer
-this over negating with \code{!} (e.g. \code{!has_match(x, p)}), since \code{negate} also
-makes the failure message show \code{x}.}
+\item{negate}{If \code{TRUE}, test that \code{x} does \emph{not} match \code{pattern}. As a
+shorthand, negating the pattern itself (\code{has_match(x, !pattern)}) sets this
+to \code{TRUE}. Prefer either form over negating the whole call (\code{!has_match(x, p)}), since \code{negate} also makes the failure message show \code{x}.}
 
 \item{fixed}{Whether to match \code{pattern} literally instead of as a regular
 expression. Defaults to \code{TRUE} when \code{pattern} is wrapped in \code{\link[=I]{I()}}, so
@@ -53,6 +53,7 @@ assert('the page has a script but no style', {
   html = '<html>\n<script>x</script>\n</html>'
   (has_match(html, '<script>.*</script>'))
   (has_match(html, '<style>', negate = TRUE))
+  (has_match(html, !'<style>'))  # same, via the !pattern shorthand
   (has_match(html, I('<script>x</script>')))  # literal match (fixed = TRUE)
 })
 }
