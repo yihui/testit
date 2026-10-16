@@ -441,8 +441,11 @@ grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
 #' @param negate If `TRUE`, test that `x` does *not* match `pattern`. Prefer
 #'   this over negating with `!` (e.g. `!has_match(x, p)`), since `negate` also
 #'   makes the failure message show `x`.
+#' @param fixed Whether to match `pattern` literally instead of as a regular
+#'   expression (passed to [grepl()]).
 #' @param perl Whether to use Perl-compatible regular expressions (which also
-#'   enables the dotall flag).
+#'   enables the dotall flag). Defaults to `FALSE` for a `fixed` search, which
+#'   uses neither.
 #' @param ... Additional arguments passed to [grepl()] (e.g.,
 #'   `ignore.case = TRUE`).
 #' @return `TRUE` if `x` matches `pattern` (or does not match it when
@@ -454,12 +457,14 @@ grepl2 = function(..., fixed = TRUE, ignore.case = FALSE) {
 #'   html = '<html>\n<script>x</script>\n</html>'
 #'   (has_match(html, '<script>.*</script>'))
 #'   (has_match(html, '<style>', negate = TRUE))
+#'   (has_match(html, '<script>x</script>', fixed = TRUE))  # literal match
 #' })
-has_match = function(x, pattern, negate = FALSE, perl = TRUE, ...) {
+has_match = function(x, pattern, negate = FALSE, fixed = FALSE, perl = !fixed, ...) {
   s = one_string(x)
-  # enable dotall in Perl mode so `.` also matches newlines
-  p = if (isTRUE(perl)) paste0('(?s)', pattern) else pattern
-  res = xor(grepl(p, s, perl = perl, ...), negate)
+  # enable dotall in Perl mode so `.` also matches newlines (a fixed search uses
+  # neither Perl mode nor dotall)
+  p = if (perl) paste0('(?s)', pattern) else pattern
+  res = xor(grepl(p, s, fixed = fixed, perl = perl, ...), negate)
   add_diag(res, match_diag(s, pattern, negate))
 }
 

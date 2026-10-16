@@ -4,7 +4,7 @@
 \alias{has_match}
 \title{Test whether a string matches a regular expression}
 \usage{
-has_match(x, pattern, negate = FALSE, perl = TRUE, ...)
+has_match(x, pattern, negate = FALSE, fixed = FALSE, perl = !fixed, ...)
 }
 \arguments{
 \item{x}{A character vector. Multiple elements are collapsed into a single
@@ -18,8 +18,12 @@ convenient for searching multi-line text such as rendered HTML.}
 this over negating with \code{!} (e.g. \code{!has_match(x, p)}), since \code{negate} also
 makes the failure message show \code{x}.}
 
+\item{fixed}{Whether to match \code{pattern} literally instead of as a regular
+expression (passed to \code{\link[=grepl]{grepl()}}).}
+
 \item{perl}{Whether to use Perl-compatible regular expressions (which also
-enables the dotall flag).}
+enables the dotall flag). Defaults to \code{FALSE} for a \code{fixed} search, which
+uses neither.}
 
 \item{...}{Additional arguments passed to \code{\link[=grepl]{grepl()}} (e.g.,
 \code{ignore.case = TRUE}).}
@@ -40,5 +44,6 @@ assert('the page has a script but no style', {
   html = '<html>\n<script>x</script>\n</html>'
   (has_match(html, '<script>.*</script>'))
   (has_match(html, '<style>', negate = TRUE))
+  (has_match(html, '<script>x</script>', fixed = TRUE))  # literal match
 })
 }

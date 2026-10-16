@@ -113,6 +113,11 @@ assert('has_match() tests whether a string matches a regular expression', {
   # ... is passed to grepl()
   (has_match('HELLO', 'hello', ignore.case = TRUE))
   (!has_match('HELLO', 'hello'))
+  # fixed = TRUE matches literally: regex metacharacters are not special, and
+  # perl/dotall is not applied (no literal "(?s)" prepended, no grepl warning)
+  (has_match('a.[b]c', '.[b]', fixed = TRUE))
+  (!has_match('axbc', '.[b]', fixed = TRUE))
+  (has_match('no match', 'a.b', fixed = TRUE, negate = TRUE))
 })
 
 assert('has_match() shows the actual string in diagnostics on failure', {
