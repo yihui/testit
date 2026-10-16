@@ -4,7 +4,14 @@
 \alias{has_match}
 \title{Test whether a string matches a regular expression}
 \usage{
-has_match(x, pattern, negate = FALSE, fixed = FALSE, perl = !fixed, ...)
+has_match(
+  x,
+  pattern,
+  negate = FALSE,
+  fixed = inherits(pattern, "AsIs"),
+  perl = !fixed,
+  ...
+)
 }
 \arguments{
 \item{x}{A character vector. Multiple elements are collapsed into a single
@@ -12,14 +19,16 @@ string (separated by newlines) before matching.}
 
 \item{pattern}{A regular expression. By default, matching uses Perl mode with
 the "dotall" flag enabled, so \code{.} also matches newlines, which is
-convenient for searching multi-line text such as rendered HTML.}
+convenient for searching multi-line text such as rendered HTML. Wrap the
+pattern in \code{\link[=I]{I()}} to match it literally, as a shorthand for \code{fixed = TRUE}.}
 
 \item{negate}{If \code{TRUE}, test that \code{x} does \emph{not} match \code{pattern}. Prefer
 this over negating with \code{!} (e.g. \code{!has_match(x, p)}), since \code{negate} also
 makes the failure message show \code{x}.}
 
 \item{fixed}{Whether to match \code{pattern} literally instead of as a regular
-expression (passed to \code{\link[=grepl]{grepl()}}).}
+expression. Defaults to \code{TRUE} when \code{pattern} is wrapped in \code{\link[=I]{I()}}, so
+\code{has_match(x, I(p))} is a shorthand for \code{has_match(x, p, fixed = TRUE)}.}
 
 \item{perl}{Whether to use Perl-compatible regular expressions (which also
 enables the dotall flag). Defaults to \code{FALSE} for a \code{fixed} search, which
@@ -44,6 +53,6 @@ assert('the page has a script but no style', {
   html = '<html>\n<script>x</script>\n</html>'
   (has_match(html, '<script>.*</script>'))
   (has_match(html, '<style>', negate = TRUE))
-  (has_match(html, '<script>x</script>', fixed = TRUE))  # literal match
+  (has_match(html, I('<script>x</script>')))  # literal match (fixed = TRUE)
 })
 }

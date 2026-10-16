@@ -118,6 +118,10 @@ assert('has_match() tests whether a string matches a regular expression', {
   (has_match('a.[b]c', '.[b]', fixed = TRUE))
   (!has_match('axbc', '.[b]', fixed = TRUE))
   (has_match('no match', 'a.b', fixed = TRUE, negate = TRUE))
+  # I(pattern) is shorthand for fixed = TRUE and composes with negate
+  (has_match('a.[b]c', I('.[b]')))
+  (!has_match('axbc', I('.[b]')))
+  (has_match('axbc', I('.[b]'), negate = TRUE))
 })
 
 assert('has_match() shows the actual string in diagnostics on failure', {
