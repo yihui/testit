@@ -298,3 +298,13 @@ assert('global helpers are sourced from the helpers/ directory only', {
   # helper*.R directly in the parent directory is no longer sourced
   (!has_error(run_case('.', 'helper-global.R', FALSE)))
 })
+
+assert('R_TESTS is unset while tests run so child R processes can start', {
+  (Sys.getenv('R_TESTS') %==% '')
+  # a child R process does not choke on a relative R_TESTS inherited from check
+  res = system2(
+    file.path(R.home('bin'), 'Rscript'), c('-e', shQuote('cat("ok")')),
+    stdout = TRUE, stderr = FALSE
+  )
+  (res %==% 'ok')
+})

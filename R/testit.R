@@ -282,6 +282,13 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   path = available_dir(dir)
   td = paste0(norm_path(getwd()), '/')
   op = options(testit.test_dir = td); on.exit(options(op), add = TRUE)
+  # R CMD check sets R_TESTS to a path relative to tests/ (startup.Rs), which
+  # child R processes sourced at startup (e.g., future/parallel workers) can't
+  # resolve from the test directory
+  ev = Sys.getenv('R_TESTS', NA)
+  if (!is.na(ev)) {
+    Sys.setenv(R_TESTS = ''); on.exit(Sys.setenv(R_TESTS = ev), add = TRUE)
+  }
   fs = list.files(path, full.names = TRUE)
   # clean up new files/dirs generated during testing
   if (getOption('testit.cleanup', TRUE)) on.exit({
