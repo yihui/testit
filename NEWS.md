@@ -8,7 +8,7 @@
 
 - `has_match()` accepts `!pattern` as a shorthand for `negate = TRUE`, i.e. `has_match(x, !p)` tests that `x` does not match `p`.
 
-- `test_pkg()` temporarily unsets the environment variable `R_TESTS` (which `R CMD check` sets to a relative path, `startup.Rs`) while tests run. Previously child R processes started from tests (e.g., **future** or **parallel** workers) failed at startup because the relative path could not be resolved from the test directory. This is what **testthat** does, too.
+- `test_pkg()` temporarily unsets the environment variable `R_TESTS` (which `R CMD check` sets to a relative path, `startup.Rs`) while tests run. Previously child R processes started from tests (e.g., **future** or **parallel** workers) failed at startup because the relative path could not be resolved from the test directory.
 
 # CHANGES IN testit VERSION 1.2
 
