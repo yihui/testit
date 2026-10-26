@@ -7,6 +7,7 @@
 mirror](https://cranlogs.r-pkg.org/badges/testit)](https://cran.r-project.org/package=testit)
 [![Codecov test
 coverage](https://codecov.io/gh/yihui/testit/graph/badge.svg)](https://app.codecov.io/gh/yihui/testit)
+[![Build site](https://github.com/yihui/testit/actions/workflows/litedown-site.yml/badge.svg)](https://github.com/yihui/testit/actions/workflows/litedown-site.yml)
 
 <!-- badges: end -->
 
