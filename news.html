@@ -57,6 +57,9 @@
 <h2 id="sec:testit-1-3" class="unnumbered">testit 1.3</h2>
 <ul>
 <li>
+<p><code>%==%</code> diagnostics normalize <code>str()</code> output by removing the common leading spaces, so failure messages and snapshots are the same across R versions (R-devel stopped padding top-level <code>str()</code> output).</p>
+</li>
+<li>
 <p>Removed support for sourcing global <code>helper*.R</code> files placed directly in the parent of the test directory (e.g., <code>tests/helper.R</code>). Put shared helpers in a sibling <code>helpers/</code> directory (e.g., <code>tests/helpers/</code>) instead.</p>
 </li>
 <li>
