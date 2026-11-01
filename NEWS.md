@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 1.3
 
+- `%==%` diagnostics normalize `str()` output by removing the common leading spaces, so failure messages and snapshots are the same across R versions (R-devel stopped padding top-level `str()` output).
+
 - Removed support for sourcing global `helper*.R` files placed directly in the parent of the test directory (e.g., `tests/helper.R`). Put shared helpers in a sibling `helpers/` directory (e.g., `tests/helpers/`) instead.
 
 - `has_match()` gained a `fixed` argument (passed to `grepl()`) to match `pattern` literally. A fixed search no longer has the Perl/dotall flag applied (previously `fixed = TRUE` via `...` left a literal `(?s)` prepended to the pattern, so the match failed, and `grepl()` warned about `perl = TRUE` being ignored).

@@ -8,9 +8,9 @@ cat(equ_info(1.0000000000001, 1.0000000000002), sep = '\n')
 
 ```
 x (LHS) ==>
- num 1
+num 1
 ----------
- num 1
+num 1
 <== (RHS) y
 
 Detailed diff (- LHS, + RHS):
@@ -26,9 +26,9 @@ cat(equ_info('hello', 'world'), sep = '\n')
 
 ```
 x (LHS) ==>
- chr "hello"
+chr "hello"
 ----------
- chr "world"
+chr "world"
 <== (RHS) y
 ```
 
@@ -42,9 +42,9 @@ cat(equ_info(x, y), sep = '\n')
 
 ```
 x (LHS) ==>
- num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
+num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
 ----------
- num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
+num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
 <== (RHS) y
 
 Detailed diff (- LHS, + RHS):
@@ -101,9 +101,9 @@ cat(equ_info(x, y), sep = '\n')
 
 ```
 x (LHS) ==>
- num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
+num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
 ----------
- num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
+num [1:200] 1 2 3 4 5 6 7 8 9 10 ...
 <== (RHS) y
 
 Detailed diff (- LHS, + RHS):
