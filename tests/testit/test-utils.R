@@ -255,3 +255,10 @@ if (Sys.which('git') != '') assert('test_snap() with update = NA on git-tracked 
   (any(grepl('^\\[1\\] 2$', lines)))
   setwd(owd)
 })
+
+assert('str_lines() removes the common leading spaces of str() output', {
+  (str_lines(1) %==% 'num 1')
+  (str_lines('a') %==% 'chr "a"')
+  # nested output keeps the relative indentation of its sub-lines
+  (str_lines(list(a = 1)) %==% c('List of 1', ' $ a: num 1'))
+})

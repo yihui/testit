@@ -158,7 +158,7 @@ add_diag = function(res, info) {
 # build the diagnostic message (a character vector) for a failed `%==%`, where
 # `ex`/`ey` are the unevaluated LHS/RHS expressions
 equ_diag = function(x, y, ex, ey) {
-  sx = capture.output(str(x)); sy = capture.output(str(y))
+  sx = str_lines(x); sy = str_lines(y)
   nx = length(sx); ny = length(sy)
   dx = deparse_key(ex); dy = deparse_key(ey)
   show_diff = (nx + ny > 10L) && length(d <- mini_diff(sx, sy, 50L))
@@ -177,6 +177,13 @@ equ_diag = function(x, y, ex, ey) {
 }
 
 trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
+
+# str() output minus common leading spaces; R-devel (r90805) stopped padding
+# top-level output (" num 1" -> "num 1"), so strip to match across versions
+str_lines = function(x) {
+  s = capture.output(str(x))
+  substring(s, min(attr(regexpr('^ *', s), 'match.length')) + 1)
+}
 
 #' Run all tests for a package
 #'
