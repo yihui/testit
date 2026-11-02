@@ -1,0 +1,174 @@
+---
+title: Try testit in your browser
+output:
+  html:
+    meta:
+      css: ["@default", "@callout"]
+      js: ["@callout"]
+---
+
+```{r}
+#| include = FALSE
+# show failed tests as output instead of stopping the whole document
+litedown::reactor(error = TRUE)
+```
+
+Welcome! This is a playground for **testit**, a tiny testing package for R. It
+runs R right in your browser, so there is nothing to install.
+
+Edit this document on the left and click **Run** to see the result on the
+right. Break the examples on purpose to see what a failing test looks like, then
+fix them again!
+
+# The one rule
+
+If you can write an R expression that returns `TRUE`, you can write a test.
+
+1. Put your checks inside `assert('a message', { ... })`.
+2. Wrap every check in **parentheses** `( )`. Each parenthesized expression must
+   be `TRUE`.
+3. Everything else is ordinary R code (for example, setup).
+
+```{r}
+library(testit)
+
+assert('one plus one is two', {
+  (1 + 1 == 2)
+})
+```
+
+No output means all tests passed. Silence is golden.
+
+## Setup code and multiple checks
+
+Lines without parentheses are just evaluated; lines with parentheses are
+checked.
+
+```{r}
+assert('square root works', {
+  x = sqrt(4)  # setup: not checked
+
+  (x == 2)  # checked
+  (x > 0)
+  (is.numeric(x))
+})
+```
+
+## When a test fails
+
+The test below fails on purpose. Failed tests report your message and which
+check failed.
+
+```{r}
+assert('this test fails on purpose', {
+  (1 + 1 == 3)
+})
+```
+
+Try it: edit the check above so that it passes.
+
+# Comparing objects with `%==%`
+
+`a %==% b` is a shortcut for `identical(a, b)`. When it fails, **testit** shows
+what is different, which is handy for debugging.
+
+```{r}
+assert('identical objects', {
+  (c(1, 2, 3) %==% c(1, 2, 3))
+  (1:3 %==% 1:3)
+})
+```
+
+Here `c(1, 2, 3)` is numeric but `1:3` is integer, so they are not identical:
+
+```{r}
+assert('numeric is not integer', {
+  (c(1, 2, 3) %==% 1:3)
+})
+```
+
+::: callout-tip
+`%==%` binds tighter than `+` and `-`, so wrap the left side in parentheses,
+e.g., `((1 + 2) %==% 3)`. Otherwise R reads it as `1 + (2 %==% 3)`.
+:::
+
+If numbers only need to be equal up to floating-point error, use `all.equal()`:
+
+```{r}
+assert('floating-point numbers', {
+  (0.1 + 0.2 == 0.3)  # surprise: FALSE
+})
+
+assert('use all.equal() for approximate equality', {
+  (all.equal(0.1 + 0.2, 0.3))
+})
+```
+
+# Errors, warnings, and messages
+
+Use `has_error()`, `has_warning()`, and `has_message()` to check that code
+signals the condition you expect. Optionally, give a pattern to match the text
+of the condition.
+
+```{r}
+assert('errors are caught', {
+  (has_error(log('a')))
+  (has_error(stop('oops'), 'oops'))  # also match the error message
+  (!has_error(log(1)))               # no error here
+})
+
+assert('warnings are caught', {
+  (has_warning(warning('watch out')))
+  (has_warning(1:2 + 1:3, 'longer object'))
+})
+
+assert('messages are caught', {
+  (has_message(message('hello')))
+  (has_message(message('hello'), 'hel'))
+})
+```
+
+# Test your own function
+
+A realistic workflow: write a function, then describe its behavior with tests.
+Edit `fizzbuzz()` to introduce a bug and see which check complains.
+
+```{r}
+fizzbuzz = function(n) {
+  if (n %% 15 == 0) return('FizzBuzz')
+  if (n %% 3 == 0) return('Fizz')
+  if (n %% 5 == 0) return('Buzz')
+  as.character(n)
+}
+
+assert('fizzbuzz() handles each case', {
+  (fizzbuzz(3) %==% 'Fizz')
+  (fizzbuzz(5) %==% 'Buzz')
+  (fizzbuzz(15) %==% 'FizzBuzz')
+  (fizzbuzz(7) %==% '7')
+  (has_error(fizzbuzz()))
+})
+```
+
+Now it's your turn: write an `assert()` for a function of your own below.
+
+```{r}
+assert('my first test', {
+  (TRUE)
+})
+```
+
+# Next steps
+
+In a real package, put test files named `test-*.R` in `tests/testit/` and add
+`tests/test-all.R`:
+
+```r
+library(testit)
+test_pkg('yourpkg')
+```
+
+Then `R CMD check` runs your tests automatically. **testit** can also check
+printed output with Markdown snapshot files (`test-*.md`); see the
+[README](https://github.com/yihui/testit#readme) for snapshots, helper files,
+and how to convert **testthat** tests.

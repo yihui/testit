@@ -1,0 +1,13 @@
+site:
+  giscus:
+    repo: "yihui/yihui.org"
+    repo_id: "MDEwOlJlcG9zaXRvcnk4MDc3NDg0NA=="
+    category: "Comments"
+    category_id: "DIC_kwDOBNCGvM4COkjD"
+
+output:
+  html:
+    meta:
+      include_after: "_footer.md"
+    options:
+      number_sections: true
