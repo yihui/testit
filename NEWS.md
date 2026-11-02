@@ -1,3 +1,6 @@
+# CHANGES IN testit VERSION 1.4
+
+
 # CHANGES IN testit VERSION 1.3
 
 - `%==%` diagnostics normalize `str()` output by removing the common leading spaces, so failure messages and snapshots are the same across R versions (R-devel stopped padding top-level `str()` output).
