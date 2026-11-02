@@ -178,9 +178,23 @@ The tradeoff is that you get fewer bells and whistles (no mocking, no parallel
 execution). If you want a simple, dependency-free testing tool that stays out of
 your way, **testit** is a good fit.
 
-If you want to convert your existing **testthat** tests to **testit**, you may
-take a look at this post <https://yihui.org/en/2026/05/testthat-to-testit/>.
-If you use AI assistance, this should be a straightforward task.
+To convert existing **testthat** tests to **testit**:
+
+- Wrap each `test_that('desc', { ... })` block in `assert('desc', { ... })`.
+- Replace each `expect_*()` with a parenthesized check, e.g.,
+  `expect_true(z)` becomes `(z)`, `expect_equal(a, b)` becomes
+  `(all.equal(a, b))`, `expect_identical(a, b)` becomes `(identical(a, b))`,
+  `expect_length(x, n)` becomes `(length(x) == n)`.
+- `expect_error(expr)`, `expect_warning(expr)`, `expect_message(expr)` become
+  `(has_error(expr))`, `(has_warning(expr))`, `(has_message(expr))`.
+- Wrap infix comparisons in extra parentheses, e.g., `((1 + 2) %==% 3)`,
+  since `%==%` binds tighter than `+`.
+- Move tests to `tests/testit/`, runner `tests/testit.R` calls
+  `test_pkg('yourpkg')`. Remove `library(testthat)` and `testthat::` prefixes.
+- In RStudio, uncheck "Use devtools package functions if available".
+
+Once converted, run `test_pkg('yourpkg')` as usual. For more details and
+examples, see <https://yihui.org/en/2026/05/testthat-to-testit/>.
 
 --------------------------------------------------------------------------------
 
