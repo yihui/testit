@@ -178,11 +178,14 @@ equ_diag = function(x, y, ex, ey) {
 
 trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 
-# str() output minus common leading spaces; R-devel (r90805) stopped padding
-# top-level output (" num 1" -> "num 1"), so strip to match across versions
+# str() output made comparable across R versions. R-devel (r90805) stopped
+# padding top-level output (" num 1" -> "num 1") and always puts one space after
+# "$ name:", "@ slot:", and 'attr(*, "x")=' (older R sometimes omitted it), so
+# strip the common leading spaces and normalize that separator.
 str_lines = function(x) {
   s = capture.output(str(x))
-  substring(s, min(attr(regexpr('^ *', s), 'match.length')) + 1)
+  s = substring(s, min(attr(regexpr('^ *', s), 'match.length')) + 1)
+  sub('^([ .]*([$@] [^:]*:|- attr\\(\\*, "[^"]*"\\)=)) *', '\\1 ', s)
 }
 
 #' Run all tests for a package

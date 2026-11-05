@@ -1,5 +1,6 @@
 # CHANGES IN testit VERSION 1.4
 
+- `%==%` diagnostics also normalize the spacing after `$ name:`, `@ slot:` and `attr(*, "x")=` in `str()` output (one space), which R-devel now always prints but older R sometimes omitted, so failure messages and snapshots match across R versions.
 
 # CHANGES IN testit VERSION 1.3
 
