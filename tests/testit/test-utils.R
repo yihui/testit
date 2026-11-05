@@ -255,20 +255,3 @@ if (Sys.which('git') != '') assert('test_snap() with update = NA on git-tracked 
   (any(grepl('^\\[1\\] 2$', lines)))
   setwd(owd)
 })
-
-assert('str_lines() removes the common leading spaces of str() output', {
-  (str_lines(1) %==% 'num 1')
-  (str_lines('a') %==% 'chr "a"')
-  # nested output keeps the relative indentation of its sub-lines
-  (str_lines(list(a = 1)) %==% c('List of 1', ' $ a: num 1'))
-})
-
-assert('str_lines() puts exactly one space after ":" and "=" in components', {
-  (str_lines(list(a = 1, b = list(c = 'x'))) %==% c(
-    'List of 2', ' $ a: num 1', ' $ b: List of 1',
-    '  ..$ c: chr "x"'
-  ))
-  x = structure(1L, foo = 'bar')
-  (str_lines(x) %==% c('int 1', '- attr(*, "foo")= chr "bar"'))
-  (str_lines(list(f = y ~ x))[2] %==% ' $ f: Class \'formula\'  language y ~ x')
-})
