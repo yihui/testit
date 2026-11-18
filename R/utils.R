@@ -119,7 +119,7 @@ sys.source2 = function(file, envir, top.env = as.environment(envir)) {
   owd = setwd(dirname(file)); on.exit(setwd(owd), add = TRUE)
   errs = NULL
   for (i in seq_along(exprs)) tryCatch(
-    loc_stop(eval(exprs[i], envir)),
+    loc_stop(eval(exprs[i], envir), srcfile),
     error = function(e) errs <<- c(errs, conditionMessage(e))
   )
   errs

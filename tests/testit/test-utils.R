@@ -184,6 +184,16 @@ assert('test_pkg() collects all errors across and within files', {
   }
 })
 
+assert('error location points to the test file, not to called code with srcrefs', {
+  d = tempfile(); dir.create(d)
+  on.exit(unlink(d, recursive = TRUE), add = TRUE)
+  # the helper's function has srcrefs, like a package with R_KEEP_PKG_SOURCE=yes
+  writeLines('f = function() stop("oops")', file.path(d, 'helper.R'))
+  writeLines('f()', file.path(d, 'test-aaa.R'))
+  msg = tryCatch(suppressMessages(test_pkg('testit', dir = d)), error = conditionMessage)
+  (grepl('oops at .*test-aaa[.]R#1', msg))
+})
+
 assert('test_pkg() prints details via message() when errors exceed warning.length', {
   d = tempfile(); dir.create(d)
   op = options(warning.length = 100L)

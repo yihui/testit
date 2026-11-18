@@ -1,5 +1,7 @@
 # CHANGES IN testit VERSION 1.4
 
+- Error messages from failed tests now point to the line in the test file, even when the failing code comes from a package installed with `R_KEEP_PKG_SOURCE=yes` (previously the location could be an internal source file such as `testit.R#347`).
+
 - `%==%` diagnostics also normalize the spacing after `$ name:`, `@ slot:` and `attr(*, "x")=` in `str()` output (one space), which R-devel now always prints but older R sometimes omitted, so failure messages and snapshots match across R versions.
 
 # CHANGES IN testit VERSION 1.3

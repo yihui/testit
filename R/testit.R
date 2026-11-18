@@ -341,8 +341,10 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   run_files(rs); run_files(ms, snap = TRUE); stop_errs(errs)
 }
 
-# evaluate expr; on error, append source location to the error message and re-throw
-loc_stop = function(expr) {
+# evaluate expr; on error, append source location to the error message and
+# re-throw; only srcrefs in `srcfile` (the test file) count, since packages
+# installed with R_KEEP_PKG_SOURCE=yes (including testit itself) also have srcrefs
+loc_stop = function(expr, srcfile) {
   loc = NULL
   tryCatch(withCallingHandlers(expr, error = function(e) {
     if (!exists('.traceback', baseenv(), inherits = FALSE)) return()
@@ -350,7 +352,7 @@ loc_stop = function(expr) {
       z = .traceback(skip)
       if (length(z) == 0) break
       sr = attr(z[[1]], 'srcref')
-      if (!is.null(sr)) {
+      if (!is.null(sr) && identical(attr(sr, 'srcfile'), srcfile)) {
         loc <<- error_loc(attr(sr, 'srcfile')$filename, sr[1])
         break
       }
