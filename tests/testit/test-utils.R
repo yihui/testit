@@ -177,7 +177,7 @@ assert('test_pkg() collects all errors across and within files', {
   (grepl('error one', msg))
   (grepl('error one and a half', msg))
   (grepl('error two', msg))
-  if (exists('.traceback', baseenv(), inherits = FALSE)) {
+  if (has_traceback()) {
     (grepl('error one at .+#\\d+', msg))
     (grepl('error one and a half at .+#\\d+', msg))
     (grepl('error two at .+#\\d+', msg))
@@ -191,7 +191,7 @@ assert('error location points to the test file, not to called code with srcrefs'
   writeLines('f = function() stop("oops")', file.path(d, 'helper.R'))
   writeLines('f()', file.path(d, 'test-aaa.R'))
   msg = tryCatch(suppressMessages(test_pkg('testit', dir = d)), error = conditionMessage)
-  (grepl('oops at .*test-aaa[.]R#1', msg))
+  if (has_traceback()) (grepl('oops at .*test-aaa[.]R#1', msg))
 })
 
 assert('test_pkg() prints details via message() when errors exceed warning.length', {

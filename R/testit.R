@@ -185,6 +185,8 @@ trunc_vec = function(x, n, N) if (N > n) c(head(x, n), '...') else x
 str_lines = function(x) {
   s = capture.output(str(x))
   s = substring(s, min(attr(regexpr('^ *', s), 'match.length')) + 1)
+  # newer R may indent top-level attr lines more than the first line
+  s = sub('^ +(- attr)', '\\1', s)
   sub('^([ .]*([$@] [^:]*:|- attr\\(\\*, "[^"]*"\\)=)) *', '\\1 ', s)
 }
 
@@ -341,13 +343,16 @@ test_pkg = function(package = pkg_name(), dir = NULL, filter = NULL, update = NA
   run_files(rs); run_files(ms, snap = TRUE); stop_errs(errs)
 }
 
+# .traceback() is only available in R >= 3.5.0
+has_traceback = function() exists('.traceback', baseenv(), inherits = FALSE)
+
 # evaluate expr; on error, append source location to the error message and
 # re-throw; only srcrefs in `srcfile` (the test file) count, since packages
 # installed with R_KEEP_PKG_SOURCE=yes (including testit itself) also have srcrefs
 loc_stop = function(expr, srcfile) {
   loc = NULL
   tryCatch(withCallingHandlers(expr, error = function(e) {
-    if (!exists('.traceback', baseenv(), inherits = FALSE)) return()
+    if (!has_traceback()) return()
     for (skip in 0:20) {
       z = .traceback(skip)
       if (length(z) == 0) break
