@@ -19,7 +19,7 @@ assert('deparse_key() returns the parsed code if length == 1', {
 assert('deparse_one() collapses multi-line deparse to a single string', {
   (deparse_one(1:3) %==% '1:3')
   (nchar(deparse_one(seq_len(100))) > 0)
-  (!grepl('\n', deparse_one(seq_len(100))))
+  (has_match(deparse_one(seq_len(100)), !'\n'))
 })
 
 assert('insert_identical() should not work in a non-interactive R session', {
@@ -51,14 +51,14 @@ assert('snapshot updates preserve the original R fence style', {
   writeLines(c('```r', '1 + 1', '```'), f1)
   suppressMessages(test_snap(f1, env, update = TRUE))
   l1 = readLines(f1, warn = FALSE)
-  (grepl('^```r$', l1[1]))
-  (!any(grepl('^```\\{r\\}$', l1)))
+  (has_match(l1[1], '^```r$'))
+  (has_match(l1, !'(?m)^```\\{r\\}$'))
 
   f2 = tempfile(fileext = '.md')
   writeLines(c('```{r}', '1 + 1', '```'), f2)
   suppressMessages(test_snap(f2, env, update = TRUE))
   l2 = readLines(f2, warn = FALSE)
-  (grepl('^```\\{r\\}$', l2[1]))
+  (has_match(l2[1], '^```\\{r\\}$'))
 })
 
 assert('test_snap() inserts missing output block before a later code block with output', {
@@ -74,9 +74,9 @@ assert('test_snap() inserts missing output block before a later code block with 
   suppressMessages(test_snap(f, env, update = TRUE))
   lines = readLines(f, warn = FALSE)
   # output for first block must have been inserted
-  (any(grepl('^\\[1\\] 2$', lines)))
+  (has_match(lines, '(?m)^\\[1\\] 2$'))
   # output for second block must still be present
-  (any(grepl('^\\[1\\] 4$', lines)))
+  (has_match(lines, '(?m)^\\[1\\] 4$'))
 })
 
 assert('pkg_name() errors when no DESCRIPTION file is found', {
@@ -129,7 +129,7 @@ assert('test_snap() rebuilds fence correctly including text blocks', {
   lines = readLines(f, warn = FALSE)
   # text is preserved and output block is added
   (lines[1] %==% '# Title')
-  (any(grepl('^\\[1\\] 2$', lines)))
+  (has_match(lines, '(?m)^\\[1\\] 2$'))
 })
 
 assert('capture_output() captures errors as Error: messages', {
@@ -174,13 +174,13 @@ assert('test_pkg() collects all errors across and within files', {
     test_pkg('testit', dir = d),
     message = function(m) { out <<- c(out, conditionMessage(m)); invokeRestart('muffleMessage') }
   ), error = conditionMessage)
-  (grepl('error one', msg))
-  (grepl('error one and a half', msg))
-  (grepl('error two', msg))
+  (has_match(msg, 'error one'))
+  (has_match(msg, 'error one and a half'))
+  (has_match(msg, 'error two'))
   if (has_traceback()) {
-    (grepl('error one at .+#\\d+', msg))
-    (grepl('error one and a half at .+#\\d+', msg))
-    (grepl('error two at .+#\\d+', msg))
+    (has_match(msg, 'error one at .+#\\d+'))
+    (has_match(msg, 'error one and a half at .+#\\d+'))
+    (has_match(msg, 'error two at .+#\\d+'))
   }
 })
 
@@ -191,7 +191,7 @@ assert('error location points to the test file, not to called code with srcrefs'
   writeLines('f = function() stop("oops")', file.path(d, 'helper.R'))
   writeLines('f()', file.path(d, 'test-aaa.R'))
   msg = tryCatch(suppressMessages(test_pkg('testit', dir = d)), error = conditionMessage)
-  if (has_traceback()) (grepl('oops at .*test-aaa[.]R#1', msg))
+  if (has_traceback()) (has_match(msg, 'oops at .*test-aaa[.]R#1'))
 })
 
 assert('test_pkg() prints details via message() when errors exceed warning.length', {
@@ -212,9 +212,9 @@ assert('test_pkg() prints details via message() when errors exceed warning.lengt
   options(op)
   (msg %==% '3 tests failed (see details above)')
   printed = paste(out, collapse = '')
-  (grepl('error one', printed))
-  (grepl('error two', printed))
-  (grepl('error one and a half', printed))
+  (has_match(printed, 'error one'))
+  (has_match(printed, 'error two'))
+  (has_match(printed, 'error one and a half'))
 })
 
 assert('parse_args() extracts --filter and --update from command-line args', {
@@ -262,6 +262,6 @@ if (Sys.which('git') != '') assert('test_snap() with update = NA on git-tracked 
   (length(test_snap(f, env, update = NA)) > 0)
   # check that the file was updated with correct output
   lines = readLines(f, warn = FALSE)
-  (any(grepl('^\\[1\\] 2$', lines)))
+  (has_match(lines, '(?m)^\\[1\\] 2$'))
   setwd(owd)
 })

@@ -15,5 +15,5 @@ assert('str_lines() puts exactly one space after ":" and "=" in components', {
   x = structure(1L, foo = 'bar')
   (str_lines(x) %==% c('int 1', '- attr(*, "foo")= chr "bar"'))
   # R versions differ in spacing inside the class description
-  (grepl("^ [$] f: Class 'formula' +language y ~ x$", str_lines(list(f = y ~ x))[2]))
+  (has_match(str_lines(list(f = y ~ x))[2], "^ [$] f: Class 'formula' +language y ~ x$"))
 })

@@ -97,7 +97,7 @@ assert('%==% emits diagnostic info on failure inside assert()', {
     assert('check %==% message', { (1 %==% 2) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('not TRUE but FALSE', msg))
+  (has_match(msg, 'not TRUE but FALSE'))
 })
 
 assert('has_match() tests whether a string matches a regular expression', {
@@ -134,15 +134,15 @@ assert('has_match() shows the actual string in diagnostics on failure', {
     assert('check has_match message', { (has_match('abc', 'xyz')) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('did not match', msg))
-  (grepl('abc', msg))
+  (has_match(msg, 'did not match'))
+  (has_match(msg, 'abc'))
   # negate failure (unexpected match) also shows the string
   msg2 = tryCatch(
     assert('check negate message', { (has_match('abc', 'abc', negate = TRUE)) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('unexpectedly matched', msg2))
-  (grepl('abc', msg2))
+  (has_match(msg2, 'unexpectedly matched'))
+  (has_match(msg2, 'abc'))
 })
 
 assert('has_match() shows the full string, not a truncated version', {
@@ -151,8 +151,8 @@ assert('has_match() shows the full string, not a truncated version', {
     assert('long string', { (has_match(x, 'nomatch')) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('line 1\n', msg))
-  (grepl('line 30', msg))  # last line is present, i.e. not truncated
+  (has_match(msg, 'line 1\n'))
+  (has_match(msg, 'line 30'))  # last line is present, i.e. not truncated
 })
 
 assert('diagnostics do not leak from a passed check into a later failing one', {
@@ -165,7 +165,7 @@ assert('diagnostics do not leak from a passed check into a later failing one', {
     }),
     error = function(e) conditionMessage(e)
   )
-  (!grepl('zzz', msg))
+  (has_match(msg, !'zzz'))
   # a bare has_match() statement must not leak into a later check either
   msg2 = tryCatch(
     assert('bare leak', {
@@ -174,7 +174,7 @@ assert('diagnostics do not leak from a passed check into a later failing one', {
     }),
     error = function(e) conditionMessage(e)
   )
-  (!grepl('zzz', msg2))
+  (has_match(msg2, !'zzz'))
 })
 
 assert('error_loc() returns NULL for empty input', {
@@ -201,8 +201,8 @@ local({
   f = tempfile(fileext = '.R'); writeLines('x', f)
   loc = error_loc(f, 3)
   assert('error_loc() formats ANSI link when RSTUDIO_CLI_HYPERLINKS is TRUE', {
-    (grepl('\033]8;', loc))
-    (grepl('#3', loc))
+    (has_match(loc, '\033]8;'))
+    (has_match(loc, '#3'))
   })
 })
 
@@ -211,15 +211,15 @@ assert('assert() captures all failures, not just the first', {
     assert('multi', { (1 == 2); (1 == 0) }),
     error = function(e) conditionMessage(e)
   )
-  (grepl('1 == 2', msg))
-  (grepl('1 == 0', msg))
+  (has_match(msg, '1 == 2'))
+  (has_match(msg, '1 == 0'))
   # multi-argument form
   msg2 = tryCatch(
     assert('multi arg', 1 == 2, 1 == 0),
     error = function(e) conditionMessage(e)
   )
-  (grepl('1 == 2', msg2))
-  (grepl('1 == 0', msg2))
+  (has_match(msg2, '1 == 2'))
+  (has_match(msg2, '1 == 0'))
 })
 
 assert('stop_errs() throws a short summary when message exceeds warning.length', {
@@ -237,9 +237,9 @@ assert('stop_errs() throws a short summary when message exceeds warning.length',
 assert('stop_errs() throws full message when it fits in warning.length', {
   msgs = c('error 1', 'error 2', 'error 3')
   err = tryCatch(stop_errs(msgs), error = function(e) conditionMessage(e))
-  (grepl('error 1', err))
-  (grepl('error 2', err))
-  (grepl('error 3', err))
+  (has_match(err, 'error 1'))
+  (has_match(err, 'error 2'))
+  (has_match(err, 'error 3'))
 })
 
 assert('assert() error includes precise line number of failing () expression', {
@@ -256,7 +256,7 @@ assert('assert() error includes precise line number of failing () expression', {
     error = function(e) conditionMessage(e)
   )
   # line 4 is where (x == 2) lives
-  (grepl('#4', msg))
+  (has_match(msg, '#4'))
 })
 
 assert('helper functions are available in tests', {
