@@ -13,7 +13,9 @@ assert('str_lines() puts exactly one space after ":" and "=" in components', {
     '  ..$ c: chr "x"'
   ))
   x = structure(1L, foo = 'bar')
-  (str_lines(x) %==% c('int 1', '- attr(*, "foo")= chr "bar"'))
-  # R versions differ in spacing inside the class description
-  (has_match(str_lines(list(f = y ~ x))[2], "^ [$] f: Class 'formula' +language y ~ x$"))
+  # old R (e.g. 3.2.0) prints 'atomic [1:1]' for integers with attributes
+  (has_match(str_lines(x)[1], '^(int|atomic \\[1:1\\]) 1$'))
+  (str_lines(x)[2] %==% '- attr(*, "foo")= chr "bar"')
+  # old R prints 'length 3' instead of 'language' for formulas
+  (has_match(str_lines(list(f = y ~ x))[2], "^ [$] f: Class 'formula' +(language|length 3) y ~ x$"))
 })
