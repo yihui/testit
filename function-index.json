@@ -1,0 +1,12 @@
+{
+  "package": "testit",
+  "functions": {
+    "assert": "manual/assert.html",
+    "%==%": "manual/assert.html",
+    "has_match": "manual/has-match.html",
+    "has_message": "manual/has-message.html",
+    "has_warning": "manual/has-message.html",
+    "has_error": "manual/has-message.html",
+    "test_pkg": "manual/test-pkg.html"
+  }
+}

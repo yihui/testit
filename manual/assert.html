@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 1.0.22">
+<title>Assert that conditions are true, with an informative failure message</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/copy-button.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/heading-anchor.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/pages.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/site.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/prism-xcode.min.css">
+<meta name="function-index" content="../function-index.json">
+</head>
+<body>
+<nav class="site-nav"><p><a href="../index.html" class="brand">testit</a> <small class="version">v1.3.3</small>
+<a href="../manual.html">Manual</a>
+<a href="../news.html">News</a>
+<a href="../playground/">Playground</a>
+<span class="pagesjs-toggle"></span>
+<a href="https://github.com/yihui/testit/" title="GitHub repository"><img src="https://cdn.jsdelivr.net/npm/@primer/octicons@19/build/svg/mark-github-24.svg" alt="GitHub" class="no-invert" /></a></p></nav>
+<header class="frontmatter">
+<div class="title"><h1>Assert that conditions are true, with an informative failure message</h1></div>
+
+
+
+</header>
+<main>
+<article class="">
+<nav id="TOC" class="side side-left">
+<ul>
+<li><a href="#sec:description">Description</a></li>
+<li><a href="#sec:usage">Usage</a></li>
+<li><a href="#sec:arguments">Arguments</a></li>
+<li><a href="#sec:details">Details</a></li>
+<li><a href="#sec:value">Value</a></li>
+<li><a href="#sec:note">Note</a></li>
+<li><a href="#sec:examples">Examples</a></li>
+</ul>
+</nav>
+<h2 id="sec:description" class="unnumbered">Description</h2>
+<p>Test that one or more conditions are <code>TRUE</code>. If any condition fails, an error
+is raised with the <code>fact</code> message, making it easy to identify which test
+failed and why. This is the primary function for writing tests with
+<strong>testit</strong>.
+</p>
+<p>The infix operator <code>%==%</code> is a shortcut for <code><a href="https://rdrr.io/r/base/identical.html">identical()</a></code> that
+provides helpful diagnostics on failure. <code>x %==% y</code> returns <code>TRUE</code> if <code>x</code>
+and <code>y</code> are identical, and <code>FALSE</code> otherwise. When used inside <code>assert()</code>,
+a failing <code>%==%</code> comparison will display both values via <code><a href="https://rdrr.io/r/utils/str.html">str()</a></code> so you can
+see exactly what differed.
+</p>
+<h2 id="sec:usage" class="unnumbered">Usage</h2>
+<pre><code class="language-r">assert(fact, ...)
+
+x %==% y</code></pre>
+<h2 id="sec:arguments" class="unnumbered">Arguments</h2>
+<table class="desc-table" role = "presentation">
+<tr><td><code>fact</code></td>
+<td>
+<p>A character string describing what is being tested. This message
+is shown when an assertion fails, so make it descriptive (e.g., <code>'log() returns correct values'</code>). If <code>fact</code> is not a character string, it is
+treated as a test expression (i.e., the message is optional).</p>
+</td></tr>
+<tr><td><code>...</code></td>
+<td>
+<p>An R expression wrapped in <code>{}</code>; see Details.</p>
+</td></tr>
+<tr><td><code>x</code>, <code>y</code></td>
+<td>
+<p>Two R objects to be compared for identity.</p>
+</td></tr>
+</table>
+<h2 id="sec:details" class="unnumbered">Details</h2>
+<p>The recommended usage is to pass a single expression wrapped in <code>{}</code> as the
+second argument. Inside <code>{}</code>, any <strong>statement-level</strong> sub-expression wrapped
+in parentheses <code>()</code> is treated as a test condition &ndash; its value is checked
+and must be <code>TRUE</code>. Parentheses used for grouping within a larger expression
+(e.g., <code>(a + b) * c</code>) are not checked. Sub-expressions <em>without</em> parentheses
+are ordinary R code (e.g., variable assignments or setup steps) and are never
+checked.
+</p>
+<p><code>()</code> tests work inside <code>if</code>, <code>for</code>, <code>while</code>, and <code>repeat</code> bodies, as well as
+inside a <code>{}</code> block passed as an argument to a function call (e.g.
+<code>xfun::in_dir(dir, { ... })</code>). Internally, <code>assert()</code> walks the expression
+tree and transforms statement-level <code>()</code> into checks before evaluating the
+entire block in one frame (so <code>on.exit()</code> works as expected).
+</p>
+<h2 id="sec:value" class="unnumbered">Value</h2>
+<p>Invisible <code>NULL</code> if all conditions pass. If any condition fails, an
+error is signaled that includes the <code>fact</code> message and the expression that
+failed. For <code>%==%</code>, <code>TRUE</code> or <code>FALSE</code>.
+</p>
+<h2 id="sec:note" class="unnumbered">Note</h2>
+<p>Key differences from <code><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot()</a></code>:
+</p>
+<ul>
+<li> <p><code>assert()</code> shows your custom <code>fact</code> message on failure, making errors
+easier to diagnose.
+</p>
+</li>
+<li> <p><code>logical(0)</code> (empty logical) is treated as a failure, not a pass.
+</p>
+</li>
+<li><p> All conditions are evaluated even if earlier ones fail; all failures are
+reported together in a single error message.
+</p>
+</li></ul>
+<h2 id="sec:examples" class="unnumbered">Examples</h2>
+<pre><code class="language-r">library(testit)
+assert('T is bad for TRUE, and so is F for FALSE', {
+  T = FALSE; F = TRUE
+  (T != TRUE)  # note the parentheses
+  (F != FALSE)
+})
+
+assert('A Poisson random number is non-negative', {
+  x = rpois(1, 10)
+  (x &gt;= 0)
+  (x &gt; -1)
+})
+
+# () works inside control structures too
+assert('conditional test', {
+  if (requireNamespace('base', quietly = TRUE)) (1 + 1 == 2)
+})
+</code></pre>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/manual.min.css">
+
+</article>
+</main>
+<section class="comments">
+<script src="https://giscus.app/client.js" data-strict="1" data-theme="preferred_color_scheme" data-loading="lazy" data-repo="yihui/yihui.org" data-repo-id="MDEwOlJlcG9zaXRvcnk4MDc3NDg0NA==" data-category="Comments" data-category-id="DIC_kwDOBNCGvM4COkjD" crossorigin="anonymous" async></script>
+</section>
+<footer><div class="flex-col">
+<p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v1.0.22</p>
+</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/copy-button.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/heading-anchor.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/pages.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/nav-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/prism-lite.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/link-functions.min.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 1.0.22">
+<title>Test whether an expression signals a condition</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/copy-button.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/heading-anchor.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/pages.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/site.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/prism-xcode.min.css">
+<meta name="function-index" content="../function-index.json">
+</head>
+<body>
+<nav class="site-nav"><p><a href="../index.html" class="brand">testit</a> <small class="version">v1.3.3</small>
+<a href="../manual.html">Manual</a>
+<a href="../news.html">News</a>
+<a href="../playground/">Playground</a>
+<span class="pagesjs-toggle"></span>
+<a href="https://github.com/yihui/testit/" title="GitHub repository"><img src="https://cdn.jsdelivr.net/npm/@primer/octicons@19/build/svg/mark-github-24.svg" alt="GitHub" class="no-invert" /></a></p></nav>
+<header class="frontmatter">
+<div class="title"><h1>Test whether an expression signals a condition</h1></div>
+
+
+
+</header>
+<main>
+<article class="">
+<nav id="TOC" class="side side-left">
+<ul>
+<li><a href="#sec:description">Description</a></li>
+<li><a href="#sec:usage">Usage</a></li>
+<li><a href="#sec:arguments">Arguments</a></li>
+<li><a href="#sec:value">Value</a></li>
+<li><a href="#sec:examples">Examples</a></li>
+</ul>
+</nav>
+<h2 id="sec:description" class="unnumbered">Description</h2>
+<p>Check if evaluating an expression produces a message, warning, or error.
+These functions are designed to be used inside <code><a href="assert.html">assert()</a></code> to verify that code
+signals the expected conditions. Optionally, you can match against the
+condition's text to ensure the <em>right</em> message/warning/error was signaled.
+</p>
+<h2 id="sec:usage" class="unnumbered">Usage</h2>
+<pre><code class="language-r">has_message(expr, message = NULL, ...)
+
+has_warning(expr, message = NULL, ...)
+
+has_error(expr, message = NULL, ...)</code></pre>
+<h2 id="sec:arguments" class="unnumbered">Arguments</h2>
+<table class="desc-table" role = "presentation">
+<tr><td><code>expr</code></td>
+<td>
+<p>An R expression to evaluate.</p>
+</td></tr>
+<tr><td><code>message</code></td>
+<td>
+<p>An optional string to match against the condition text. Uses
+fixed (literal) matching by default. If provided, the function returns
+<code>TRUE</code> only when the condition is signaled <em>and</em> the message matches.</p>
+</td></tr>
+<tr><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="https://rdrr.io/r/base/grep.html">grepl()</a></code> for matching (e.g.,
+<code>fixed = FALSE</code> to use regex, or <code>ignore.case = TRUE</code>). Note that
+<code>fixed = TRUE</code> is the default.</p>
+</td></tr>
+</table>
+<h2 id="sec:value" class="unnumbered">Value</h2>
+<p><code>TRUE</code> if the condition was signaled (and the message matched, if
+provided), <code>FALSE</code> otherwise.
+</p>
+<h2 id="sec:examples" class="unnumbered">Examples</h2>
+<pre><code class="language-r">has_message(message('hello'))
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_message(1 + 1)
+</code></pre>
+<pre><code>#&gt; [1] FALSE
+</code></pre>
+<pre><code class="language-r">has_message(message('hello world'), 'hello')
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_warning(1 + 1)
+</code></pre>
+<pre><code>#&gt; [1] FALSE
+</code></pre>
+<pre><code class="language-r">has_warning(1:2 + 1:3)
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_warning(1:2 + 1:3, 'longer object length')
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_error(2 - 3)
+</code></pre>
+<pre><code>#&gt; [1] FALSE
+</code></pre>
+<pre><code class="language-r">has_error(1 + 'a')
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_error(stop('err'), 'err')
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<pre><code class="language-r">has_error(stop('error occurred'), 'error')
+</code></pre>
+<pre><code>#&gt; [1] TRUE
+</code></pre>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/manual.min.css">
+
+</article>
+</main>
+<section class="comments">
+<script src="https://giscus.app/client.js" data-strict="1" data-theme="preferred_color_scheme" data-loading="lazy" data-repo="yihui/yihui.org" data-repo-id="MDEwOlJlcG9zaXRvcnk4MDc3NDg0NA==" data-category="Comments" data-category-id="DIC_kwDOBNCGvM4COkjD" crossorigin="anonymous" async></script>
+</section>
+<footer><div class="flex-col">
+<p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v1.0.22</p>
+</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/copy-button.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/heading-anchor.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/pages.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/nav-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/prism-lite.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/link-functions.min.js" defer></script>
+</body>
+</html>

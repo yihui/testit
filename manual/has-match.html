@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 1.0.22">
+<title>Test whether a string matches a regular expression</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/article.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/copy-button.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/heading-anchor.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/pages.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/site.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/prism-xcode.min.css">
+<meta name="function-index" content="../function-index.json">
+</head>
+<body>
+<nav class="site-nav"><p><a href="../index.html" class="brand">testit</a> <small class="version">v1.3.3</small>
+<a href="../manual.html">Manual</a>
+<a href="../news.html">News</a>
+<a href="../playground/">Playground</a>
+<span class="pagesjs-toggle"></span>
+<a href="https://github.com/yihui/testit/" title="GitHub repository"><img src="https://cdn.jsdelivr.net/npm/@primer/octicons@19/build/svg/mark-github-24.svg" alt="GitHub" class="no-invert" /></a></p></nav>
+<header class="frontmatter">
+<div class="title"><h1>Test whether a string matches a regular expression</h1></div>
+
+
+
+</header>
+<main>
+<article class="">
+<nav id="TOC" class="side side-left">
+<ul>
+<li><a href="#sec:description">Description</a></li>
+<li><a href="#sec:usage">Usage</a></li>
+<li><a href="#sec:arguments">Arguments</a></li>
+<li><a href="#sec:value">Value</a></li>
+<li><a href="#sec:examples">Examples</a></li>
+</ul>
+</nav>
+<h2 id="sec:description" class="unnumbered">Description</h2>
+<p>Check whether <code>x</code> matches the regular expression <code>pattern</code>. This is intended
+for use inside <code><a href="assert.html">assert()</a></code>: unlike <code><a href="https://rdrr.io/r/base/grep.html">grepl()</a></code>, which only returns
+<code>TRUE</code>/<code>FALSE</code> and hides the input on failure, a failing <code>has_match()</code> shows
+the actual string so you can see what was produced.
+</p>
+<h2 id="sec:usage" class="unnumbered">Usage</h2>
+<pre><code class="language-r">has_match(
+  x,
+  pattern,
+  negate = FALSE,
+  fixed = inherits(pattern, "AsIs"),
+  perl = !fixed,
+  ...
+)</code></pre>
+<h2 id="sec:arguments" class="unnumbered">Arguments</h2>
+<table class="desc-table" role = "presentation">
+<tr><td><code>x</code></td>
+<td>
+<p>A character vector. Multiple elements are collapsed into a single
+string (separated by newlines) before matching.</p>
+</td></tr>
+<tr><td><code>pattern</code></td>
+<td>
+<p>A regular expression. By default, matching uses Perl mode with
+the &quot;dotall&quot; flag enabled, so <code>.</code> also matches newlines, which is
+convenient for searching multi-line text such as rendered HTML. Wrap the
+pattern in <code><a href="https://rdrr.io/r/base/AsIs.html">I()</a></code> to match it literally, as a shorthand for <code>fixed = TRUE</code>.</p>
+</td></tr>
+<tr><td><code>negate</code></td>
+<td>
+<p>If <code>TRUE</code>, test that <code>x</code> does <em>not</em> match <code>pattern</code>. As a
+shorthand, negating the pattern itself (<code>has_match(x, !pattern)</code>) sets this
+to <code>TRUE</code>. Prefer either form over negating the whole call (<code>!has_match(x, p)</code>), since <code>negate</code> also makes the failure message show <code>x</code>.</p>
+</td></tr>
+<tr><td><code>fixed</code></td>
+<td>
+<p>Whether to match <code>pattern</code> literally instead of as a regular
+expression. Defaults to <code>TRUE</code> when <code>pattern</code> is wrapped in <code><a href="https://rdrr.io/r/base/AsIs.html">I()</a></code>, so
+<code>has_match(x, I(p))</code> is a shorthand for <code>has_match(x, p, fixed = TRUE)</code>.</p>
+</td></tr>
+<tr><td><code>perl</code></td>
+<td>
+<p>Whether to use Perl-compatible regular expressions (which also
+enables the dotall flag). Defaults to <code>FALSE</code> for a <code>fixed</code> search, which
+uses neither.</p>
+</td></tr>
+<tr><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="https://rdrr.io/r/base/grep.html">grepl()</a></code> (e.g.,
+<code>ignore.case = TRUE</code>).</p>
+</td></tr>
+</table>
+<h2 id="sec:value" class="unnumbered">Value</h2>
+<p><code>TRUE</code> if <code>x</code> matches <code>pattern</code> (or does not match it when
+<code>negate = TRUE</code>), otherwise <code>FALSE</code>.
+</p>
+<h2 id="sec:examples" class="unnumbered">Examples</h2>
+<pre><code class="language-r">library(testit)
+assert('the page has a script but no style', {
+  html = '&lt;html&gt;\n&lt;script&gt;x&lt;/script&gt;\n&lt;/html&gt;'
+  (has_match(html, '&lt;script&gt;.*&lt;/script&gt;'))
+  (has_match(html, '&lt;style&gt;', negate = TRUE))
+  (has_match(html, !'&lt;style&gt;'))  # same, via the !pattern shorthand
+  (has_match(html, I('&lt;script&gt;x&lt;/script&gt;')))  # literal match (fixed = TRUE)
+})
+</code></pre>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/css/manual.min.css">
+
+</article>
+</main>
+<section class="comments">
+<script src="https://giscus.app/client.js" data-strict="1" data-theme="preferred_color_scheme" data-loading="lazy" data-repo="yihui/yihui.org" data-repo-id="MDEwOlJlcG9zaXRvcnk4MDc3NDg0NA==" data-category="Comments" data-category-id="DIC_kwDOBNCGvM4COkjD" crossorigin="anonymous" async></script>
+</section>
+<footer><div class="flex-col">
+<p>Developed by <a href="https://yihui.org">Yihui Xie</a></p>
+<p>Site built with <a href="https://github.com/yihui/litedown">litedown</a> v1.0.22</p>
+</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/sidenotes.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/toc-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/copy-button.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/heading-anchor.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/pages.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/nav-highlight.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/prism-lite.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.16.8/js/link-functions.min.js" defer></script>
+</body>
+</html>
